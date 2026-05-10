@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ERDraw — ER Diagram Practice Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --panel: #1c202d;
+    --border: #2a2f3e;
+    --accent: #4fffb0;
+    --accent2: #7c6bff;
+    --accent3: #ff6b6b;
+    --text: #e8eaf0;
+    --muted: #7a8099;
+    --entity-bg: #1e2535;
+    --entity-border: #4fffb0;
+    --rel-color: #7c6bff;
+    --weak-entity: #ff9f43;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: ‘DM Sans’, sans-serif;
+background: var(–bg);
+color: var(–text);
+height: 100vh;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+}
+
+/* ── TOP BAR ── */
+header {
+height: 52px;
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+display: flex;
+align-items: center;
+padding: 0 16px;
+gap: 16px;
+flex-shrink: 0;
+z-index: 100;
+}
+.logo {
+font-family: ‘Space Mono’, monospace;
+font-size: 18px;
+color: var(–accent);
+font-weight: 700;
+letter-spacing: -1px;
+}
+.logo span { color: var(–accent2); }
+
+.badge {
+font-size: 10px;
+background: var(–accent2);
+color: white;
+padding: 2px 6px;
+border-radius: 4px;
+font-weight: 600;
+letter-spacing: 0.5px;
+}
+
+.spacer { flex: 1; }
+
+.header-btn {
+background: transparent;
+border: 1px solid var(–border);
+color: var(–muted);
+padding: 5px 12px;
+border-radius: 6px;
+cursor: pointer;
+font-size: 12px;
+font-family: ‘DM Sans’, sans-serif;
+transition: all 0.2s;
+}
+.header-btn:hover { border-color: var(–accent); color: var(–accent); }
+.header-btn.primary {
+background: var(–accent);
+color: #0d0f14;
+border-color: var(–accent);
+font-weight: 600;
+}
+.header-btn.primary:hover { background: #3ae8a0; }
+
+.dataset-select {
+background: var(–panel);
+border: 1px solid var(–border);
+color: var(–text);
+padding: 5px 10px;
+border-radius: 6px;
+font-size: 12px;
+font-family: ‘DM Sans’, sans-serif;
+cursor: pointer;
+outline: none;
+}
+.dataset-select:focus { border-color: var(–accent2); }
+
+/* ── LAYOUT ── */
+.app-body {
+display: flex;
+flex: 1;
+overflow: hidden;
+}
+
+/* ── LEFT PANEL ── */
+.left-panel {
+width: 260px;
+background: var(–surface);
+border-right: 1px solid var(–border);
+display: flex;
+flex-direction: column;
+flex-shrink: 0;
+overflow: hidden;
+}
+
+.panel-section {
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+}
+.panel-title {
+font-size: 10px;
+text-transform: uppercase;
+letter-spacing: 1.5px;
+color: var(–muted);
+font-weight: 600;
+margin-bottom: 10px;
+}
+
+.scenario-box {
+background: var(–panel);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 10px 12px;
+font-size: 12px;
+line-height: 1.6;
+color: var(–muted);
+max-height: 120px;
+overflow-y: auto;
+}
+
+/* Entities list */
+.entities-list {
+flex: 1;
+overflow-y: auto;
+padding: 14px 16px;
+}
+
+.entity-item {
+background: var(–panel);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 10px 12px;
+margin-bottom: 8px;
+cursor: grab;
+transition: all 0.2s;
+position: relative;
+}
+.entity-item:hover {
+border-color: var(–accent);
+background: #1e2535;
+}
+.entity-item:active { cursor: grabbing; }
+.entity-item.weak-entity { border-color: var(–weak-entity); }
+
+.entity-name {
+font-size: 13px;
+font-weight: 600;
+color: var(–text);
+display: flex;
+align-items: center;
+gap: 6px;
+}
+.entity-tag {
+font-size: 9px;
+padding: 2px 5px;
+border-radius: 3px;
+background: var(–accent);
+color: #0d0f14;
+font-weight: 700;
+letter-spacing: 0.5px;
+}
+.entity-tag.weak { background: var(–weak-entity); }
+
+.entity-attrs {
+margin-top: 6px;
+display: flex;
+flex-wrap: wrap;
+gap: 4px;
+}
+.attr-chip {
+font-size: 10px;
+background: var(–bg);
+border: 1px solid var(–border);
+border-radius: 3px;
+padding: 2px 6px;
+color: var(–muted);
+}
+.attr-chip.pk {
+border-color: var(–accent);
+color: var(–accent);
+text-decoration: underline;
+}
+.attr-chip.fk { border-color: var(–accent2); color: var(–accent2); }
+.attr-chip.multi { border-style: dashed; }
+
+.drag-hint {
+font-size: 10px;
+color: var(–muted);
+margin-top: 4px;
+opacity: 0.6;
+}
+
+/* Tool palette */
+.tools {
+display: flex;
+gap: 6px;
+flex-wrap: wrap;
+}
+.tool-btn {
+background: var(–panel);
+border: 1px solid var(–border);
+border-radius: 6px;
+padding: 6px 10px;
+color: var(–muted);
+cursor: pointer;
+font-size: 11px;
+font-family: ‘DM Sans’, sans-serif;
+transition: all 0.2s;
+display: flex;
+align-items: center;
+gap: 5px;
+}
+.tool-btn:hover { border-color: var(–accent2); color: var(–accent2); }
+.tool-btn.active { border-color: var(–accent2); color: var(–accent2); background: #1e2230; }
+.tool-btn svg { width: 13px; height: 13px; }
+
+/* ── CANVAS ── */
+.canvas-area {
+flex: 1;
+position: relative;
+overflow: hidden;
+background: var(–bg);
+background-image:
+radial-gradient(circle at 1px 1px, #2a2f3e 1px, transparent 0);
+background-size: 28px 28px;
+}
+
+#canvas-svg {
+width: 100%;
+height: 100%;
+cursor: default;
+}
+
+/* SVG entity nodes */
+.er-entity rect.entity-rect {
+fill: var(–entity-bg);
+stroke: var(–entity-border);
+stroke-width: 2;
+rx: 8;
+filter: drop-shadow(0 4px 12px rgba(79,255,176,0.15));
+}
+.er-entity rect.entity-rect.selected {
+stroke: var(–accent2);
+stroke-width: 2.5;
+filter: drop-shadow(0 4px 16px rgba(124,107,255,0.3));
+}
+.er-entity rect.entity-rect.weak-rect {
+stroke: var(–weak-entity);
+}
+.er-entity text.entity-title {
+font-family: ‘Space Mono’, monospace;
+font-size: 13px;
+font-weight: 700;
+fill: var(–accent);
+}
+.er-entity text.entity-title.weak-title {
+fill: var(–weak-entity);
+}
+.er-entity text.attr-text {
+font-family: ‘DM Sans’, sans-serif;
+font-size: 11px;
+fill: var(–muted);
+}
+.er-entity text.attr-text.pk-text {
+fill: var(–accent);
+text-decoration: underline;
+}
+.er-entity text.attr-text.fk-text {
+fill: var(–accent2);
+}
+
+.er-relation line {
+stroke: var(–rel-color);
+stroke-width: 1.5;
+stroke-dasharray: none;
+}
+.er-relation polygon {
+fill: var(–rel-color);
+stroke: none;
+}
+.er-relation text {
+font-family: ‘DM Sans’, sans-serif;
+font-size: 11px;
+fill: var(–muted);
+}
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+width: 220px;
+background: var(–surface);
+border-left: 1px solid var(–border);
+display: flex;
+flex-direction: column;
+overflow: hidden;
+flex-shrink: 0;
+}
+
+.hint-area {
+padding: 14px 16px;
+flex: 1;
+overflow-y: auto;
+}
+.hint-card {
+background: var(–panel);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 10px 12px;
+margin-bottom: 8px;
+}
+.hint-card h4 {
+font-size: 11px;
+color: var(–accent);
+font-family: ‘Space Mono’, monospace;
+margin-bottom: 6px;
+}
+.hint-card p {
+font-size: 11px;
+color: var(–muted);
+line-height: 1.6;
+}
+
+.legend-item {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 7px;
+font-size: 11px;
+color: var(–muted);
+}
+.legend-dot {
+width: 12px;
+height: 12px;
+border-radius: 2px;
+flex-shrink: 0;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.7);
+z-index: 1000;
+display: flex;
+align-items: center;
+justify-content: center;
+backdrop-filter: blur(4px);
+}
+.modal-overlay.hidden { display: none; }
+.modal {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 24px;
+width: 480px;
+max-height: 80vh;
+overflow-y: auto;
+}
+.modal h2 {
+font-family: ‘Space Mono’, monospace;
+font-size: 18px;
+color: var(–accent);
+margin-bottom: 6px;
+}
+.modal p.sub {
+font-size: 12px;
+color: var(–muted);
+margin-bottom: 20px;
+line-height: 1.6;
+}
+.dataset-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 10px;
+margin-bottom: 20px;
+}
+.dataset-card {
+background: var(–panel);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 14px;
+cursor: pointer;
+transition: all 0.2s;
+}
+.dataset-card:hover, .dataset-card.active {
+border-color: var(–accent);
+}
+.dataset-card.active { background: #1e2535; }
+.dataset-card .icon { font-size: 24px; margin-bottom: 6px; }
+.dataset-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.dataset-card p { font-size: 11px; color: var(–muted); }
+
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.modal-btn {
+padding: 8px 18px;
+border-radius: 7px;
+border: 1px solid var(–border);
+background: transparent;
+color: var(–muted);
+cursor: pointer;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 13px;
+transition: all 0.2s;
+}
+.modal-btn.go {
+background: var(–accent);
+color: #0d0f14;
+border-color: var(–accent);
+font-weight: 600;
+}
+.modal-btn.go:hover { background: #3ae8a0; }
+
+/* ── RELATION MODAL ── */
+.rel-modal {
+width: 360px;
+}
+.rel-modal h2 { font-size: 15px; margin-bottom: 16px; }
+.form-row {
+margin-bottom: 12px;
+}
+.form-row label {
+display: block;
+font-size: 11px;
+color: var(–muted);
+margin-bottom: 5px;
+text-transform: uppercase;
+letter-spacing: 0.8px;
+}
+.form-row select, .form-row input {
+width: 100%;
+background: var(–panel);
+border: 1px solid var(–border);
+border-radius: 6px;
+color: var(–text);
+padding: 7px 10px;
+font-size: 13px;
+font-family: ‘DM Sans’, sans-serif;
+outline: none;
+}
+.form-row select:focus, .form-row input:focus { border-color: var(–accent2); }
+
+/* Scroll styles */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(–border); border-radius: 2px; }
+</style>
+
+</head>
+<body>
+
+<!-- HEADER -->
+
+<header>
+  <div class="logo">ER<span>Draw</span></div>
+  <div class="badge">STUDENT</div>
+  <select class="dataset-select" id="datasetQuickSwitch">
+    <option value="">— Pick a Dataset —</option>
+    <option value="ecommerce">🛒 E-Commerce</option>
+    <option value="hospital">🏥 Hospital</option>
+    <option value="university">🎓 University</option>
+    <option value="library">📚 Library</option>
+    <option value="banking">🏦 Banking</option>
+  </select>
+  <div class="spacer"></div>
+  <button class="header-btn" onclick="clearCanvas()">🗑 Clear</button>
+  <button class="header-btn" onclick="autoLayout()">⚡ Auto Layout</button>
+  <button class="header-btn primary" onclick="exportSVG()">⬇ Export SVG</button>
+</header>
+
+<!-- APP BODY -->
+
+<div class="app-body">
+
+  <!-- LEFT PANEL -->
+
+  <div class="left-panel">
+    <div class="panel-section">
+      <div class="panel-title">Scenario</div>
+      <div class="scenario-box" id="scenarioText">
+        Select a dataset above to begin practicing. Each scenario gives you a real-world context to design your ER diagram from.
+      </div>
+    </div>
+
+```
+<div class="panel-section">
+  <div class="panel-title">Tools</div>
+  <div class="tools">
+    <button class="tool-btn active" id="toolSelect" onclick="setTool('select')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-7 1-3 7z"/></svg>
+      Select
+    </button>
+    <button class="tool-btn" id="toolRelate" onclick="setTool('relate')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      Relate
+    </button>
+    <button class="tool-btn" id="toolEntity" onclick="setTool('entity')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+      Add Entity
+    </button>
+  </div>
+</div>
+
+<div class="panel-title" style="padding:14px 16px 6px; font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); font-weight:600;">Entities — Drag to Canvas</div>
+<div class="entities-list" id="entitiesList">
+  <div style="font-size:12px; color:var(--muted); padding:8px;">Load a dataset to see entities here.</div>
+</div>
+```
+
+  </div>
+
+  <!-- CANVAS -->
+
+  <div class="canvas-area" id="canvasArea">
+    <svg id="canvas-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c6bff"/>
+        </marker>
+        <marker id="arrow-many" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#7c6bff"/>
+        </marker>
+      </defs>
+      <g id="relations-layer"></g>
+      <g id="entities-layer"></g>
+    </svg>
+    <div id="canvasHint" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+      <div style="font-family:'Space Mono',monospace;font-size:28px;color:#2a2f3e;font-weight:700;">ERDraw</div>
+      <div style="font-size:13px;color:#3a3f52;margin-top:8px;">Select a dataset → drag entities → connect with Relate tool</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+
+  <div class="right-panel">
+    <div class="hint-area">
+      <div class="panel-title" style="padding:14px 0 10px; font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); font-weight:600;">ER Notation Guide</div>
+
+```
+  <div class="hint-card">
+    <h4>Entities</h4>
+    <p>Rectangle = strong entity. Double border = weak entity (depends on another).</p>
+  </div>
+  <div class="hint-card">
+    <h4>Attributes</h4>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent);"></div><span><u>Underline</u> = Primary Key</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent2);"></div><span>Purple = Foreign Key</span></div>
+    <div class="legend-item"><div class="legend-dot" style="border:1px dashed var(--muted);background:transparent;"></div><span>Dashed = Multi-valued</span></div>
+    <div class="legend-item"><div class="legend-dot" style="border:1px solid var(--muted);background:transparent;"></div><span>Plain = Regular attr</span></div>
+  </div>
+  <div class="hint-card">
+    <h4>Cardinality</h4>
+    <p>1:1 — One to One<br/>1:N — One to Many<br/>M:N — Many to Many</p>
+  </div>
+  <div class="hint-card">
+    <h4>Steps</h4>
+    <p>1. Read scenario<br/>2. Identify entities<br/>3. Drag to canvas<br/>4. Use Relate tool to draw relationships<br/>5. Label cardinality</p>
+  </div>
+  <div class="hint-card">
+    <h4>Tips</h4>
+    <p>Use <strong style="color:var(--accent)">Auto Layout</strong> to organise entities. Export as SVG to save or share your diagram.</p>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- DATASET MODAL -->
+
+<div class="modal-overlay" id="datasetModal">
+  <div class="modal">
+    <h2>// Choose a Dataset</h2>
+    <p class="sub">Each dataset is a real-world scenario. Practice identifying entities, attributes, and relationships from the description.</p>
+    <div class="dataset-grid" id="datasetGrid"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeDatasetModal()">Cancel</button>
+      <button class="modal-btn go" onclick="loadSelectedDataset()">Load Dataset →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RELATION MODAL -->
+
+<div class="modal-overlay hidden" id="relationModal">
+  <div class="modal rel-modal">
+    <h2>// Add Relationship</h2>
+    <div class="form-row">
+      <label>From Entity</label>
+      <select id="relFrom"></select>
+    </div>
+    <div class="form-row">
+      <label>To Entity</label>
+      <select id="relTo"></select>
+    </div>
+    <div class="form-row">
+      <label>Relationship Name</label>
+      <input type="text" id="relName" placeholder="e.g. places, has, belongs_to"/>
+    </div>
+    <div class="form-row">
+      <label>Cardinality</label>
+      <select id="relCard">
+        <option value="1:1">1 : 1 (One to One)</option>
+        <option value="1:N" selected>1 : N (One to Many)</option>
+        <option value="M:N">M : N (Many to Many)</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeRelModal()">Cancel</button>
+      <button class="modal-btn go" onclick="addRelation()">Add →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATASETS
+// ─────────────────────────────────────────────
+const DATASETS = {
+  ecommerce: {
+    icon: '🛒',
+    name: 'E-Commerce',
+    desc: 'Design the database for an online store. Customers place orders containing multiple products. Each product belongs to a category. Orders are shipped to delivery addresses. Payments are tracked per order.',
+    entities: [
+      { name: 'CUSTOMER', weak: false, attrs: [
+        { name: 'CustomerID', pk: true }, { name: 'Name' }, { name: 'Email' }, { name: 'Phone', multi: true }
+      ]},
+      { name: 'ORDER', weak: false, attrs: [
+        { name: 'OrderID', pk: true }, { name: 'OrderDate' }, { name: 'Status' }, { name: 'TotalAmount' }
+      ]},
+      { name: 'PRODUCT', weak: false, attrs: [
+        { name: 'ProductID', pk: true }, { name: 'Name' }, { name: 'Price' }, { name: 'Stock' }
+      ]},
+      { name: 'CATEGORY', weak: false, attrs: [
+        { name: 'CategoryID', pk: true }, { name: 'CategoryName' }, { name: 'Description' }
+      ]},
+      { name: 'PAYMENT', weak: true, attrs: [
+        { name: 'PaymentID', pk: true }, { name: 'Method' }, { name: 'Amount' }, { name: 'PaymentDate' }
+      ]},
+      { name: 'ADDRESS', weak: false, attrs: [
+        { name: 'AddressID', pk: true }, { name: 'Street' }, { name: 'City' }, { name: 'ZIP' }
+      ]},
+    ]
+  },
+  hospital: {
+    icon: '🏥',
+    name: 'Hospital Management',
+    desc: 'Model a hospital system. Patients are admitted and treated by doctors. Each doctor belongs to a department. Diagnoses, prescriptions, and test results are tracked per visit.',
+    entities: [
+      { name: 'PATIENT', weak: false, attrs: [
+        { name: 'PatientID', pk: true }, { name: 'Name' }, { name: 'DOB' }, { name: 'BloodGroup' }
+      ]},
+      { name: 'DOCTOR', weak: false, attrs: [
+        { name: 'DoctorID', pk: true }, { name: 'Name' }, { name: 'Specialisation' }, { name: 'Phone' }
+      ]},
+      { name: 'DEPARTMENT', weak: false, attrs: [
+        { name: 'DeptID', pk: true }, { name: 'DeptName' }, { name: 'Location' }
+      ]},
+      { name: 'APPOINTMENT', weak: true, attrs: [
+        { name: 'ApptID', pk: true }, { name: 'Date' }, { name: 'Reason' }, { name: 'Status' }
+      ]},
+      { name: 'PRESCRIPTION', weak: true, attrs: [
+        { name: 'PrescID', pk: true }, { name: 'Medicine' }, { name: 'Dosage' }, { name: 'Duration' }
+      ]},
+      { name: 'WARD', weak: false, attrs: [
+        { name: 'WardID', pk: true }, { name: 'WardName' }, { name: 'Capacity' }
+      ]},
+    ]
+  },
+  university: {
+    icon: '🎓',
+    name: 'University',
+    desc: 'A university database tracks students, courses, instructors, and departments. Students enrol in courses and receive grades. Each course is offered by a department and taught by an instructor.',
+    entities: [
+      { name: 'STUDENT', weak: false, attrs: [
+        { name: 'StudentID', pk: true }, { name: 'Name' }, { name: 'Email' }, { name: 'Programme' }
+      ]},
+      { name: 'COURSE', weak: false, attrs: [
+        { name: 'CourseID', pk: true }, { name: 'Title' }, { name: 'Credits' }, { name: 'Semester' }
+      ]},
+      { name: 'INSTRUCTOR', weak: false, attrs: [
+        { name: 'InstructorID', pk: true }, { name: 'Name' }, { name: 'Title' }, { name: 'Email' }
+      ]},
+      { name: 'DEPARTMENT', weak: false, attrs: [
+        { name: 'DeptID', pk: true }, { name: 'DeptName' }, { name: 'Building' }
+      ]},
+      { name: 'ENROLMENT', weak: true, attrs: [
+        { name: 'EnrolID', pk: true }, { name: 'Grade' }, { name: 'EnrolDate' }
+      ]},
+      { name: 'CLASSROOM', weak: false, attrs: [
+        { name: 'RoomID', pk: true }, { name: 'Building' }, { name: 'Capacity' }
+      ]},
+    ]
+  },
+  library: {
+    icon: '📚',
+    name: 'Library System',
+    desc: 'Design a library database. Members borrow books written by authors. Books belong to genres. Loans are tracked with due dates. Fines are issued for late returns.',
+    entities: [
+      { name: 'MEMBER', weak: false, attrs: [
+        { name: 'MemberID', pk: true }, { name: 'Name' }, { name: 'Email' }, { name: 'MemberType' }
+      ]},
+      { name: 'BOOK', weak: false, attrs: [
+        { name: 'ISBN', pk: true }, { name: 'Title' }, { name: 'Publisher' }, { name: 'Year' }
+      ]},
+      { name: 'AUTHOR', weak: false, attrs: [
+        { name: 'AuthorID', pk: true }, { name: 'Name' }, { name: 'Nationality' }
+      ]},
+      { name: 'GENRE', weak: false, attrs: [
+        { name: 'GenreID', pk: true }, { name: 'GenreName' }
+      ]},
+      { name: 'LOAN', weak: true, attrs: [
+        { name: 'LoanID', pk: true }, { name: 'LoanDate' }, { name: 'DueDate' }, { name: 'ReturnDate' }
+      ]},
+      { name: 'FINE', weak: true, attrs: [
+        { name: 'FineID', pk: true }, { name: 'Amount' }, { name: 'Paid' }
+      ]},
+    ]
+  },
+  banking: {
+    icon: '🏦',
+    name: 'Banking',
+    desc: 'Model a banking system. Customers hold accounts (savings/current). Transactions are logged per account. Loans are issued and repaid. Each branch manages multiple accounts.',
+    entities: [
+      { name: 'CUSTOMER', weak: false, attrs: [
+        { name: 'CustID', pk: true }, { name: 'Name' }, { name: 'NationalID' }, { name: 'Phone', multi: true }
+      ]},
+      { name: 'ACCOUNT', weak: false, attrs: [
+        { name: 'AccountNo', pk: true }, { name: 'Type' }, { name: 'Balance' }, { name: 'OpenDate' }
+      ]},
+      { name: 'TRANSACTION', weak: true, attrs: [
+        { name: 'TxnID', pk: true }, { name: 'Amount' }, { name: 'TxnDate' }, { name: 'TxnType' }
+      ]},
+      { name: 'LOAN', weak: false, attrs: [
+        { name: 'LoanID', pk: true }, { name: 'LoanType' }, { name: 'Amount' }, { name: 'InterestRate' }
+      ]},
+      { name: 'BRANCH', weak: false, attrs: [
+        { name: 'BranchID', pk: true }, { name: 'BranchName' }, { name: 'City' }
+      ]},
+      { name: 'EMPLOYEE', weak: false, attrs: [
+        { name: 'EmpID', pk: true }, { name: 'Name' }, { name: 'Role' }
+      ]},
+    ]
+  }
+};
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let currentDataset = null;
+let nodes = []; // { id, entityName, x, y, attrs, weak }
+let relations = []; // { id, from, to, label, card }
+let selectedNode = null;
+let currentTool = 'select';
+let dragState = null;
+let selectedDatasetKey = null;
+let nodeIdCounter = 0;
+let relIdCounter = 0;
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+window.onload = () => {
+  buildDatasetModal();
+  // show modal on load
+  document.getElementById('datasetModal').classList.remove('hidden');
+  document.getElementById('datasetQuickSwitch').addEventListener('change', e => {
+    if (e.target.value) loadDataset(e.target.value);
+  });
+};
+
+function buildDatasetModal() {
+  const grid = document.getElementById('datasetGrid');
+  grid.innerHTML = '';
+  Object.entries(DATASETS).forEach(([key, ds]) => {
+    const card = document.createElement('div');
+    card.className = 'dataset-card';
+    card.dataset.key = key;
+    card.innerHTML = `<div class="icon">${ds.icon}</div><h3>${ds.name}</h3><p>${ds.desc.substring(0,60)}...</p>`;
+    card.onclick = () => {
+      document.querySelectorAll('.dataset-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      selectedDatasetKey = key;
+    };
+    grid.appendChild(card);
+  });
+}
+
+function closeDatasetModal() {
+  document.getElementById('datasetModal').classList.add('hidden');
+}
+
+function loadSelectedDataset() {
+  if (!selectedDatasetKey) return;
+  loadDataset(selectedDatasetKey);
+  closeDatasetModal();
+}
+
+function loadDataset(key) {
+  currentDataset = DATASETS[key];
+  document.getElementById('scenarioText').textContent = currentDataset.desc;
+  document.getElementById('datasetQuickSwitch').value = key;
+  document.getElementById('canvasHint').style.display = 'none';
+
+  // Render sidebar entity list
+  const list = document.getElementById('entitiesList');
+  list.innerHTML = '';
+  currentDataset.entities.forEach(ent => {
+    const item = document.createElement('div');
+    item.className = 'entity-item' + (ent.weak ? ' weak-entity' : '');
+    item.draggable = true;
+    item.dataset.entity = ent.name;
+
+    const attrs = ent.attrs.map(a => {
+      let cls = 'attr-chip';
+      if (a.pk) cls += ' pk';
+      if (a.fk) cls += ' fk';
+      if (a.multi) cls += ' multi';
+      return `<span class="${cls}">${a.name}</span>`;
+    }).join('');
+
+    item.innerHTML = `
+      <div class="entity-name">
+        ${ent.name}
+        <span class="entity-tag ${ent.weak ? 'weak' : ''}">${ent.weak ? 'WEAK' : 'ENTITY'}</span>
+      </div>
+      <div class="entity-attrs">${attrs}</div>
+      <div class="drag-hint">↖ drag to canvas</div>
+    `;
+
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('entityName', ent.name);
+    });
+
+    list.appendChild(item);
+  });
+
+  // Clear canvas
+  clearCanvas();
+}
+
+// ─────────────────────────────────────────────
+// CANVAS DRAG-DROP
+// ─────────────────────────────────────────────
+const canvasArea = document.getElementById('canvasArea');
+canvasArea.addEventListener('dragover', e => e.preventDefault());
+canvasArea.addEventListener('drop', e => {
+  e.preventDefault();
+  const name = e.dataTransfer.getData('entityName');
+  if (!name || !currentDataset) return;
+  const rect = canvasArea.getBoundingClientRect();
+  const x = e.clientX - rect.left - 90;
+  const y = e.clientY - rect.top - 40;
+  const ent = currentDataset.entities.find(en => en.name === name);
+  if (ent) addEntityNode(ent, x, y);
+});
+
+// ─────────────────────────────────────────────
+// ADD ENTITY NODE
+// ─────────────────────────────────────────────
+function addEntityNode(ent, x, y) {
+  const id = 'node_' + (nodeIdCounter++);
+  nodes.push({ id, entityName: ent.name, x, y, attrs: ent.attrs, weak: ent.weak });
+  renderCanvas();
+  return id;
+}
+
+// ─────────────────────────────────────────────
+// RENDER CANVAS
+// ─────────────────────────────────────────────
+const ENTITY_W = 180;
+const ENTITY_HEADER = 36;
+const ATTR_H = 20;
+const ENTITY_PAD = 8;
+
+function entityHeight(node) {
+  return ENTITY_HEADER + node.attrs.length * ATTR_H + ENTITY_PAD;
+}
+
+function entityCenter(node) {
+  return {
+    cx: node.x + ENTITY_W / 2,
+    cy: node.y + entityHeight(node) / 2
+  };
+}
+
+function renderCanvas() {
+  const relLayer = document.getElementById('relations-layer');
+  const entLayer = document.getElementById('entities-layer');
+  relLayer.innerHTML = '';
+  entLayer.innerHTML = '';
+
+  // Draw relations first
+  relations.forEach(rel => {
+    const fromNode = nodes.find(n => n.id === rel.from);
+    const toNode = nodes.find(n => n.id === rel.to);
+    if (!fromNode || !toNode) return;
+
+    const fc = entityCenter(fromNode);
+    const tc = entityCenter(toNode);
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.classList.add('er-relation');
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', fc.cx); line.setAttribute('y1', fc.cy);
+    line.setAttribute('x2', tc.cx); line.setAttribute('y2', tc.cy);
+    line.setAttribute('stroke', '#7c6bff');
+    line.setAttribute('stroke-width', '1.5');
+    line.setAttribute('marker-end', 'url(#arrow)');
+
+    // Midpoint label
+    const mx = (fc.cx + tc.cx) / 2;
+    const my = (fc.cy + tc.cy) / 2;
+
+    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bg.setAttribute('x', mx - 30); bg.setAttribute('y', my - 10);
+    bg.setAttribute('width', 60); bg.setAttribute('height', 18);
+    bg.setAttribute('rx', 4);
+    bg.setAttribute('fill', '#1c202d');
+    bg.setAttribute('stroke', '#2a2f3e');
+
+    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    txt.setAttribute('x', mx); txt.setAttribute('y', my + 4);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('font-family', 'DM Sans, sans-serif');
+    txt.setAttribute('font-size', '10');
+    txt.setAttribute('fill', '#a0a5bb');
+    txt.textContent = rel.label || rel.card;
+
+    // Cardinality labels at ends
+    const cardTxt1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    const offset1 = offsetPoint(fc, tc, 28);
+    cardTxt1.setAttribute('x', offset1.x); cardTxt1.setAttribute('y', offset1.y);
+    cardTxt1.setAttribute('text-anchor', 'middle');
+    cardTxt1.setAttribute('font-family', 'Space Mono, monospace');
+    cardTxt1.setAttribute('font-size', '10');
+    cardTxt1.setAttribute('fill', '#4fffb0');
+    cardTxt1.textContent = rel.card.split(':')[0];
+
+    const cardTxt2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    const offset2 = offsetPoint(tc, fc, 28);
+    cardTxt2.setAttribute('x', offset2.x); cardTxt2.setAttribute('y', offset2.y);
+    cardTxt2.setAttribute('text-anchor', 'middle');
+    cardTxt2.setAttribute('font-family', 'Space Mono, monospace');
+    cardTxt2.setAttribute('font-size', '10');
+    cardTxt2.setAttribute('fill', '#4fffb0');
+    cardTxt2.textContent = rel.card.split(':')[1] || 'N';
+
+    g.appendChild(line);
+    g.appendChild(bg);
+    g.appendChild(txt);
+    g.appendChild(cardTxt1);
+    g.appendChild(cardTxt2);
+
+    // Delete on dblclick
+    g.addEventListener('dblclick', () => {
+      relations = relations.filter(r => r.id !== rel.id);
+      renderCanvas();
+    });
+
+    relLayer.appendChild(g);
+  });
+
+  // Draw entities
+  nodes.forEach(node => {
+    const h = entityHeight(node);
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.classList.add('er-entity');
+    g.setAttribute('transform', `translate(${node.x},${node.y})`);
+    g.style.cursor = 'move';
+
+    // Outer rect
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('width', ENTITY_W);
+    rect.setAttribute('height', h);
+    rect.setAttribute('rx', 8);
+    rect.setAttribute('fill', '#1e2535');
+    rect.setAttribute('stroke', node.weak ? '#ff9f43' : '#4fffb0');
+    rect.setAttribute('stroke-width', selectedNode === node.id ? '2.5' : '2');
+    if (selectedNode === node.id) rect.setAttribute('stroke', '#7c6bff');
+
+    // Weak entity double border
+    if (node.weak) {
+      const innerRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      innerRect.setAttribute('x', 3); innerRect.setAttribute('y', 3);
+      innerRect.setAttribute('width', ENTITY_W - 6); innerRect.setAttribute('height', h - 6);
+      innerRect.setAttribute('rx', 5); innerRect.setAttribute('fill', 'none');
+      innerRect.setAttribute('stroke', '#ff9f43'); innerRect.setAttribute('stroke-width', '1');
+      g.appendChild(rect);
+      g.appendChild(innerRect);
+    } else {
+      g.appendChild(rect);
+    }
+
+    // Header background
+    const headerBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    headerBg.setAttribute('width', ENTITY_W);
+    headerBg.setAttribute('height', ENTITY_HEADER);
+    headerBg.setAttribute('rx', 8);
+    headerBg.setAttribute('fill', node.weak ? 'rgba(255,159,67,0.12)' : 'rgba(79,255,176,0.08)');
+    g.appendChild(headerBg);
+
+    // Fix corners for header
+    const headerFix = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    headerFix.setAttribute('y', 16); headerFix.setAttribute('width', ENTITY_W);
+    headerFix.setAttribute('height', 20); headerFix.setAttribute('fill', 'rgba(79,255,176,0.08)');
+    g.appendChild(headerFix);
+
+    // Divider
+    const div = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    div.setAttribute('x1', 0); div.setAttribute('y1', ENTITY_HEADER);
+    div.setAttribute('x2', ENTITY_W); div.setAttribute('y2', ENTITY_HEADER);
+    div.setAttribute('stroke', node.weak ? '#ff9f43' : '#2a2f3e');
+    div.setAttribute('stroke-width', '1');
+    g.appendChild(div);
+
+    // Entity name
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    title.setAttribute('x', ENTITY_W / 2); title.setAttribute('y', 22);
+    title.setAttribute('text-anchor', 'middle');
+    title.setAttribute('dominant-baseline', 'middle');
+    title.setAttribute('font-family', 'Space Mono, monospace');
+    title.setAttribute('font-size', '12');
+    title.setAttribute('font-weight', '700');
+    title.setAttribute('fill', node.weak ? '#ff9f43' : '#4fffb0');
+    title.textContent = node.entityName;
+    g.appendChild(title);
+
+    // Attributes
+    node.attrs.forEach((attr, i) => {
+      const ay = ENTITY_HEADER + 6 + i * ATTR_H + ATTR_H / 2;
+
+      const attrTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      attrTxt.setAttribute('x', 14); attrTxt.setAttribute('y', ay);
+      attrTxt.setAttribute('dominant-baseline', 'middle');
+      attrTxt.setAttribute('font-family', 'DM Sans, sans-serif');
+      attrTxt.setAttribute('font-size', '11');
+
+      let fill = '#7a8099';
+      if (attr.pk) fill = '#4fffb0';
+      if (attr.fk) fill = '#7c6bff';
+
+      attrTxt.setAttribute('fill', fill);
+
+      let label = attr.name;
+      if (attr.pk) label = '🔑 ' + attr.name;
+      if (attr.multi) label = '⊕ ' + attr.name;
+      if (attr.fk) label = '→ ' + attr.name;
+      attrTxt.textContent = label;
+
+      if (attr.pk) {
+        attrTxt.setAttribute('text-decoration', 'underline');
+      }
+
+      g.appendChild(attrTxt);
+
+      // Separator line
+      if (i < node.attrs.length - 1) {
+        const sep = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        sep.setAttribute('x1', 10); sep.setAttribute('y1', ENTITY_HEADER + (i + 1) * ATTR_H + 6);
+        sep.setAttribute('x2', ENTITY_W - 10); sep.setAttribute('y2', ENTITY_HEADER + (i + 1) * ATTR_H + 6);
+        sep.setAttribute('stroke', '#1e2535'); sep.setAttribute('stroke-width', '1');
+        g.appendChild(sep);
+      }
+    });
+
+    // Delete button (show on hover via JS)
+    const delBtn = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    delBtn.setAttribute('x', ENTITY_W - 10); delBtn.setAttribute('y', 14);
+    delBtn.setAttribute('text-anchor', 'middle');
+    delBtn.setAttribute('font-size', '12');
+    delBtn.setAttribute('fill', '#3a3f52');
+    delBtn.setAttribute('cursor', 'pointer');
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('mouseenter', () => { delBtn.setAttribute('fill', '#ff6b6b'); });
+    delBtn.addEventListener('mouseleave', () => { delBtn.setAttribute('fill', '#3a3f52'); });
+    delBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      nodes = nodes.filter(n => n.id !== node.id);
+      relations = relations.filter(r => r.from !== node.id && r.to !== node.id);
+      renderCanvas();
+    });
+    g.appendChild(delBtn);
+
+    // Drag
+    g.addEventListener('mousedown', e => {
+      if (currentTool === 'select' || currentTool === 'relate') {
+        e.preventDefault();
+        if (currentTool === 'relate') {
+          selectedNode = node.id;
+          showRelModal(node.id);
+          return;
+        }
+        selectedNode = node.id;
+        dragState = {
+          nodeId: node.id,
+          startX: e.clientX - node.x,
+          startY: e.clientY - node.y
+        };
+        renderCanvas();
+      }
+    });
+
+    entLayer.appendChild(g);
+  });
+}
+
+// ─────────────────────────────────────────────
+// DRAG LOGIC
+// ─────────────────────────────────────────────
+document.addEventListener('mousemove', e => {
+  if (!dragState) return;
+  const node = nodes.find(n => n.id === dragState.nodeId);
+  if (node) {
+    const rect = canvasArea.getBoundingClientRect();
+    node.x = Math.max(0, e.clientX - rect.left - dragState.startX + node.x - node.x + (e.clientX - rect.left) - dragState.startX);
+    node.y = Math.max(0, e.clientY - rect.top - dragState.startY);
+    node.x = e.clientX - rect.left - dragState.startX;
+    renderCanvas();
+  }
+});
+document.addEventListener('mouseup', () => { dragState = null; });
+
+// ─────────────────────────────────────────────
+// RELATION MODAL
+// ─────────────────────────────────────────────
+let relatingFrom = null;
+
+function showRelModal(fromId) {
+  relatingFrom = fromId;
+  const fromSel = document.getElementById('relFrom');
+  const toSel = document.getElementById('relTo');
+  fromSel.innerHTML = '';
+  toSel.innerHTML = '';
+  nodes.forEach(n => {
+    const opt1 = document.createElement('option');
+    opt1.value = n.id; opt1.textContent = n.entityName;
+    if (n.id === fromId) opt1.selected = true;
+    fromSel.appendChild(opt1);
+
+    const opt2 = document.createElement('option');
+    opt2.value = n.id; opt2.textContent = n.entityName;
+    if (n.id !== fromId) opt2.selected = true;
+    toSel.appendChild(opt2);
+  });
+  document.getElementById('relName').value = '';
+  document.getElementById('relationModal').classList.remove('hidden');
+}
+
+function closeRelModal() {
+  document.getElementById('relationModal').classList.add('hidden');
+  selectedNode = null;
+  renderCanvas();
+}
+
+function addRelation() {
+  const from = document.getElementById('relFrom').value;
+  const to = document.getElementById('relTo').value;
+  const label = document.getElementById('relName').value.trim() || 'relates';
+  const card = document.getElementById('relCard').value;
+  if (from === to) { alert('Select two different entities!'); return; }
+  relations.push({ id: 'rel_' + (relIdCounter++), from, to, label, card });
+  closeRelModal();
+  renderCanvas();
+}
+
+// ─────────────────────────────────────────────
+// TOOLS
+// ─────────────────────────────────────────────
+function setTool(tool) {
+  currentTool = tool;
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tool' + tool.charAt(0).toUpperCase() + tool.slice(1)).classList.add('active');
+
+  if (tool === 'entity') {
+    // Click on canvas to add custom entity
+    canvasArea.style.cursor = 'crosshair';
+    canvasArea.onclick = e => {
+      if (e.target === canvasArea || e.target === document.getElementById('canvas-svg')) {
+        const name = prompt('Entity name:');
+        if (name && name.trim()) {
+          const rect = canvasArea.getBoundingClientRect();
+          addEntityNode({
+            name: name.trim().toUpperCase(),
+            weak: false,
+            attrs: [{ name: 'ID', pk: true }, { name: 'Name' }]
+          }, e.clientX - rect.left - 90, e.clientY - rect.top - 40);
+        }
+        setTool('select');
+      }
+    };
+  } else {
+    canvasArea.style.cursor = 'default';
+    canvasArea.onclick = null;
+  }
+}
+
+// ─────────────────────────────────────────────
+// UTILITIES
+// ─────────────────────────────────────────────
+function offsetPoint(from, to, dist) {
+  const dx = to.cx - from.cx;
+  const dy = to.cy - from.cy;
+  const len = Math.sqrt(dx * dx + dy * dy) || 1;
+  return {
+    x: from.cx + (dx / len) * dist,
+    y: from.cy + (dy / len) * dist
+  };
+}
+
+function clearCanvas() {
+  nodes = [];
+  relations = [];
+  selectedNode = null;
+  document.getElementById('relations-layer').innerHTML = '';
+  document.getElementById('entities-layer').innerHTML = '';
+  if (!currentDataset) {
+    document.getElementById('canvasHint').style.display = '';
+  }
+}
+
+function autoLayout() {
+  if (!nodes.length) return;
+  const cols = Math.ceil(Math.sqrt(nodes.length));
+  const padX = 60, padY = 60;
+  const spacingX = ENTITY_W + 80;
+  const spacingY = 180;
+  nodes.forEach((node, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    node.x = padX + col * spacingX;
+    node.y = padY + row * spacingY;
+  });
+  renderCanvas();
+}
+
+function exportSVG() {
+  const svg = document.getElementById('canvas-svg');
+  const serializer = new XMLSerializer();
+  const source = '<?xml version="1.0" standalone="no"?>\r\n' +
+    serializer.serializeToString(svg).replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+  const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'er-diagram.svg';
+  link.click();
+}
+</script>
+
+</body>
+</html>
