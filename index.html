@@ -1,789 +1,898 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>ERDraw v3 — ER Diagram Practice Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<title>ERDraw v4 — ER Diagram Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-/* ─── TOKENS ─── */
 :root{
-  --bg:#090c14; --s1:#0e1220; --s2:#141928; --s3:#1b2133; --s4:#222840;
-  --bd:#252e45; --bd2:#2e3a56; --bd3:#3a4a6a;
-  --g:#00e5a0; --g2:#00c48a; --b:#4d7cfe; --p:#a259ff; --o:#ff8c42; --r:#ff4d6d; --y:#ffd166; --c:#00cfcf;
-  --tx:#dde3f0; --mu:#6b7694; --mu2:#4a5468; --mu3:#313d58;
-  --ew:192; --fnt:'Sora',sans-serif; --mono:'JetBrains Mono',monospace;
-  /* theme overrides via JS */
-  --th-entity-fill:#141928; --th-entity-stroke:#00e5a0; --th-title:#00e5a0;
-  --th-attr:#6b7694; --th-rel:#4d7cfe; --th-weak:#ff8c42;
-  --th-canvas-bg:#090c14; --th-dot:#1b2133;
+  --bg:#07090f; --s1:#0c0f1a; --s2:#111625; --s3:#182030; --s4:#1e2840;
+  --bd:#222c42; --bd2:#2d3d5a; --bd3:#3d5070;
+  --g:#0fffa0; --g2:#00d080; --b:#4f8eff; --p:#b06aff; --o:#ff9040; --r:#ff4060; --y:#ffe060; --c:#00e0e0; --w:#ffffff;
+  --tx:#cdd5e8; --mu:#5d6d8a; --mu2:#3d4d6a; --mu3:#2a3550;
+  --fnt:'Plus Jakarta Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+  --radius:8px; --ew:200;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--fnt);background:var(--bg);color:var(--tx);height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
+body{font-family:var(--fnt);background:var(--bg);color:var(--tx);height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-/* ─── TOPBAR ─── */
-nav{height:46px;background:var(–s1);border-bottom:1px solid var(–bd);display:flex;align-items:center;padding:0 12px;gap:8px;flex-shrink:0;z-index:60}
-.logo{font-family:var(–mono);font-size:15px;font-weight:700;color:var(–g);letter-spacing:-.5px;white-space:nowrap;margin-right:4px}
-.logo em{color:var(–b);font-style:normal}
-.vtag{font-size:8px;background:var(–p);color:#fff;padding:2px 5px;border-radius:3px;font-weight:700;letter-spacing:.5px}
-.nd{width:1px;height:18px;background:var(–bd);flex-shrink:0;margin:0 3px}
+/* ─── NAV ─── */
+nav{height:44px;background:var(--s1);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 12px;gap:6px;flex-shrink:0;z-index:60}
+.logo{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--g);letter-spacing:-.5px}
+.logo em{color:var(--b);font-style:normal}
+.badge{font-size:8px;background:linear-gradient(135deg,var(--p),var(--b));color:#fff;padding:2px 6px;border-radius:20px;font-weight:700;letter-spacing:.5px}
+.nd{width:1px;height:16px;background:var(--bd);flex-shrink:0;margin:0 2px}
 .sp{flex:1}
-.nb{background:transparent;border:1px solid var(–bd);color:var(–mu);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:11px;font-family:var(–fnt);transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px;line-height:1}
-.nb:hover{border-color:var(–g);color:var(–g)}
-.nb.active,.nb.on{border-color:var(–p);color:var(–p);background:rgba(162,89,255,.1)}
-.nb.prime{background:var(–g);color:#090c14;border-color:var(–g);font-weight:700}
-.nb.prime:hover{background:var(–g2)}
-.nb.bl{border-color:var(–b);color:var(–b)}
-.nb.bl:hover{background:rgba(77,124,254,.1)}
-.nb svg{width:11px;height:11px;flex-shrink:0}
+.btn{background:transparent;border:1px solid var(--bd);color:var(--mu);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:10px;font-family:var(--fnt);font-weight:600;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.btn:hover{border-color:var(--bd3);color:var(--tx)}
+.btn.g{background:var(--g);color:#07090f;border-color:var(--g);font-weight:700}
+.btn.g:hover{background:var(--g2)}
+.btn.b{border-color:var(--b);color:var(--b)}
+.btn.b:hover{background:rgba(79,142,255,.1)}
+.btn.p{border-color:var(--p);color:var(--p)}
+.btn.p:hover{background:rgba(176,106,255,.1)}
+.btn.r{border-color:var(--r);color:var(--r)}
+.btn svg{width:11px;height:11px}
+
+/* ─── TOOLBAR ─── */
+.tb-strip{height:40px;background:var(--s1);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 10px;gap:4px;flex-shrink:0;overflow-x:auto}
+.tb-strip::-webkit-scrollbar{height:0}
+.tg{display:flex;gap:3px;align-items:center}
+.tsep{width:1px;height:18px;background:var(--bd);margin:0 5px;flex-shrink:0}
+.tlbl{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--mu2);margin-right:2px;white-space:nowrap}
+.tb{background:var(--s2);border:1px solid var(--bd);border-radius:5px;padding:4px 8px;color:var(--mu);cursor:pointer;font-size:10px;font-family:var(--fnt);font-weight:600;transition:all .15s;display:flex;align-items:center;gap:3px;white-space:nowrap}
+.tb:hover{border-color:var(--bd3);color:var(--tx)}
+.tb.on{border-color:var(--p);color:var(--p);background:rgba(176,106,255,.1)}
+.tb svg{width:11px;height:11px}
+.sw{width:16px;height:16px;border-radius:3px;border:2px solid transparent;cursor:pointer;transition:transform .15s;flex-shrink:0}
+.sw:hover,.sw.on{border-color:rgba(255,255,255,.8);transform:scale(1.2)}
+.zv{font-family:var(--mono);font-size:9px;color:var(--mu);min-width:34px;text-align:center}
 
 /* ─── LAYOUT ─── */
 .wrap{display:flex;flex:1;overflow:hidden}
 
 /* ─── LEFT ─── */
-aside{width:246px;background:var(–s1);border-right:1px solid var(–bd);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
-.ps{padding:10px 13px;border-bottom:1px solid var(–bd);flex-shrink:0}
-.pt{font-size:9px;text-transform:uppercase;letter-spacing:1.8px;color:var(–mu2);font-weight:700;margin-bottom:7px}
+aside{width:240px;background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.ps{padding:10px 12px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.pt{font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--mu2);font-weight:700;margin-bottom:6px}
 
-/* Import tabs */
-.itabs{display:flex;gap:3px;margin-bottom:8px}
-.itab{flex:1;padding:5px 3px;background:var(–s2);border:1px solid var(–bd);border-radius:5px;font-size:9px;color:var(–mu2);cursor:pointer;text-align:center;transition:all .15s;font-family:var(–fnt);line-height:1.2}
-.itab:hover,.itab.on{border-color:var(–b);color:var(–b);background:rgba(77,124,254,.08)}
-.itab-pane{display:none}.itab-pane.on{display:block}
-.dz{border:1.5px dashed var(–bd2);border-radius:7px;padding:10px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.dz:hover,.dz.ov{border-color:var(–b);background:rgba(77,124,254,.05)}
-.dz input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
-.dz-ico{font-size:18px;line-height:1}
-.dz p{font-size:10px;color:var(–mu);margin-top:3px;line-height:1.5}
-.ui{width:100%;background:var(–s2);border:1px solid var(–bd);border-radius:5px;color:var(–tx);padding:6px 8px;font-size:11px;font-family:var(–fnt);outline:none}
-.ui:focus{border-color:var(–b)}
-.urow{display:flex;gap:4px;margin-bottom:5px}
-.urow .ui{flex:1}
-.ubtn{background:var(–b);border:none;color:#fff;padding:6px 10px;border-radius:5px;cursor:pointer;font-size:11px;white-space:nowrap;font-family:var(–fnt)}
-.ubtn:hover{background:#3a6ae8}
-.hint{font-size:9px;color:var(–mu2);line-height:1.5;margin-top:4px}
+/* import tabs */
+.itabs{display:flex;gap:3px;margin-bottom:7px}
+.itab{flex:1;padding:4px 2px;background:var(--s2);border:1px solid var(--bd);border-radius:4px;font-size:9px;color:var(--mu2);cursor:pointer;text-align:center;transition:all .15s;font-weight:600}
+.itab.on{border-color:var(--b);color:var(--b);background:rgba(79,142,255,.08)}
+.ip{display:none}.ip.on{display:block}
+.dz{border:1.5px dashed var(--bd2);border-radius:6px;padding:9px;text-align:center;cursor:pointer;position:relative;transition:all .2s}
+.dz:hover,.dz.ov{border-color:var(--b);background:rgba(79,142,255,.06)}
+.dz input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.dz p{font-size:9px;color:var(--mu);margin-top:3px;line-height:1.5}
+.row{display:flex;gap:3px}
+.ui{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:5px;color:var(--tx);padding:5px 8px;font-size:10px;font-family:var(--fnt);outline:none}
+.ui:focus{border-color:var(--b)}
+.ubtn{background:var(--b);border:none;color:#fff;padding:5px 8px;border-radius:5px;cursor:pointer;font-size:10px;font-weight:700}
 
-/* Entities list */
-.elist{flex:1;overflow-y:auto;padding:8px 11px}
-.elbl{font-size:9px;text-transform:uppercase;letter-spacing:1.8px;color:var(–mu2);font-weight:700;margin-bottom:7px;padding:0 1px}
-.ecard{background:var(–s2);border:1px solid var(–bd);border-radius:7px;padding:8px 10px;margin-bottom:6px;cursor:grab;transition:border-color .15s,box-shadow .15s}
-.ecard:hover{border-color:var(–g);box-shadow:0 0 0 1px rgba(0,229,160,.1)}
-.ecard.wk{border-color:rgba(255,140,66,.3)}
+/* entities list */
+.elist{flex:1;overflow-y:auto;padding:8px 10px}
+.elbl{font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--mu2);font-weight:700;margin-bottom:6px}
+.ecard{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:7px 9px;margin-bottom:5px;cursor:grab;transition:all .15s}
+.ecard:hover{border-color:var(--g);box-shadow:0 0 0 1px rgba(15,255,160,.08)}
+.ecard.wk{border-color:rgba(255,144,64,.35)}
 .ecard:active{cursor:grabbing}
-.en{font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;font-family:var(–mono);color:var(–tx)}
-.etag{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:700;letter-spacing:.3px}
-.etag.st{background:rgba(0,229,160,.12);color:var(–g);border:1px solid rgba(0,229,160,.25)}
-.etag.wk{background:rgba(255,140,66,.12);color:var(–o);border:1px solid rgba(255,140,66,.25)}
-.eas{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
-.ach{font-size:9px;padding:1px 5px;border-radius:3px;background:var(–bg);border:1px solid var(–bd);color:var(–mu2)}
-.ach.pk{border-color:rgba(0,229,160,.4);color:var(–g)}
-.ach.fk{border-color:rgba(77,124,254,.4);color:var(–b)}
+.en{font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px;font-family:var(--mono)}
+.etag{font-size:7px;padding:1px 4px;border-radius:3px;font-weight:700;letter-spacing:.3px}
+.etag.s{background:rgba(15,255,160,.1);color:var(--g);border:1px solid rgba(15,255,160,.2)}
+.etag.w{background:rgba(255,144,64,.1);color:var(--o);border:1px solid rgba(255,144,64,.2)}
+.eas{display:flex;flex-wrap:wrap;gap:2px;margin-top:4px}
+.ach{font-size:8px;padding:1px 4px;border-radius:3px;background:var(--bg);border:1px solid var(--bd);color:var(--mu2)}
+.ach.pk{border-color:rgba(15,255,160,.4);color:var(--g)}
+.ach.fk{border-color:rgba(79,142,255,.4);color:var(--b)}
 .ach.mv{border-style:dashed}
-.dh{font-size:9px;color:var(–mu3);margin-top:4px}
+.ach.dk{border-color:rgba(255,144,64,.4);color:var(--o)}
+.dh{font-size:8px;color:var(--mu3);margin-top:3px}
 
-/* ─── TOOLBAR STRIP ─── */
-.toolbar{height:38px;background:var(–s1);border-bottom:1px solid var(–bd);display:flex;align-items:center;padding:0 10px;gap:5px;flex-shrink:0}
-.tg{display:flex;gap:3px;align-items:center}
-.ts{width:1px;height:20px;background:var(–bd);margin:0 4px}
-.tb{background:var(–s2);border:1px solid var(–bd);border-radius:5px;padding:4px 9px;color:var(–mu);cursor:pointer;font-size:10px;font-family:var(–fnt);transition:all .15s;display:flex;align-items:center;gap:4px;line-height:1;white-space:nowrap}
-.tb:hover{border-color:var(–bd3);color:var(–tx)}
-.tb.on{border-color:var(–p);color:var(–p);background:rgba(162,89,255,.1)}
-.tb svg{width:11px;height:11px}
-.tb-label{font-size:9px;color:var(–mu2);margin:0 2px;white-space:nowrap}
-/* color swatches */
-.swatch{width:16px;height:16px;border-radius:3px;border:1.5px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0}
-.swatch:hover,.swatch.on{border-color:#fff;transform:scale(1.15)}
-/* size slider */
-.sz-sl{width:60px;accent-color:var(–p);cursor:pointer}
-/* zoom */
-.zoom-val{font-family:var(–mono);font-size:10px;color:var(–mu);min-width:36px;text-align:center}
+/* scenario */
+#scSec{display:none}
+#scTxt{background:var(--s2);border:1px solid var(--bd);border-radius:5px;padding:7px 9px;font-size:10px;color:var(--mu);line-height:1.65;max-height:75px;overflow-y:auto}
 
 /* ─── CANVAS ─── */
-.cw{flex:1;position:relative;overflow:hidden;background:var(–th-canvas-bg);transition:background .3s}
-.cw.grid-dot{background-image:radial-gradient(circle,var(–th-dot) 1px,transparent 0);background-size:24px 24px}
-.cw.grid-line{background-image:linear-gradient(var(–th-dot) 1px,transparent 1px),linear-gradient(90deg,var(–th-dot) 1px,transparent 1px);background-size:24px 24px}
-.cw.grid-none{background-image:none}
-#svg{width:100%;height:100%;display:block}
-.cinf{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:10px;color:var(–mu2);pointer-events:none;white-space:nowrap;font-family:var(–mono)}
-.empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
-.empty h2{font-family:var(–mono);font-size:30px;color:var(–mu3);font-weight:700;letter-spacing:-1px}
-.empty p{font-size:11px;color:var(–mu3);margin-top:6px;line-height:1.7}
+.cw{flex:1;position:relative;overflow:hidden;background:var(--bg)}
+.cw.gd{background-image:radial-gradient(circle,var(--bd) 1px,transparent 0);background-size:24px 24px}
+.cw.gl{background-image:linear-gradient(var(--mu3) 1px,transparent 1px),linear-gradient(90deg,var(--mu3) 1px,transparent 1px);background-size:24px 24px;opacity:1}
+#mainSvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.cinf{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--mu2);pointer-events:none;white-space:nowrap;font-family:var(--mono)}
+.empty-s{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.empty-s h2{font-family:var(--mono);font-size:28px;color:var(--mu3);font-weight:700;letter-spacing:-1px}
+.empty-s p{font-size:11px;color:var(--mu3);margin-top:6px;line-height:1.7}
 
 /* ─── RIGHT ─── */
-.rp{width:212px;background:var(–s1);border-left:1px solid var(–bd);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
-.rtabs{display:flex;border-bottom:1px solid var(–bd)}
-.rtab{flex:1;padding:9px 4px;font-size:10px;color:var(–mu2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all .15s;font-weight:500}
-.rtab:hover{color:var(–tx)}
-.rtab.on{color:var(–g);border-color:var(–g)}
-.rpb{flex:1;overflow-y:auto;padding:10px 12px;display:none}
+.rp{width:218px;background:var(--s1);border-left:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.rtabs{display:flex;border-bottom:1px solid var(--bd);flex-shrink:0}
+.rtab{flex:1;padding:8px 3px;font-size:9px;color:var(--mu2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all .15s;font-weight:600}
+.rtab:hover{color:var(--tx)}
+.rtab.on{color:var(--g);border-color:var(--g)}
+.rpb{flex:1;overflow-y:auto;padding:9px 11px;display:none}
 .rpb.on{display:block}
-.rc{background:var(–s2);border:1px solid var(–bd);border-radius:7px;padding:9px 11px;margin-bottom:7px}
-.rc h4{font-size:9px;color:var(–g);font-family:var(–mono);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.rc p,.rc li{font-size:10px;color:var(–mu);line-height:1.7}
-.leg{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:10px;color:var(–mu)}
-.ld{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.rc{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:8px 10px;margin-bottom:6px}
+.rc h4{font-size:8px;color:var(--g);font-family:var(--mono);margin-bottom:5px;text-transform:uppercase;letter-spacing:.8px}
+.rc p{font-size:10px;color:var(--mu);line-height:1.65}
+
+/* Symbol legend */
+.sym-row{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.sym-svg{flex-shrink:0}
+.sym-desc{font-size:9px;color:var(--mu);line-height:1.4}
+.sym-name{font-size:8px;color:var(--tx);font-weight:700;display:block;margin-bottom:1px}
+
+/* design panel */
+.drow{display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap}
+.dpick{width:18px;height:18px;border-radius:4px;border:2px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0}
+.dpick:hover,.dpick.on{border-color:#fff;transform:scale(1.15)}
+.drng{width:100%;accent-color:var(--p);cursor:pointer;margin:3px 0}
+.dval{font-size:8px;color:var(--mu2);font-family:var(--mono)}
+
+/* templates */
+.tmc{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:7px 9px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.tmc:hover{border-color:var(--b);background:rgba(79,142,255,.05)}
+.tmc .ti{font-size:14px;flex-shrink:0}
+.tmc h4{font-size:10px;font-weight:600;margin-bottom:1px}
+.tmc p{font-size:8px;color:var(--mu2)}
+
 /* export grid */
-.eg{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.eb{background:var(–s2);border:1px solid var(–bd);border-radius:7px;padding:9px 6px;cursor:pointer;text-align:center;transition:all .15s;font-family:var(–fnt)}
-.eb:hover{border-color:var(–g);background:rgba(0,229,160,.04)}
-.eb .ei{font-size:16px;margin-bottom:3px}
-.eb .el{font-size:9px;color:var(–mu);font-weight:600}
-/* theme swatches */
-.thg{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
-.thc{border:1.5px solid var(–bd);border-radius:6px;padding:7px 5px;text-align:center;cursor:pointer;transition:all .15s}
-.thc:hover,.thc.on{border-color:var(–g)}
-.thc .tc{width:20px;height:20px;border-radius:4px;margin:0 auto 4px}
-.thc p{font-size:9px;color:var(–mu2)}
-/* template grid */
-.tmg{display:grid;grid-template-columns:1fr;gap:5px}
-.tmc{background:var(–s2);border:1px solid var(–bd);border-radius:7px;padding:8px 10px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px}
-.tmc:hover{border-color:var(–b);background:rgba(77,124,254,.05)}
-.tmc .ti{font-size:16px;flex-shrink:0}
-.tmc .td h4{font-size:11px;font-weight:600;margin-bottom:2px}
-.tmc .td p{font-size:9px;color:var(–mu2)}
+.eg{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.eb{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:7px 5px;cursor:pointer;text-align:center;transition:all .15s}
+.eb:hover{border-color:var(--g)}
+.eb .ei{font-size:14px;margin-bottom:2px}
+.eb .el{font-size:9px;color:var(--mu);font-weight:600}
+
+/* ── TESTER PANEL ── */
+.test-card{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:6px}
+.test-card h4{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--mu2);margin-bottom:6px;font-weight:700}
+.score-ring{display:flex;align-items:center;justify-content:center;margin:8px 0}
+.score-num{font-family:var(--mono);font-size:28px;font-weight:700}
+.check-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;font-size:9px;line-height:1.5}
+.chk-icon{font-size:11px;flex-shrink:0;margin-top:1px}
+.chk-text{color:var(--tx)}
+.chk-text b{font-weight:600}
+.hint-box{background:rgba(255,224,96,.06);border:1px solid rgba(255,224,96,.25);border-radius:6px;padding:8px 9px;margin-bottom:5px}
+.hint-box p{font-size:9px;color:var(--y);line-height:1.6}
+.hint-box strong{color:#fff}
+.summary-box{background:rgba(15,255,160,.05);border:1px solid rgba(15,255,160,.2);border-radius:6px;padding:8px 9px;margin-bottom:5px}
+.summary-box p{font-size:9px;color:var(--g);line-height:1.6}
+.run-test-btn{width:100%;background:linear-gradient(135deg,var(--p),var(--b));border:none;color:#fff;padding:8px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--fnt);letter-spacing:.3px;transition:opacity .15s}
+.run-test-btn:hover{opacity:.85}
+.run-test-btn:disabled{opacity:.4;cursor:not-allowed}
 
 /* ─── MODALS ─── */
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
 .ov.h{display:none}
-.md{background:var(–s1);border:1px solid var(–bd2);border-radius:12px;padding:20px;max-height:88vh;overflow-y:auto}
-.md h2{font-family:var(–mono);font-size:15px;color:var(–g);margin-bottom:5px}
-.md .sub{font-size:10px;color:var(–mu);margin-bottom:15px;line-height:1.65}
-.mact{display:flex;gap:7px;justify-content:flex-end;margin-top:14px}
-.mb{padding:7px 15px;border-radius:6px;border:1px solid var(–bd);background:transparent;color:var(–mu);cursor:pointer;font-size:11px;font-family:var(–fnt);transition:all .15s}
-.mb:hover{border-color:var(–bd2)}
-.mb.go{background:var(–g);color:#090c14;border-color:var(–g);font-weight:700}
-.mb.go:hover{background:var(–g2)}
-.mb.bl{background:var(–b);color:#fff;border-color:var(–b);font-weight:600}
+.md{background:var(--s1);border:1px solid var(--bd2);border-radius:10px;padding:18px;max-height:90vh;overflow-y:auto}
+.md h2{font-family:var(--mono);font-size:14px;color:var(--g);margin-bottom:4px}
+.sub{font-size:10px;color:var(--mu);margin-bottom:14px;line-height:1.65}
+.mact{display:flex;gap:6px;justify-content:flex-end;margin-top:12px}
+.mb{padding:6px 14px;border-radius:5px;border:1px solid var(--bd);background:transparent;color:var(--mu);cursor:pointer;font-size:10px;font-family:var(--fnt);font-weight:600;transition:all .15s}
+.mb.go{background:var(--g);color:#07090f;border-color:var(--g);font-weight:700}
+.mb.go:hover{background:var(--g2)}
+
 /* dataset grid */
-.dsg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:15px}
-.dsc{background:var(–s2);border:1px solid var(–bd);border-radius:8px;padding:11px 9px;cursor:pointer;transition:all .18s}
-.dsc:hover,.dsc.on{border-color:var(–g);background:rgba(0,229,160,.04)}
-.dsc .di{font-size:20px;margin-bottom:4px}
-.dsc h3{font-size:11px;font-weight:600;margin-bottom:2px}
-.dsc p{font-size:9px;color:var(–mu)}
+.dsg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.dsc{background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:10px 7px;cursor:pointer;transition:all .15s;text-align:center}
+.dsc:hover,.dsc.on{border-color:var(--g)}
+.dsc .di{font-size:18px;margin-bottom:3px}
+.dsc h3{font-size:10px;font-weight:600}
+.dsc p{font-size:8px;color:var(--mu);margin-top:1px}
+
 /* relation modal */
-.rmd{width:350px}
-.rmd h2{color:var(–b)}
-.fr{margin-bottom:10px}
-.fr label{display:block;font-size:9px;color:var(–mu2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px}
-.fr select,.fr input{width:100%;background:var(–s2);border:1px solid var(–bd);border-radius:5px;color:var(–tx);padding:6px 9px;font-size:11px;font-family:var(–fnt);outline:none}
-.fr select:focus,.fr input:focus{border-color:var(–b)}
+.fr{margin-bottom:9px}
+.fr label{display:block;font-size:8px;color:var(--mu2);margin-bottom:3px;text-transform:uppercase;letter-spacing:.8px;font-weight:700}
+.fr select,.fr input{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:5px;color:var(--tx);padding:5px 8px;font-size:11px;font-family:var(--fnt);outline:none}
+.fr select:focus,.fr input:focus{border-color:var(--b)}
+
+/* entity edit */
+.attr-row{display:flex;gap:4px;align-items:center;margin-bottom:4px;background:var(--s3);border-radius:5px;padding:4px 6px}
+.attr-row input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--bd);color:var(--tx);padding:2px 3px;font-size:10px;font-family:var(--fnt);outline:none}
+.attr-row input:focus{border-color:var(--g)}
+.ck-wrap{display:flex;align-items:center;gap:2px;font-size:8px;color:var(--mu2);cursor:pointer;white-space:nowrap}
+.ck-wrap input{width:11px;height:11px;accent-color:var(--g);cursor:pointer}
+.del-a{background:none;border:none;color:var(--r);cursor:pointer;font-size:11px;padding:0 2px;line-height:1}
+
 /* AI modal */
-.amd{width:420px}
-.amd h2{color:var(–b)}
-.prb{height:3px;background:var(–s3);border-radius:2px;overflow:hidden;margin-bottom:12px}
-.prf{height:100%;background:linear-gradient(90deg,var(–b),var(–p));border-radius:2px;transition:width .4s ease;width:0%}
-.alg{background:var(–s2);border:1px solid var(–bd);border-radius:6px;padding:8px 10px;font-family:var(–mono);font-size:10px;color:var(–mu);max-height:130px;overflow-y:auto;line-height:1.9}
-.alg .ln{color:var(–g)}
-/* export text modal */
-.etmd{width:510px}
-.etmd h2{color:var(–g)}
-.etmd textarea{width:100%;height:260px;background:var(–s2);border:1px solid var(–bd);border-radius:7px;color:var(–tx);padding:10px;font-size:10px;font-family:var(–mono);resize:none;outline:none;line-height:1.75}
-.etmd textarea:focus{border-color:var(–g)}
-/* entity edit modal */
-.eemd{width:400px}
-.eemd h2{color:var(–o)}
-.attr-row{display:flex;gap:5px;align-items:center;margin-bottom:5px}
-.attr-row input{flex:1;background:var(–s2);border:1px solid var(–bd);border-radius:5px;color:var(–tx);padding:5px 8px;font-size:11px;font-family:var(–fnt);outline:none}
-.attr-row input:focus{border-color:var(–o)}
-.attr-row .chk{display:flex;align-items:center;gap:3px;font-size:9px;color:var(–mu2);white-space:nowrap;cursor:pointer}
-.attr-row .chk input{width:12px;height:12px;cursor:pointer;accent-color:var(–g)}
-.attr-row .del-a{background:none;border:none;color:var(–r);cursor:pointer;font-size:13px;padding:0 3px}
+.prb{height:2px;background:var(--s3);border-radius:1px;overflow:hidden;margin-bottom:10px}
+.prf{height:100%;background:linear-gradient(90deg,var(--b),var(--p));width:0%;transition:width .4s}
+.alg{background:var(--s2);border:1px solid var(--bd);border-radius:5px;padding:7px 9px;font-family:var(--mono);font-size:9px;color:var(--mu);max-height:110px;overflow-y:auto;line-height:1.9}
+.alg .ln{color:var(--g)}
 
-/* ─── TOAST ─── */
-.toast{position:fixed;bottom:18px;right:18px;background:var(–s2);border:1px solid var(–g);border-radius:8px;padding:8px 14px;font-size:11px;color:var(–g);z-index:500;opacity:0;transform:translateY(8px);transition:all .28s;pointer-events:none}
-.toast.on{opacity:1;transform:translateY(0)}
+/* export text */
+.etm{width:500px}
+.etm textarea{width:100%;height:250px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);padding:9px;font-size:9px;font-family:var(--mono);resize:none;outline:none;line-height:1.75}
 
-/* ─── MINI CONTEXT MENU ─── */
-.ctx{position:fixed;background:var(–s2);border:1px solid var(–bd2);border-radius:8px;padding:4px 0;z-index:400;min-width:140px;display:none}
+/* ctx menu */
+.ctx{position:fixed;background:var(--s2);border:1px solid var(--bd2);border-radius:7px;padding:3px 0;z-index:400;min-width:145px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .ctx.on{display:block}
-.ctx-item{padding:6px 13px;font-size:11px;color:var(–tx);cursor:pointer;display:flex;align-items:center;gap:7px}
-.ctx-item:hover{background:var(–s3);color:var(–g)}
-.ctx-item.danger:hover{color:var(–r)}
-.ctx-sep{height:1px;background:var(–bd);margin:3px 0}
+.ci{padding:6px 12px;font-size:10px;color:var(--tx);cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .1s}
+.ci:hover{background:var(--s3)}
+.ci.d:hover{color:var(--r)}
+.csep{height:1px;background:var(--bd);margin:2px 0}
 
-/* scrollbar */
+/* toast */
+.toast{position:fixed;bottom:16px;right:16px;background:var(--s2);border:1px solid var(--g);border-radius:7px;padding:7px 12px;font-size:10px;color:var(--g);z-index:600;opacity:0;transform:translateY(6px);transition:all .25s;pointer-events:none}
+.toast.on{opacity:1;transform:none}
+
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(–bd2);border-radius:2px}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
 </style>
-
 </head>
 <body>
 
-<!-- ════ TOPBAR ════ -->
-
+<!-- NAV -->
 <nav>
   <div class="logo">ER<em>Draw</em></div>
-  <div class="vtag">v3</div>
+  <span class="badge">v4</span>
   <div class="nd"></div>
-  <button class="nb bl" onclick="openImport()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Import
-  </button>
-  <button class="nb" onclick="showModal('dsModal')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Datasets
-  </button>
+  <button class="btn b" onclick="show('dsModal')">📋 Datasets</button>
+  <button class="btn" onclick="switchITab('file')">⬆ Import</button>
   <div class="nd"></div>
   <div class="sp"></div>
-  <button class="nb" onclick="undo()">↩ Undo</button>
-  <button class="nb" onclick="autoLayout()">⚡ Layout</button>
-  <button class="nb" onclick="fitView()">⊞ Fit</button>
-  <button class="nb danger" onclick="clearCanvas()" style="border-color:var(--r);color:var(--r)" onmouseover="this.style.background='rgba(255,77,109,.08)'" onmouseout="this.style.background=''">🗑 Clear</button>
+  <button class="btn" onclick="undo()">↩ Undo</button>
+  <button class="btn" onclick="autoLayout()">⚡ Layout</button>
+  <button class="btn" onclick="fitView()">⊞ Fit</button>
+  <button class="btn r" onclick="clearCanvas()">🗑 Clear</button>
   <div class="nd"></div>
-  <button class="nb prime" onclick="switchRTab('export')">⬇ Export</button>
+  <button class="btn p" onclick="switchRTab('test')">🧪 Test My Diagram</button>
+  <button class="btn g" onclick="switchRTab('export')">⬇ Export</button>
 </nav>
 
-<!-- ════ TOOLBAR STRIP ════ -->
-
-<div class="toolbar">
-  <!-- tools -->
+<!-- TOOLBAR -->
+<div class="tb-strip">
   <div class="tg">
-    <span class="tb-label">Tools</span>
-    <button class="tb on" id="tSel" onclick="setTool('select')" title="Select / Move (V)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-7 1-3 7z"/></svg>Select
+    <span class="tlbl">Mode</span>
+    <button class="tb on" id="tSel" onclick="setTool('select')" title="V — Select">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 2l16 10-8 2-3 8z"/></svg>Select
     </button>
-    <button class="tb" id="tRel" onclick="setTool('relate')" title="Add Relationship (R)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>Relate
+    <button class="tb" id="tDraw" onclick="setTool('draw')" title="L — Draw Line">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="19" x2="19" y2="5"/></svg>Line
     </button>
-    <button class="tb" id="tEnt" onclick="setTool('entity')" title="Add Custom Entity (E)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>Entity
+    <button class="tb" id="tEnt" onclick="setTool('entity')" title="E — Add Entity">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Entity
     </button>
-    <button class="tb" id="tTxt" onclick="setTool('text')" title="Add Text Note (T)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Note
+    <button class="tb" id="tNote" onclick="setTool('note')" title="N — Add Note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="14" y2="12"/></svg>Note
     </button>
   </div>
-  <div class="ts"></div>
+  <div class="tsep"></div>
   <!-- grid -->
   <div class="tg">
-    <span class="tb-label">Grid</span>
-    <button class="tb on" id="gDot" onclick="setGrid('dot',this)" title="Dot grid">⬛</button>
-    <button class="tb" id="gLine" onclick="setGrid('line',this)" title="Line grid">⊞</button>
-    <button class="tb" id="gNone" onclick="setGrid('none',this)" title="No grid">○</button>
+    <span class="tlbl">Grid</span>
+    <button class="tb on" id="gDot" onclick="setGrid('gd',this)">· Dot</button>
+    <button class="tb" id="gLine" onclick="setGrid('gl',this)">⊞ Line</button>
+    <button class="tb" id="gNone" onclick="setGrid('',this)">○ Off</button>
   </div>
-  <div class="ts"></div>
-  <!-- stroke color -->
+  <div class="tsep"></div>
+  <!-- entity color -->
   <div class="tg">
-    <span class="tb-label">Entity Color</span>
-    <div class="swatch on" style="background:#00e5a0" data-c="green" onclick="setEntityColor('#00e5a0','#00e5a080',this)" title="Green"></div>
-    <div class="swatch" style="background:#4d7cfe" data-c="blue" onclick="setEntityColor('#4d7cfe','#4d7cfe80',this)" title="Blue"></div>
-    <div class="swatch" style="background:#a259ff" data-c="purple" onclick="setEntityColor('#a259ff','#a259ff80',this)" title="Purple"></div>
-    <div class="swatch" style="background:#ff8c42" data-c="orange" onclick="setEntityColor('#ff8c42','#ff8c4280',this)" title="Orange"></div>
-    <div class="swatch" style="background:#ff4d6d" data-c="red" onclick="setEntityColor('#ff4d6d','#ff4d6d80',this)" title="Red"></div>
-    <div class="swatch" style="background:#ffd166" data-c="yellow" onclick="setEntityColor('#ffd166','#ffd16680',this)" title="Yellow"></div>
-    <div class="swatch" style="background:#00cfcf" data-c="cyan" onclick="setEntityColor('#00cfcf','#00cfcf80',this)" title="Cyan"></div>
+    <span class="tlbl">Color</span>
+    <div class="sw on" style="background:#0fffa0" onclick="setEC('#0fffa0',this)" title="Mint"></div>
+    <div class="sw" style="background:#4f8eff" onclick="setEC('#4f8eff',this)" title="Blue"></div>
+    <div class="sw" style="background:#b06aff" onclick="setEC('#b06aff',this)" title="Purple"></div>
+    <div class="sw" style="background:#ff9040" onclick="setEC('#ff9040',this)" title="Orange"></div>
+    <div class="sw" style="background:#ff4060" onclick="setEC('#ff4060',this)" title="Red"></div>
+    <div class="sw" style="background:#ffe060" onclick="setEC('#ffe060',this)" title="Yellow"></div>
+    <div class="sw" style="background:#00e0e0" onclick="setEC('#00e0e0',this)" title="Cyan"></div>
+    <div class="sw" style="background:#ffffff" onclick="setEC('#ffffff',this)" title="White"></div>
   </div>
-  <div class="ts"></div>
+  <div class="tsep"></div>
   <!-- line style -->
   <div class="tg">
-    <span class="tb-label">Line</span>
-    <button class="tb on" id="lSolid" onclick="setLineStyle('solid',this)" title="Solid line">—</button>
-    <button class="tb" id="lDash" onclick="setLineStyle('dashed',this)" title="Dashed line">- -</button>
-    <button class="tb" id="lDot" onclick="setLineStyle('dotted',this)" title="Dotted line">···</button>
+    <span class="tlbl">Line</span>
+    <button class="tb on" id="lsSolid" onclick="setLS('solid',this)">— Solid</button>
+    <button class="tb" id="lsDash" onclick="setLS('dashed',this)">- - Dash</button>
+    <button class="tb" id="lsDot" onclick="setLS('dotted',this)">··· Dot</button>
   </div>
-  <div class="ts"></div>
-  <!-- snap -->
+  <div class="tsep"></div>
+  <!-- cardinality end -->
   <div class="tg">
-    <button class="tb on" id="tSnap" onclick="toggleSnap()" title="Snap to grid">⊞ Snap</button>
+    <span class="tlbl">Notation</span>
+    <button class="tb on" id="ntCrow" onclick="setNT('crow',this)">≫ Crow</button>
+    <button class="tb" id="ntMin" onclick="setNT('minimal',this)">1:N Min</button>
+    <button class="tb" id="ntUML" onclick="setNT('uml',this)">UML</button>
   </div>
-  <div class="ts"></div>
-  <!-- zoom -->
+  <div class="tsep"></div>
   <div class="tg">
-    <button class="tb" onclick="zoomOut()" title="Zoom out">−</button>
-    <span class="zoom-val" id="zoomVal">100%</span>
-    <button class="tb" onclick="zoomIn()" title="Zoom in">+</button>
+    <button class="tb" onclick="zoomOut()">−</button>
+    <span class="zv" id="zv">100%</span>
+    <button class="tb" onclick="zoomIn()">+</button>
   </div>
 </div>
 
-<!-- ════ BODY ════ -->
-
+<!-- BODY -->
 <div class="wrap">
 
-<!-- LEFT PANEL -->
-
+<!-- LEFT -->
 <aside>
-  <!-- Import -->
   <div class="ps">
     <div class="pt">Import</div>
     <div class="itabs">
-      <div class="itab on" onclick="switchITab('file',this)">📁 File</div>
-      <div class="itab" onclick="switchITab('url',this)">🌐 URL</div>
-      <div class="itab" onclick="switchITab('kaggle',this)">🔷 Kaggle</div>
-      <div class="itab" onclick="switchITab('paste',this)">📋 Paste</div>
+      <div class="itab on" id="it-file" onclick="switchITab('file')">📁 File</div>
+      <div class="itab" id="it-url" onclick="switchITab('url')">🌐 URL</div>
+      <div class="itab" id="it-kg" onclick="switchITab('kg')">🔷 Kaggle</div>
+      <div class="itab" id="it-paste" onclick="switchITab('paste')">📋 Paste</div>
     </div>
-    <!-- File -->
-    <div class="itab-pane on" id="ip-file">
-      <div class="dz" id="dz"><input type="file" id="fi" accept=".csv,.tsv,.json,.txt,.sql" onchange="handleFile(this.files)"/>
-        <div class="dz-ico">📂</div><p>CSV · JSON · SQL · TXT<br/>Drop or click to browse</p>
+    <div class="ip on" id="ip-file">
+      <div class="dz" id="dz">
+        <input type="file" id="fi" accept=".csv,.json,.txt,.sql,.tsv" onchange="handleFile(this.files)"/>
+        <div style="font-size:18px">📂</div>
+        <p>CSV · JSON · SQL · TXT<br/>Drop or click</p>
       </div>
     </div>
-    <!-- URL -->
-    <div class="itab-pane" id="ip-url">
-      <div class="urow"><input class="ui" id="urlI" placeholder="Paste CSV URL or website…"/><button class="ubtn" onclick="handleURL()">→</button></div>
-      <div class="hint">Supports GitHub raw, data.gov, Wikipedia table URLs</div>
+    <div class="ip" id="ip-url">
+      <div class="row"><input class="ui" id="uI" placeholder="CSV URL or webpage…"/><button class="ubtn" onclick="handleURL()">→</button></div>
+      <div style="font-size:9px;color:var(--mu2);margin-top:4px">GitHub raw, data.gov, Wikipedia tables</div>
     </div>
-    <!-- Kaggle -->
-    <div class="itab-pane" id="ip-kaggle">
-      <div class="urow"><input class="ui" id="kI" placeholder="titanic, ecommerce, movies…"/><button class="ubtn" onclick="handleKaggle()">→</button></div>
-      <div id="kRes"></div>
+    <div class="ip" id="ip-kg">
+      <div class="row"><input class="ui" id="kI" placeholder="titanic, movies, sales…"/><button class="ubtn" onclick="handleKaggle()">→</button></div>
+      <div id="kRes" style="margin-top:5px"></div>
     </div>
-    <!-- Paste -->
-    <div class="itab-pane" id="ip-paste">
-      <textarea class="ui" id="pasteI" style="height:72px;resize:none;font-family:var(--mono);font-size:10px" placeholder="Paste CSV, JSON, SQL schema, or describe in plain English…"></textarea>
+    <div class="ip" id="ip-paste">
+      <textarea class="ui" id="pI" style="height:65px;resize:none;font-family:var(--mono);font-size:9px" placeholder="CSV, JSON, SQL, or plain English schema description…"></textarea>
       <button class="ubtn" style="width:100%;margin-top:4px;border-radius:5px" onclick="handlePaste()">Analyse with AI →</button>
     </div>
   </div>
 
-  <!-- Scenario -->
-
-  <div class="ps" id="scSec" style="display:none">
+  <div class="ps" id="scSec">
     <div class="pt">Scenario</div>
-    <div id="scTxt" style="background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:8px 9px;font-size:10px;color:var(--mu);line-height:1.65;max-height:80px;overflow-y:auto"></div>
+    <div id="scTxt"></div>
   </div>
 
-  <!-- Entities list -->
-
   <div class="elist" id="eList">
-    <div class="elbl">Entities</div>
-    <div style="font-size:10px;color:var(--mu2)">Load a dataset or import data to begin.</div>
+    <div class="elbl">Entities — drag to canvas</div>
+    <div style="font-size:10px;color:var(--mu2)">Pick a dataset or import data to begin.</div>
   </div>
 </aside>
 
 <!-- CANVAS -->
-
-<div class="cw grid-dot" id="cw">
-  <svg id="svg" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+<div class="cw gd" id="cw">
+  <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <marker id="arG" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3z" fill="var(--th-rel)"/></marker>
+      <!-- Crow's foot markers -->
+      <marker id="mOne" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+        <line x1="10" y1="2" x2="10" y2="10" stroke="#4f8eff" stroke-width="1.5"/>
+      </marker>
+      <marker id="mMany" markerWidth="14" markerHeight="12" refX="1" refY="6" orient="auto">
+        <path d="M12,2 L1,6 L12,10" stroke="#4f8eff" fill="none" stroke-width="1.5"/>
+      </marker>
+      <marker id="mOneMandatory" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto">
+        <line x1="12" y1="2" x2="12" y2="10" stroke="#4f8eff" stroke-width="1.5"/>
+        <line x1="9" y1="2" x2="9" y2="10" stroke="#4f8eff" stroke-width="1.5"/>
+      </marker>
+      <marker id="mManyMandatory" markerWidth="16" markerHeight="12" refX="1" refY="6" orient="auto">
+        <path d="M14,2 L3,6 L14,10" stroke="#4f8eff" fill="none" stroke-width="1.5"/>
+        <line x1="1" y1="2" x2="1" y2="10" stroke="#4f8eff" stroke-width="1.5"/>
+      </marker>
+      <marker id="mZeroOne" markerWidth="16" markerHeight="12" refX="12" refY="6" orient="auto">
+        <line x1="12" y1="2" x2="12" y2="10" stroke="#4f8eff" stroke-width="1.5"/>
+        <circle cx="7" cy="6" r="3" stroke="#4f8eff" fill="none" stroke-width="1.5"/>
+      </marker>
+      <marker id="mZeroMany" markerWidth="18" markerHeight="12" refX="1" refY="6" orient="auto">
+        <path d="M16,2 L5,6 L16,10" stroke="#4f8eff" fill="none" stroke-width="1.5"/>
+        <circle cx="2" cy="6" r="2" stroke="#4f8eff" fill="none" stroke-width="1.5"/>
+      </marker>
+      <marker id="mArrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 z" fill="#4f8eff"/>
+      </marker>
     </defs>
-    <g id="rl"></g>
-    <g id="el"></g>
-    <g id="nl"></g><!-- notes layer -->
+    <g id="rl"></g>  <!-- relations -->
+    <g id="el"></g>  <!-- entities -->
+    <g id="nl"></g>  <!-- notes -->
+    <!-- temp draw line -->
+    <line id="drawLine" x1="0" y1="0" x2="0" y2="0" stroke="#4f8eff" stroke-width="1.5" stroke-dasharray="6,3" opacity="0" pointer-events="none"/>
   </svg>
-  <div class="empty" id="empty">
-    <h2>ERDraw v3</h2>
-    <p>Import CSV · PDF · URL · Kaggle<br/>or pick a Dataset / Template →</p>
+  <div class="empty-s" id="emptyS">
+    <h2>ERDraw v4</h2>
+    <p>Pick a dataset → drag entities → use Line tool to connect<br/>Press <b style="color:var(--g)">🧪 Test</b> to get AI feedback on your diagram</p>
   </div>
   <div class="cinf" id="cinf"></div>
 </div>
 
-<!-- RIGHT PANEL -->
-
+<!-- RIGHT -->
 <div class="rp">
   <div class="rtabs">
-    <div class="rtab on" onclick="switchRTab('guide')" id="rtGuide">Guide</div>
-    <div class="rtab" onclick="switchRTab('design')" id="rtDesign">Design</div>
-    <div class="rtab" onclick="switchRTab('tmpl')" id="rtTmpl">Templates</div>
-    <div class="rtab" onclick="switchRTab('export')" id="rtExport">Export</div>
+    <div class="rtab on" onclick="switchRTab('symbols')" id="rtS">Symbols</div>
+    <div class="rtab" onclick="switchRTab('design')" id="rtD">Design</div>
+    <div class="rtab" onclick="switchRTab('tmpl')" id="rtT">Templates</div>
+    <div class="rtab" onclick="switchRTab('test')" id="rtTest">🧪 Test</div>
+    <div class="rtab" onclick="switchRTab('export')" id="rtE">Export</div>
   </div>
 
-  <!-- GUIDE -->
-
-  <div class="rpb on" id="rpGuide">
-    <div class="rc"><h4>Entities</h4><p>Solid border = strong entity. Double orange = weak entity.</p></div>
-    <div class="rc"><h4>Attributes</h4>
-      <div class="leg"><div class="ld" style="background:var(--g)"></div><span><u>PK</u> — Primary Key</span></div>
-      <div class="leg"><div class="ld" style="background:var(--b)"></div><span>→ FK — Foreign Key</span></div>
-      <div class="leg"><div class="ld" style="border:1px dashed var(--mu2);background:transparent"></div><span>⊕ Multi-valued</span></div>
+  <!-- SYMBOLS GUIDE -->
+  <div class="rpb on" id="rpS">
+    <div class="rc">
+      <h4>Entity Types</h4>
+      <!-- Strong entity -->
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="28" viewBox="0 0 48 28">
+          <rect x="2" y="2" width="44" height="24" rx="3" fill="#182030" stroke="#0fffa0" stroke-width="1.5"/>
+          <text x="24" y="15" text-anchor="middle" font-size="7" fill="#0fffa0" font-family="IBM Plex Mono" font-weight="700">ENTITY</text>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Strong Entity</span>Single rectangle — independent table</div>
+      </div>
+      <!-- Weak entity -->
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="28" viewBox="0 0 48 28">
+          <rect x="2" y="2" width="44" height="24" rx="3" fill="#182030" stroke="#ff9040" stroke-width="1.5"/>
+          <rect x="5" y="5" width="38" height="18" rx="2" fill="none" stroke="#ff9040" stroke-width="1"/>
+          <text x="24" y="15" text-anchor="middle" font-size="7" fill="#ff9040" font-family="IBM Plex Mono" font-weight="700">WEAK</text>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Weak Entity</span>Double rectangle — depends on parent</div>
+      </div>
     </div>
-    <div class="rc"><h4>Cardinality</h4><p>1:1 · 1:N · M:N<br/>shown on relation lines</p></div>
-    <div class="rc"><h4>Controls</h4>
-      <p><b style="color:var(--g)">Drag</b> entity → canvas<br/><b style="color:var(--p)">R key</b> = Relate tool<br/><b style="color:var(--b)">Dbl-click</b> entity = Edit<br/><b style="color:var(--y)">Right-click</b> = menu<br/><b style="color:var(--r)">✕</b> = delete node<br/><b style="color:var(--o)">Dbl-click</b> rel = delete</p>
+    <div class="rc">
+      <h4>Attribute Types</h4>
+      <!-- Simple attr -->
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="22" viewBox="0 0 48 22">
+          <ellipse cx="24" cy="11" rx="22" ry="9" fill="#182030" stroke="#5d6d8a" stroke-width="1.5"/>
+          <text x="24" y="14" text-anchor="middle" font-size="7" fill="#5d6d8a" font-family="IBM Plex Mono">attr</text>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Simple Attribute</span>Plain oval</div>
+      </div>
+      <!-- PK attr -->
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="22" viewBox="0 0 48 22">
+          <ellipse cx="24" cy="11" rx="22" ry="9" fill="#182030" stroke="#0fffa0" stroke-width="1.5"/>
+          <text x="24" y="14" text-anchor="middle" font-size="7" fill="#0fffa0" font-family="IBM Plex Mono" text-decoration="underline">🔑 id</text>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Primary Key</span>Underlined oval</div>
+      </div>
+      <!-- Multi-valued -->
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="22" viewBox="0 0 48 22">
+          <ellipse cx="24" cy="11" rx="22" ry="9" fill="#182030" stroke="#5d6d8a" stroke-width="1.5"/>
+          <ellipse cx="24" cy="11" rx="18" ry="6" fill="none" stroke="#5d6d8a" stroke-width="1"/>
+          <text x="24" y="14" text-anchor="middle" font-size="7" fill="#5d6d8a" font-family="IBM Plex Mono">⊕</text>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Multi-valued</span>Double oval</div>
+      </div>
+      <!-- Derived attr -->
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="22" viewBox="0 0 48 22">
+          <ellipse cx="24" cy="11" rx="22" ry="9" fill="#182030" stroke="#5d6d8a" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <text x="24" y="14" text-anchor="middle" font-size="7" fill="#5d6d8a" font-family="IBM Plex Mono">~attr</text>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Derived Attribute</span>Dashed oval — computed</div>
+      </div>
+      <!-- Composite attr -->
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="22" viewBox="0 0 48 22">
+          <ellipse cx="24" cy="11" rx="22" ry="9" fill="#182030" stroke="#b06aff" stroke-width="1.5"/>
+          <text x="24" y="14" text-anchor="middle" font-size="7" fill="#b06aff" font-family="IBM Plex Mono">+comp</text>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Composite Attribute</span>Has sub-attributes</div>
+      </div>
     </div>
-    <div class="rc"><h4>Keyboard</h4>
-      <p>V — Select &nbsp; R — Relate<br/>E — Entity &nbsp; T — Note<br/>Ctrl+Z — Undo<br/>Ctrl+A — Select all<br/>Del — Delete selected<br/>+/- — Zoom</p>
+    <div class="rc">
+      <h4>Relationship Types</h4>
+      <!-- Regular relationship -->
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="28" viewBox="0 0 48 28">
+          <polygon points="24,2 46,14 24,26 2,14" fill="#182030" stroke="#4f8eff" stroke-width="1.5"/>
+          <text x="24" y="17" text-anchor="middle" font-size="6" fill="#4f8eff" font-family="IBM Plex Mono">R</text>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Relationship</span>Diamond shape</div>
+      </div>
+      <!-- Identifying relationship (weak) -->
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="28" viewBox="0 0 48 28">
+          <polygon points="24,3 45,14 24,25 3,14" fill="#182030" stroke="#ff9040" stroke-width="1.5"/>
+          <polygon points="24,7 40,14 24,21 8,14" fill="none" stroke="#ff9040" stroke-width="1"/>
+          <text x="24" y="17" text-anchor="middle" font-size="6" fill="#ff9040" font-family="IBM Plex Mono">ID</text>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Identifying Rel.</span>Double diamond — for weak entities</div>
+      </div>
+    </div>
+    <div class="rc">
+      <h4>Crow's Foot Notation</h4>
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="16" viewBox="0 0 48 16">
+          <line x1="2" y1="8" x2="38" y2="8" stroke="#4f8eff" stroke-width="1.5"/>
+          <line x1="38" y1="3" x2="38" y2="13" stroke="#4f8eff" stroke-width="1.5"/>
+          <line x1="34" y1="3" x2="34" y2="13" stroke="#4f8eff" stroke-width="1.5"/>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Exactly One (|)</span>Mandatory</div>
+      </div>
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="16" viewBox="0 0 48 16">
+          <line x1="2" y1="8" x2="30" y2="8" stroke="#4f8eff" stroke-width="1.5"/>
+          <path d="M46,3 L32,8 L46,13" stroke="#4f8eff" fill="none" stroke-width="1.5"/>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Many (≫)</span>Zero or more</div>
+      </div>
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="16" viewBox="0 0 48 16">
+          <line x1="2" y1="8" x2="26" y2="8" stroke="#4f8eff" stroke-width="1.5"/>
+          <line x1="32" y1="3" x2="32" y2="13" stroke="#4f8eff" stroke-width="1.5"/>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">One (|)</span>Exactly one</div>
+      </div>
+      <div class="sym-row">
+        <svg class="sym-svg" width="48" height="16" viewBox="0 0 48 16">
+          <line x1="2" y1="8" x2="26" y2="8" stroke="#4f8eff" stroke-width="1.5"/>
+          <circle cx="30" cy="8" r="3" stroke="#4f8eff" fill="none" stroke-width="1.5"/>
+        </svg>
+        <div class="sym-desc"><span class="sym-name">Zero or One (○|)</span>Optional</div>
+      </div>
     </div>
   </div>
 
   <!-- DESIGN -->
-
-  <div class="rpb" id="rpDesign">
+  <div class="rpb" id="rpD">
     <div class="rc">
       <h4>Canvas Theme</h4>
-      <div class="thg" id="themeGrid"></div>
+      <div class="drow" id="themeG"></div>
     </div>
     <div class="rc">
-      <h4>Relation Style</h4>
-      <div style="display:flex;flex-direction:column;gap:5px" id="relStyleBtns">
-        <button class="tb on" style="width:100%;justify-content:center" onclick="setRelStyle('straight',this)">── Straight</button>
-        <button class="tb" style="width:100%;justify-content:center" onclick="setRelStyle('elbow',this)">⌐ Elbow</button>
-        <button class="tb" style="width:100%;justify-content:center" onclick="setRelStyle('curve',this)">∿ Curved</button>
+      <h4>Relation Routing</h4>
+      <div class="drow" style="flex-direction:column">
+        <button class="tb on" style="width:100%;justify-content:center;margin-bottom:3px" onclick="setRR('straight',this)">── Straight</button>
+        <button class="tb" style="width:100%;justify-content:center;margin-bottom:3px" onclick="setRR('elbow',this)">⌐ Elbow</button>
+        <button class="tb" style="width:100%;justify-content:center" onclick="setRR('curve',this)">∿ Curve</button>
       </div>
     </div>
     <div class="rc">
-      <h4>Font Size</h4>
-      <input type="range" min="9" max="16" value="11" class="sz-sl" style="width:100%" id="fontSz" oninput="setFontSize(this.value)"/>
-      <div style="font-size:9px;color:var(--mu2);margin-top:3px" id="fontSzLbl">11px</div>
+      <h4>Font Size <span class="dval" id="fszV">11px</span></h4>
+      <input class="drng" type="range" min="9" max="16" value="11" id="fszR" oninput="setFSZ(+this.value)"/>
     </div>
     <div class="rc">
-      <h4>Entity Width</h4>
-      <input type="range" min="150" max="280" value="192" class="sz-sl" style="width:100%" id="entW" oninput="setEntWidth(this.value)"/>
-      <div style="font-size:9px;color:var(--mu2);margin-top:3px" id="entWLbl">192px</div>
+      <h4>Entity Width <span class="dval" id="ewV">200px</span></h4>
+      <input class="drng" type="range" min="150" max="300" value="200" id="ewR" oninput="setEW(+this.value)"/>
     </div>
     <div class="rc">
       <h4>Shadow</h4>
-      <div style="display:flex;gap:5px">
-        <button class="tb on" style="flex:1;justify-content:center" onclick="setShadow('soft',this)">Soft</button>
-        <button class="tb" style="flex:1;justify-content:center" onclick="setShadow('none',this)">None</button>
-        <button class="tb" style="flex:1;justify-content:center" onclick="setShadow('glow',this)">Glow</button>
+      <div class="drow">
+        <button class="tb on" style="flex:1;justify-content:center" onclick="setSH('soft',this)">Soft</button>
+        <button class="tb" style="flex:1;justify-content:center" onclick="setSH('glow',this)">Glow</button>
+        <button class="tb" style="flex:1;justify-content:center" onclick="setSH('none',this)">Off</button>
       </div>
     </div>
   </div>
 
   <!-- TEMPLATES -->
+  <div class="rpb" id="rpT">
+    <div style="font-size:9px;color:var(--mu2);margin-bottom:7px">Pre-built ER patterns — click to load</div>
+    <div id="tmplG"></div>
+  </div>
 
-  <div class="rpb" id="rpTmpl">
-    <div style="font-size:9px;color:var(--mu2);margin-bottom:8px">Click a template to auto-load entities + relationships onto the canvas.</div>
-    <div class="tmg" id="tmplGrid"></div>
+  <!-- TEST -->
+  <div class="rpb" id="rpTest">
+    <div class="test-card">
+      <h4>Auto ER Tester</h4>
+      <p style="font-size:9px;color:var(--mu);line-height:1.6">Draw your ER diagram first, then click Test. AI will check your entities, attributes, relationships, and cardinality against the scenario.</p>
+      <br/>
+      <button class="run-test-btn" id="testBtn" onclick="runTest()">🧪 Run Test & Get Feedback</button>
+    </div>
+    <div id="testResults" style="display:none">
+      <div class="test-card">
+        <h4>Score</h4>
+        <div class="score-ring">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--s3)" stroke-width="6"/>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--g)" stroke-width="6" stroke-linecap="round"
+              stroke-dasharray="213" stroke-dashoffset="213" id="scoreArc" transform="rotate(-90 40 40)"
+              style="transition:stroke-dashoffset 1s ease"/>
+          </svg>
+          <div style="position:absolute;text-align:center">
+            <div class="score-num" id="scoreNum" style="color:var(--g)">–</div>
+            <div style="font-size:8px;color:var(--mu2)">/100</div>
+          </div>
+        </div>
+        <div style="font-size:10px;text-align:center;color:var(--mu);font-weight:600" id="scoreLabel"></div>
+      </div>
+      <div class="test-card" id="checksDiv">
+        <h4>Checklist</h4>
+      </div>
+      <div class="test-card" id="hintsDiv" style="display:none">
+        <h4>💡 Hints to Improve</h4>
+      </div>
+      <div class="test-card" id="summaryDiv" style="display:none">
+        <h4>📋 Summary</h4>
+      </div>
+    </div>
   </div>
 
   <!-- EXPORT -->
-
-  <div class="rpb" id="rpExport">
-    <div style="font-size:9px;color:var(--mu2);margin-bottom:8px">Export your diagram in multiple formats.</div>
+  <div class="rpb" id="rpE">
+    <div style="font-size:9px;color:var(--mu2);margin-bottom:7px">Choose export format</div>
     <div class="eg">
-      <button class="eb" onclick="exportSVG()"><div class="ei">🖼</div><div class="el">SVG</div></button>
-      <button class="eb" onclick="exportPNG()"><div class="ei">📸</div><div class="el">PNG</div></button>
-      <button class="eb" onclick="exportSQL()"><div class="ei">🗃</div><div class="el">SQL DDL</div></button>
-      <button class="eb" onclick="exportJSON()"><div class="ei">📦</div><div class="el">JSON</div></button>
-      <button class="eb" onclick="exportMermaid()"><div class="ei">🔗</div><div class="el">Mermaid</div></button>
-      <button class="eb" onclick="exportMarkdown()"><div class="ei">📝</div><div class="el">Markdown</div></button>
+      <button class="eb" onclick="expSVG()"><div class="ei">🖼</div><div class="el">SVG</div></button>
+      <button class="eb" onclick="expPNG()"><div class="ei">📸</div><div class="el">PNG</div></button>
+      <button class="eb" onclick="expSQL()"><div class="ei">🗃</div><div class="el">SQL DDL</div></button>
+      <button class="eb" onclick="expJSON()"><div class="ei">📦</div><div class="el">JSON</div></button>
+      <button class="eb" onclick="expMermaid()"><div class="ei">🔗</div><div class="el">Mermaid</div></button>
+      <button class="eb" onclick="expMarkdown()"><div class="ei">📝</div><div class="el">Markdown</div></button>
     </div>
-    <div class="rc" style="margin-top:8px"><h4>About Formats</h4>
-      <p><b style="color:var(--g)">SVG</b> — scalable vector, embed anywhere<br/><b style="color:var(--b)">PNG</b> — raster image<br/><b style="color:var(--o)">SQL</b> — CREATE TABLE DDL<br/><b style="color:var(--p)">Mermaid</b> — paste in GitHub README<br/><b style="color:var(--y)">JSON</b> — schema for devs</p>
+    <div class="rc" style="margin-top:8px">
+      <h4>Format Guide</h4>
+      <p><b style="color:var(--g)">SVG</b> — vector, embed anywhere<br/><b style="color:var(--b)">PNG</b> — raster image<br/><b style="color:var(--o)">SQL DDL</b> — CREATE TABLE scripts<br/><b style="color:var(--p)">Mermaid</b> — paste in GitHub README<br/><b style="color:var(--y)">JSON</b> — schema for developers</p>
     </div>
   </div>
 </div>
 </div>
 
-<!-- ════ MODALS ════ -->
+<!-- ═══ MODALS ═══ -->
 
 <!-- DATASET -->
-
 <div class="ov h" id="dsModal">
-<div class="md" style="width:520px">
+<div class="md" style="width:580px">
   <h2>// Practice Datasets</h2>
-  <div class="sub">Choose a real-world scenario to practice entity identification and relationship modelling.</div>
+  <div class="sub">Load a real-world scenario. Draw the ER diagram yourself, then use 🧪 Test to get AI feedback.</div>
   <div class="dsg" id="dsGrid"></div>
   <div class="mact">
-    <button class="mb" onclick="hideModal('dsModal')">Cancel</button>
+    <button class="mb" onclick="hide('dsModal')">Cancel</button>
     <button class="mb go" onclick="loadSelDS()">Load →</button>
   </div>
 </div>
 </div>
 
 <!-- RELATION -->
-
 <div class="ov h" id="relModal">
-<div class="md rmd">
+<div class="md" style="width:340px">
   <h2>// Add Relationship</h2>
-  <div class="fr"><label>From</label><select id="rFrom"></select></div>
-  <div class="fr"><label>To</label><select id="rTo"></select></div>
-  <div class="fr"><label>Relationship Name</label><input id="rName" placeholder="e.g. places, manages, belongs_to"/></div>
+  <div class="fr"><label>From Entity</label><select id="rFrom"></select></div>
+  <div class="fr"><label>To Entity</label><select id="rTo"></select></div>
+  <div class="fr"><label>Relationship / Verb</label><input id="rName" placeholder="e.g. places, manages, has"/></div>
   <div class="fr"><label>Cardinality</label>
     <select id="rCard">
-      <option value="1:1">1 : 1  — One to One</option>
-      <option value="1:N" selected>1 : N  — One to Many</option>
-      <option value="M:N">M : N  — Many to Many</option>
+      <option value="1:1">1 : 1 — One to One</option>
+      <option value="1:N" selected>1 : N — One to Many</option>
+      <option value="M:N">M : N — Many to Many</option>
+    </select>
+  </div>
+  <div class="fr"><label>Participation</label>
+    <select id="rPart">
+      <option value="partial">Partial (optional)</option>
+      <option value="total">Total (mandatory)</option>
     </select>
   </div>
   <div class="mact">
-    <button class="mb" onclick="hideModal('relModal')">Cancel</button>
+    <button class="mb" onclick="hide('relModal')">Cancel</button>
     <button class="mb go" onclick="addRel()">Add →</button>
   </div>
 </div>
 </div>
 
-<!-- AI PROCESSING -->
+<!-- ENTITY EDIT -->
+<div class="ov h" id="eeModal">
+<div class="md" style="width:420px">
+  <h2>// Edit Entity</h2>
+  <div class="fr"><label>Entity Name</label><input id="eeName" class="ui" style="font-family:var(--mono);font-weight:700;font-size:13px"/></div>
+  <div class="fr"><label>Type</label>
+    <select id="eeWeak" class="ui">
+      <option value="false">Strong Entity</option>
+      <option value="true">Weak Entity (double rectangle)</option>
+    </select>
+  </div>
+  <div class="fr">
+    <label>Attributes &nbsp;<button onclick="addAttrRow()" style="background:none;border:none;color:var(--g);cursor:pointer;font-size:12px;font-weight:700">+ Add</button></label>
+    <div id="attrRows"></div>
+  </div>
+  <div class="mact">
+    <button class="mb" onclick="hide('eeModal')">Cancel</button>
+    <button class="mb go" onclick="saveEdit()">Save →</button>
+  </div>
+</div>
+</div>
 
+<!-- AI MODAL -->
 <div class="ov h" id="aiModal">
-<div class="md amd" style="width:420px">
-  <h2>// AI Analysing Data</h2>
-  <p class="sub" id="aiMsg">Parsing and extracting ER schema…</p>
+<div class="md" style="width:400px">
+  <h2>// AI Analysing…</h2>
+  <p class="sub" id="aiMsg">Extracting ER schema from your data…</p>
   <div class="prb"><div class="prf" id="prf"></div></div>
   <div class="alg" id="alg"></div>
 </div>
 </div>
 
 <!-- EXPORT TEXT -->
-
 <div class="ov h" id="etModal">
-<div class="md etmd">
+<div class="md etm">
   <h2 id="etTitle"></h2>
   <textarea id="etArea" readonly></textarea>
   <div class="mact">
-    <button class="mb" onclick="hideModal('etModal')">Close</button>
-    <button class="mb bl" onclick="copyET()">Copy</button>
-  </div>
-</div>
-</div>
-
-<!-- ENTITY EDIT -->
-
-<div class="ov h" id="eeModal">
-<div class="md eemd">
-  <h2>// Edit Entity</h2>
-  <div class="fr"><label>Entity Name</label><input id="eeName" class="ui" style="font-family:var(--mono);font-weight:700"/></div>
-  <div class="fr"><label>Type</label>
-    <select id="eeWeak" class="ui"><option value="false">Strong Entity</option><option value="true">Weak Entity</option></select>
-  </div>
-  <div class="fr">
-    <label>Attributes <button onclick="addAttrRow()" style="background:none;border:none;color:var(--g);cursor:pointer;font-size:13px;margin-left:5px">+</button></label>
-    <div id="attrRows"></div>
-  </div>
-  <div class="mact">
-    <button class="mb" onclick="hideModal('eeModal')">Cancel</button>
-    <button class="mb go" onclick="saveEntityEdit()">Save →</button>
+    <button class="mb" onclick="hide('etModal')">Close</button>
+    <button class="mb go" onclick="navigator.clipboard.writeText(document.getElementById('etArea').value).then(()=>toast('Copied!'))">Copy</button>
   </div>
 </div>
 </div>
 
 <!-- CONTEXT MENU -->
-
 <div class="ctx" id="ctx">
-  <div class="ctx-item" onclick="ctxEdit()">✏️ Edit Entity</div>
-  <div class="ctx-item" onclick="ctxDuplicate()">⧉ Duplicate</div>
-  <div class="ctx-item" onclick="ctxAddRel()">→ Add Relation</div>
-  <div class="ctx-sep"></div>
-  <div class="ctx-item danger" onclick="ctxDelete()">🗑 Delete</div>
+  <div class="ci" onclick="ctxEdit()">✏️ Edit Entity</div>
+  <div class="ci" onclick="ctxDup()">⧉ Duplicate</div>
+  <div class="ci" onclick="ctxRel()">→ Add Relation</div>
+  <div class="csep"></div>
+  <div class="ci d" onclick="ctxDel()">🗑 Delete</div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- ════ SCRIPT ════ -->
-
 <script>
-// ─────────────────── DATASETS ───────────────────
+// ═══════════════════════════════════════
+// DATASETS
+// ═══════════════════════════════════════
 const DS={
-  ecommerce:{icon:'🛒',name:'E-Commerce',desc:'Customers place orders for products. Orders contain products. Products belong to categories. Payments per order. Delivery addresses tracked.',
+  ecommerce:{icon:'🛒',name:'E-Commerce',desc:'Customers place orders for products. Each order contains multiple products. Products belong to categories. Payments are tracked per order. Delivery addresses stored per customer.',
+    expected:{entities:['CUSTOMER','ORDER','PRODUCT','CATEGORY','PAYMENT','ADDRESS'],
+      relations:[['CUSTOMER','ORDER','places','1:N'],['ORDER','PRODUCT','contains','M:N'],['PRODUCT','CATEGORY','belongs to','M:N'],['ORDER','PAYMENT','has','1:1'],['CUSTOMER','ADDRESS','ships to','1:N']]},
     entities:[
       {name:'CUSTOMER',weak:false,attrs:[{n:'CustomerID',pk:true},{n:'Name'},{n:'Email'},{n:'Phone',mv:true}]},
-      {name:'ORDER',weak:false,attrs:[{n:'OrderID',pk:true},{n:'OrderDate'},{n:'Status'},{n:'TotalAmount'}]},
+      {name:'ORDER',weak:false,attrs:[{n:'OrderID',pk:true},{n:'OrderDate'},{n:'Status'},{n:'Total'}]},
       {name:'PRODUCT',weak:false,attrs:[{n:'ProductID',pk:true},{n:'Name'},{n:'Price'},{n:'Stock'}]},
-      {name:'CATEGORY',weak:false,attrs:[{n:'CategoryID',pk:true},{n:'CategoryName'},{n:'Description'}]},
+      {name:'CATEGORY',weak:false,attrs:[{n:'CategoryID',pk:true},{n:'CategoryName'}]},
       {name:'PAYMENT',weak:true,attrs:[{n:'PaymentID',pk:true},{n:'Method'},{n:'Amount'},{n:'PaidAt'}]},
       {name:'ADDRESS',weak:false,attrs:[{n:'AddressID',pk:true},{n:'Street'},{n:'City'},{n:'ZIP'}]},
-    ],
-    relations:[['CUSTOMER','ORDER','places','1:N'],['ORDER','PRODUCT','contains','M:N'],['PRODUCT','CATEGORY','belongs to','M:N'],['ORDER','PAYMENT','has','1:1'],['CUSTOMER','ADDRESS','ships to','1:N']]
-  },
-  hospital:{icon:'🏥',name:'Hospital',desc:'Patients treated by doctors in departments. Appointments, prescriptions, test results tracked. Wards for inpatient stays.',
+    ]},
+  hospital:{icon:'🏥',name:'Hospital',desc:'Patients are treated by doctors. Doctors belong to departments. Appointments link patients and doctors. Prescriptions issued per appointment. Wards for inpatient stays.',
+    expected:{entities:['PATIENT','DOCTOR','DEPARTMENT','APPOINTMENT','PRESCRIPTION','WARD'],
+      relations:[['PATIENT','APPOINTMENT','books','1:N'],['DOCTOR','APPOINTMENT','manages','1:N'],['DOCTOR','DEPARTMENT','works in','M:N'],['PATIENT','PRESCRIPTION','receives','1:N'],['PATIENT','WARD','admitted to','M:N']]},
     entities:[
       {name:'PATIENT',weak:false,attrs:[{n:'PatientID',pk:true},{n:'Name'},{n:'DOB'},{n:'BloodGroup'}]},
-      {name:'DOCTOR',weak:false,attrs:[{n:'DoctorID',pk:true},{n:'Name'},{n:'Specialisation'},{n:'Phone'}]},
+      {name:'DOCTOR',weak:false,attrs:[{n:'DoctorID',pk:true},{n:'Name'},{n:'Specialisation'}]},
       {name:'DEPARTMENT',weak:false,attrs:[{n:'DeptID',pk:true},{n:'DeptName'},{n:'Location'}]},
       {name:'APPOINTMENT',weak:true,attrs:[{n:'ApptID',pk:true},{n:'Date'},{n:'Reason'},{n:'Status'}]},
-      {name:'PRESCRIPTION',weak:true,attrs:[{n:'PrescID',pk:true},{n:'Medicine'},{n:'Dosage'},{n:'Duration'}]},
+      {name:'PRESCRIPTION',weak:true,attrs:[{n:'PrescID',pk:true},{n:'Medicine'},{n:'Dosage'}]},
       {name:'WARD',weak:false,attrs:[{n:'WardID',pk:true},{n:'WardName'},{n:'Capacity'}]},
-    ],
-    relations:[['PATIENT','APPOINTMENT','books','1:N'],['DOCTOR','APPOINTMENT','manages','1:N'],['DOCTOR','DEPARTMENT','belongs to','M:N'],['PATIENT','PRESCRIPTION','receives','1:N'],['PATIENT','WARD','admitted to','M:N']]
-  },
-  university:{icon:'🎓',name:'University',desc:'Students enrol in courses taught by instructors. Grades tracked per enrolment. Classrooms assigned to courses by departments.',
+    ]},
+  university:{icon:'🎓',name:'University',desc:'Students enrol in courses. Each course is taught by an instructor and offered by a department. Grades are assigned per enrolment. Classrooms are scheduled per course.',
+    expected:{entities:['STUDENT','COURSE','INSTRUCTOR','DEPARTMENT','ENROLMENT'],
+      relations:[['STUDENT','ENROLMENT','has','1:N'],['COURSE','ENROLMENT','records','1:N'],['INSTRUCTOR','COURSE','teaches','1:N'],['DEPARTMENT','COURSE','offers','1:N']]},
     entities:[
       {name:'STUDENT',weak:false,attrs:[{n:'StudentID',pk:true},{n:'Name'},{n:'Email'},{n:'Programme'}]},
-      {name:'COURSE',weak:false,attrs:[{n:'CourseID',pk:true},{n:'Title'},{n:'Credits'},{n:'Semester'}]},
-      {name:'INSTRUCTOR',weak:false,attrs:[{n:'InstructorID',pk:true},{n:'Name'},{n:'Title'},{n:'Email'}]},
+      {name:'COURSE',weak:false,attrs:[{n:'CourseID',pk:true},{n:'Title'},{n:'Credits'}]},
+      {name:'INSTRUCTOR',weak:false,attrs:[{n:'InstructorID',pk:true},{n:'Name'},{n:'Title'}]},
       {name:'DEPARTMENT',weak:false,attrs:[{n:'DeptID',pk:true},{n:'DeptName'},{n:'Building'}]},
       {name:'ENROLMENT',weak:true,attrs:[{n:'EnrolID',pk:true},{n:'Grade'},{n:'EnrolDate'}]},
-      {name:'CLASSROOM',weak:false,attrs:[{n:'RoomID',pk:true},{n:'Building'},{n:'Capacity'}]},
-    ],
-    relations:[['STUDENT','ENROLMENT','has','1:N'],['COURSE','ENROLMENT','records','1:N'],['INSTRUCTOR','COURSE','teaches','1:N'],['DEPARTMENT','COURSE','offers','1:N'],['COURSE','CLASSROOM','held in','M:N']]
-  },
-  library:{icon:'📚',name:'Library',desc:'Members borrow books by authors. Loans tracked with due dates. Fines for late returns. Books categorised by genre.',
+    ]},
+  library:{icon:'📚',name:'Library',desc:'Members borrow books written by authors. Books are categorised by genre. Loans are tracked with due dates. Fines are issued for late returns.',
+    expected:{entities:['MEMBER','BOOK','AUTHOR','GENRE','LOAN','FINE'],
+      relations:[['MEMBER','LOAN','makes','1:N'],['BOOK','LOAN','in','1:N'],['BOOK','AUTHOR','written by','M:N'],['BOOK','GENRE','categorised as','M:N'],['LOAN','FINE','incurs','1:1']]},
     entities:[
-      {name:'MEMBER',weak:false,attrs:[{n:'MemberID',pk:true},{n:'Name'},{n:'Email'},{n:'MemberType'}]},
+      {name:'MEMBER',weak:false,attrs:[{n:'MemberID',pk:true},{n:'Name'},{n:'Email'}]},
       {name:'BOOK',weak:false,attrs:[{n:'ISBN',pk:true},{n:'Title'},{n:'Publisher'},{n:'Year'}]},
       {name:'AUTHOR',weak:false,attrs:[{n:'AuthorID',pk:true},{n:'Name'},{n:'Nationality'}]},
       {name:'GENRE',weak:false,attrs:[{n:'GenreID',pk:true},{n:'GenreName'}]},
-      {name:'LOAN',weak:true,attrs:[{n:'LoanID',pk:true},{n:'LoanDate'},{n:'DueDate'},{n:'ReturnDate'}]},
+      {name:'LOAN',weak:true,attrs:[{n:'LoanID',pk:true},{n:'LoanDate'},{n:'DueDate'}]},
       {name:'FINE',weak:true,attrs:[{n:'FineID',pk:true},{n:'Amount'},{n:'Paid'}]},
-    ],
-    relations:[['MEMBER','LOAN','makes','1:N'],['BOOK','LOAN','involved in','1:N'],['BOOK','AUTHOR','written by','M:N'],['BOOK','GENRE','categorised as','M:N'],['LOAN','FINE','incurs','1:1']]
-  },
-  banking:{icon:'🏦',name:'Banking',desc:'Customers hold accounts at branches. Transactions logged per account. Loans issued with repayment schedules. Employees manage accounts.',
+    ]},
+  banking:{icon:'🏦',name:'Banking',desc:'Customers hold accounts at branches. Transactions are logged per account. Loans are issued to customers. Employees manage accounts at their branch.',
+    expected:{entities:['CUSTOMER','ACCOUNT','TRANSACTION','LOAN','BRANCH','EMPLOYEE'],
+      relations:[['CUSTOMER','ACCOUNT','holds','1:N'],['ACCOUNT','TRANSACTION','logs','1:N'],['CUSTOMER','LOAN','takes','1:N'],['BRANCH','ACCOUNT','manages','1:N']]},
     entities:[
       {name:'CUSTOMER',weak:false,attrs:[{n:'CustID',pk:true},{n:'Name'},{n:'NationalID'},{n:'Phone',mv:true}]},
-      {name:'ACCOUNT',weak:false,attrs:[{n:'AccountNo',pk:true},{n:'Type'},{n:'Balance'},{n:'OpenDate'}]},
+      {name:'ACCOUNT',weak:false,attrs:[{n:'AccountNo',pk:true},{n:'Type'},{n:'Balance'}]},
       {name:'TRANSACTION',weak:true,attrs:[{n:'TxnID',pk:true},{n:'Amount'},{n:'TxnDate'},{n:'TxnType'}]},
-      {name:'LOAN',weak:false,attrs:[{n:'LoanID',pk:true},{n:'LoanType'},{n:'Amount'},{n:'InterestRate'}]},
-      {name:'BRANCH',weak:false,attrs:[{n:'BranchID',pk:true},{n:'BranchName'},{n:'City'}]},
+      {name:'LOAN',weak:false,attrs:[{n:'LoanID',pk:true},{n:'LoanType'},{n:'Amount'}]},
+      {name:'BRANCH',weak:false,attrs:[{n:'BranchID',pk:true},{n:'Name'},{n:'City'}]},
       {name:'EMPLOYEE',weak:false,attrs:[{n:'EmpID',pk:true},{n:'Name'},{n:'Role'}]},
-    ],
-    relations:[['CUSTOMER','ACCOUNT','holds','1:N'],['ACCOUNT','TRANSACTION','logs','1:N'],['CUSTOMER','LOAN','takes','1:N'],['BRANCH','ACCOUNT','manages','1:N'],['EMPLOYEE','BRANCH','works at','M:N']]
-  },
-  airline:{icon:'✈️',name:'Airline',desc:'Passengers book flights operated by airlines. Flights depart from airports. Each flight has an aircraft. Crew assigned to flights.',
+    ]},
+  airline:{icon:'✈️',name:'Airline',desc:'Passengers book flights. Flights depart from and arrive at airports. Each flight uses an aircraft. Crew members are assigned to flights.',
+    expected:{entities:['PASSENGER','FLIGHT','AIRPORT','AIRCRAFT','BOOKING','CREW'],
+      relations:[['PASSENGER','BOOKING','makes','1:N'],['FLIGHT','BOOKING','has','1:N'],['FLIGHT','AIRPORT','departs from','M:N'],['FLIGHT','AIRCRAFT','uses','M:N'],['CREW','FLIGHT','assigned to','M:N']]},
     entities:[
-      {name:'PASSENGER',weak:false,attrs:[{n:'PassengerID',pk:true},{n:'Name'},{n:'Passport'},{n:'Email'}]},
+      {name:'PASSENGER',weak:false,attrs:[{n:'PassengerID',pk:true},{n:'Name'},{n:'Passport'}]},
       {name:'FLIGHT',weak:false,attrs:[{n:'FlightNo',pk:true},{n:'Departure'},{n:'Arrival'},{n:'Status'}]},
-      {name:'AIRPORT',weak:false,attrs:[{n:'AirportCode',pk:true},{n:'Name'},{n:'City'},{n:'Country'}]},
-      {name:'AIRCRAFT',weak:false,attrs:[{n:'AircraftID',pk:true},{n:'Model'},{n:'Capacity'},{n:'Airline'}]},
-      {name:'BOOKING',weak:true,attrs:[{n:'BookingID',pk:true},{n:'SeatNo'},{n:'Class'},{n:'BookingDate'}]},
-      {name:'CREW',weak:false,attrs:[{n:'CrewID',pk:true},{n:'Name'},{n:'Role'},{n:'Licence'}]},
-    ],
-    relations:[['PASSENGER','BOOKING','makes','1:N'],['FLIGHT','BOOKING','has','1:N'],['FLIGHT','AIRPORT','departs from','M:N'],['FLIGHT','AIRCRAFT','uses','M:N'],['CREW','FLIGHT','assigned to','M:N']]
-  },
-  social:{icon:'📱',name:'Social Media',desc:'Users post content, follow each other, like and comment on posts. Posts tagged with hashtags. Notifications sent to users.',
+      {name:'AIRPORT',weak:false,attrs:[{n:'Code',pk:true},{n:'Name'},{n:'City'}]},
+      {name:'AIRCRAFT',weak:false,attrs:[{n:'AircraftID',pk:true},{n:'Model'},{n:'Capacity'}]},
+      {name:'BOOKING',weak:true,attrs:[{n:'BookingID',pk:true},{n:'SeatNo'},{n:'Class'}]},
+      {name:'CREW',weak:false,attrs:[{n:'CrewID',pk:true},{n:'Name'},{n:'Role'}]},
+    ]},
+  social:{icon:'📱',name:'Social Media',desc:'Users create posts and comment on each other\'s content. Posts are tagged with hashtags. Users follow other users. Notifications are sent for activities.',
+    expected:{entities:['USER','POST','COMMENT','HASHTAG','FOLLOW','NOTIFICATION'],
+      relations:[['USER','POST','creates','1:N'],['USER','COMMENT','writes','1:N'],['POST','COMMENT','has','1:N'],['POST','HASHTAG','tagged with','M:N'],['USER','FOLLOW','follows','M:N']]},
     entities:[
       {name:'USER',weak:false,attrs:[{n:'UserID',pk:true},{n:'Username'},{n:'Email'},{n:'Bio'}]},
-      {name:'POST',weak:false,attrs:[{n:'PostID',pk:true},{n:'Content'},{n:'MediaURL'},{n:'CreatedAt'}]},
+      {name:'POST',weak:false,attrs:[{n:'PostID',pk:true},{n:'Content'},{n:'CreatedAt'}]},
       {name:'COMMENT',weak:true,attrs:[{n:'CommentID',pk:true},{n:'Text'},{n:'CommentedAt'}]},
-      {name:'HASHTAG',weak:false,attrs:[{n:'TagID',pk:true},{n:'TagName'},{n:'UseCount'}]},
-      {name:'NOTIFICATION',weak:true,attrs:[{n:'NotifID',pk:true},{n:'Type'},{n:'IsRead'},{n:'SentAt'}]},
+      {name:'HASHTAG',weak:false,attrs:[{n:'TagID',pk:true},{n:'TagName'}]},
       {name:'FOLLOW',weak:true,attrs:[{n:'FollowID',pk:true},{n:'FollowedAt'}]},
-    ],
-    relations:[['USER','POST','creates','1:N'],['USER','COMMENT','writes','1:N'],['POST','COMMENT','has','1:N'],['POST','HASHTAG','tagged with','M:N'],['USER','FOLLOW','follows','M:N'],['USER','NOTIFICATION','receives','1:N']]
-  },
-  inventory:{icon:'📦',name:'Inventory',desc:'Warehouses store products from suppliers. Stock levels tracked per location. Purchase orders placed to suppliers. Products organised by categories.',
+      {name:'NOTIFICATION',weak:true,attrs:[{n:'NotifID',pk:true},{n:'Type'},{n:'IsRead'}]},
+    ]},
+  inventory:{icon:'📦',name:'Inventory',desc:'Warehouses store products from suppliers. Stock levels are tracked per product per warehouse. Purchase orders are placed to suppliers. Products organised by category.',
+    expected:{entities:['PRODUCT','WAREHOUSE','SUPPLIER','PURCHASE_ORDER','STOCK','CATEGORY'],
+      relations:[['WAREHOUSE','STOCK','holds','1:N'],['PRODUCT','STOCK','tracked by','1:N'],['SUPPLIER','PURCHASE_ORDER','fulfils','1:N'],['PRODUCT','CATEGORY','belongs to','M:N']]},
     entities:[
-      {name:'PRODUCT',weak:false,attrs:[{n:'ProductID',pk:true},{n:'Name'},{n:'SKU'},{n:'UnitPrice'}]},
-      {name:'WAREHOUSE',weak:false,attrs:[{n:'WarehouseID',pk:true},{n:'Name'},{n:'City'},{n:'Capacity'}]},
-      {name:'SUPPLIER',weak:false,attrs:[{n:'SupplierID',pk:true},{n:'Name'},{n:'Country'},{n:'ContactEmail'}]},
-      {name:'PURCHASE_ORDER',weak:true,attrs:[{n:'POID',pk:true},{n:'OrderDate'},{n:'TotalCost'},{n:'Status'}]},
+      {name:'PRODUCT',weak:false,attrs:[{n:'ProductID',pk:true},{n:'Name'},{n:'SKU'},{n:'Price'}]},
+      {name:'WAREHOUSE',weak:false,attrs:[{n:'WarehouseID',pk:true},{n:'Name'},{n:'City'}]},
+      {name:'SUPPLIER',weak:false,attrs:[{n:'SupplierID',pk:true},{n:'Name'},{n:'Country'}]},
+      {name:'PURCHASE_ORDER',weak:true,attrs:[{n:'POID',pk:true},{n:'OrderDate'},{n:'TotalCost'}]},
       {name:'STOCK',weak:true,attrs:[{n:'StockID',pk:true},{n:'Quantity'},{n:'LastUpdated'}]},
-      {name:'CATEGORY',weak:false,attrs:[{n:'CatID',pk:true},{n:'CategoryName'},{n:'Description'}]},
-    ],
-    relations:[['WAREHOUSE','STOCK','holds','1:N'],['PRODUCT','STOCK','tracked by','1:N'],['SUPPLIER','PURCHASE_ORDER','fulfils','1:N'],['PRODUCT','PURCHASE_ORDER','included in','M:N'],['PRODUCT','CATEGORY','belongs to','M:N']]
-  },
+      {name:'CATEGORY',weak:false,attrs:[{n:'CatID',pk:true},{n:'CategoryName'}]},
+    ]},
 };
 
-// ─────────────────── TEMPLATES (pre-built layouts) ───────────────────
+// Templates
 const TEMPLATES=[
-  {icon:'🏪',name:'Simple Shop',desc:'Customer → Order → Product (3 entities)',
-    entities:[
-      {name:'CUSTOMER',weak:false,attrs:[{n:'CustomerID',pk:true},{n:'Name'},{n:'Email'}]},
-      {name:'ORDER',weak:false,attrs:[{n:'OrderID',pk:true},{n:'Date'},{n:'Total'}]},
-      {name:'PRODUCT',weak:false,attrs:[{n:'ProductID',pk:true},{n:'Name'},{n:'Price'}]},
-    ],relations:[['CUSTOMER','ORDER','places','1:N'],['ORDER','PRODUCT','contains','M:N']]
-  },
-  {icon:'👤',name:'User & Roles',desc:'User, Role, Permission — access control pattern',
-    entities:[
-      {name:'USER',weak:false,attrs:[{n:'UserID',pk:true},{n:'Username'},{n:'Email'},{n:'CreatedAt'}]},
-      {name:'ROLE',weak:false,attrs:[{n:'RoleID',pk:true},{n:'RoleName'},{n:'Description'}]},
-      {name:'PERMISSION',weak:false,attrs:[{n:'PermID',pk:true},{n:'Resource'},{n:'Action'}]},
-      {name:'USER_ROLE',weak:true,attrs:[{n:'AssignedAt',pk:false}]},
-    ],relations:[['USER','USER_ROLE','has','1:N'],['ROLE','USER_ROLE','assigned via','1:N'],['ROLE','PERMISSION','grants','M:N']]
-  },
-  {icon:'🧾',name:'Invoice System',desc:'Client, Invoice, Line Item, Product — billing pattern',
-    entities:[
-      {name:'CLIENT',weak:false,attrs:[{n:'ClientID',pk:true},{n:'Name'},{n:'TaxNo'},{n:'Address'}]},
-      {name:'INVOICE',weak:false,attrs:[{n:'InvoiceID',pk:true},{n:'Date'},{n:'DueDate'},{n:'Total'}]},
-      {name:'LINE_ITEM',weak:true,attrs:[{n:'LineNo',pk:true},{n:'Quantity'},{n:'UnitPrice'}]},
-      {name:'PRODUCT',weak:false,attrs:[{n:'ProductID',pk:true},{n:'Name'},{n:'Price'}]},
-    ],relations:[['CLIENT','INVOICE','receives','1:N'],['INVOICE','LINE_ITEM','contains','1:N'],['LINE_ITEM','PRODUCT','references','M:N']]
-  },
-  {icon:'📅',name:'Event Booking',desc:'Venue, Event, Ticket, Attendee — ticketing system',
-    entities:[
-      {name:'VENUE',weak:false,attrs:[{n:'VenueID',pk:true},{n:'Name'},{n:'City'},{n:'Capacity'}]},
-      {name:'EVENT',weak:false,attrs:[{n:'EventID',pk:true},{n:'Title'},{n:'StartDate'},{n:'Category'}]},
-      {name:'TICKET',weak:true,attrs:[{n:'TicketID',pk:true},{n:'Type'},{n:'Price'},{n:'SeatNo'}]},
-      {name:'ATTENDEE',weak:false,attrs:[{n:'AttendeeID',pk:true},{n:'Name'},{n:'Email'}]},
-    ],relations:[['VENUE','EVENT','hosts','1:N'],['EVENT','TICKET','issues','1:N'],['ATTENDEE','TICKET','purchases','1:N']]
-  },
-  {icon:'🏘️',name:'Real Estate',desc:'Property, Owner, Agent, Listing, Transaction',
-    entities:[
-      {name:'PROPERTY',weak:false,attrs:[{n:'PropID',pk:true},{n:'Address'},{n:'Type'},{n:'Price'}]},
-      {name:'OWNER',weak:false,attrs:[{n:'OwnerID',pk:true},{n:'Name'},{n:'Contact'}]},
-      {name:'AGENT',weak:false,attrs:[{n:'AgentID',pk:true},{n:'Name'},{n:'Agency'},{n:'Commission'}]},
-      {name:'LISTING',weak:true,attrs:[{n:'ListID',pk:true},{n:'ListDate'},{n:'Status'}]},
-      {name:'TRANSACTION',weak:true,attrs:[{n:'TxnID',pk:true},{n:'SalePrice'},{n:'SaleDate'}]},
-    ],relations:[['OWNER','PROPERTY','owns','1:N'],['AGENT','LISTING','manages','1:N'],['PROPERTY','LISTING','listed as','1:N'],['PROPERTY','TRANSACTION','sold in','1:1']]
-  },
-  {icon:'🎮',name:'Game Database',desc:'Player, Game, Achievement, Leaderboard, Session',
-    entities:[
-      {name:'PLAYER',weak:false,attrs:[{n:'PlayerID',pk:true},{n:'Username'},{n:'Level'},{n:'Country'}]},
-      {name:'GAME',weak:false,attrs:[{n:'GameID',pk:true},{n:'Title'},{n:'Genre'},{n:'Platform'}]},
-      {name:'SESSION',weak:true,attrs:[{n:'SessionID',pk:true},{n:'StartTime'},{n:'Duration'},{n:'Score'}]},
-      {name:'ACHIEVEMENT',weak:false,attrs:[{n:'AchID',pk:true},{n:'Name'},{n:'Points'},{n:'Rarity'}]},
-      {name:'LEADERBOARD',weak:true,attrs:[{n:'Rank',pk:false},{n:'TotalScore'},{n:'RecordedAt'}]},
-    ],relations:[['PLAYER','SESSION','plays','1:N'],['GAME','SESSION','belongs to','1:N'],['PLAYER','ACHIEVEMENT','earns','M:N'],['PLAYER','LEADERBOARD','appears in','1:N']]
-  },
+  {icon:'🏪',name:'Simple Shop',desc:'3-entity starter',
+    entities:[{name:'CUSTOMER',weak:false,attrs:[{n:'ID',pk:true},{n:'Name'},{n:'Email'}]},{name:'ORDER',weak:false,attrs:[{n:'OrderID',pk:true},{n:'Date'},{n:'Total'}]},{name:'PRODUCT',weak:false,attrs:[{n:'ProductID',pk:true},{n:'Name'},{n:'Price'}]}],
+    relations:[['CUSTOMER','ORDER','places','1:N'],['ORDER','PRODUCT','contains','M:N']]},
+  {icon:'👤',name:'Auth & Roles',desc:'User, Role, Permission',
+    entities:[{name:'USER',weak:false,attrs:[{n:'UserID',pk:true},{n:'Username'},{n:'Email'}]},{name:'ROLE',weak:false,attrs:[{n:'RoleID',pk:true},{n:'RoleName'}]},{name:'PERMISSION',weak:false,attrs:[{n:'PermID',pk:true},{n:'Resource'},{n:'Action'}]}],
+    relations:[['USER','ROLE','has','M:N'],['ROLE','PERMISSION','grants','M:N']]},
+  {icon:'🧾',name:'Invoice',desc:'Client, Invoice, Line Item',
+    entities:[{name:'CLIENT',weak:false,attrs:[{n:'ClientID',pk:true},{n:'Name'},{n:'TaxNo'}]},{name:'INVOICE',weak:false,attrs:[{n:'InvoiceID',pk:true},{n:'Date'},{n:'Total'}]},{name:'LINE_ITEM',weak:true,attrs:[{n:'LineNo',pk:true},{n:'Qty'},{n:'Price'}]},{name:'PRODUCT',weak:false,attrs:[{n:'ProductID',pk:true},{n:'Name'},{n:'Price'}]}],
+    relations:[['CLIENT','INVOICE','receives','1:N'],['INVOICE','LINE_ITEM','contains','1:N'],['LINE_ITEM','PRODUCT','references','M:N']]},
+  {icon:'🎮',name:'Game',desc:'Player, Game, Session, Achievement',
+    entities:[{name:'PLAYER',weak:false,attrs:[{n:'PlayerID',pk:true},{n:'Username'},{n:'Level'}]},{name:'GAME',weak:false,attrs:[{n:'GameID',pk:true},{n:'Title'},{n:'Genre'}]},{name:'SESSION',weak:true,attrs:[{n:'SessionID',pk:true},{n:'Score'},{n:'Duration'}]},{name:'ACHIEVEMENT',weak:false,attrs:[{n:'AchID',pk:true},{n:'Name'},{n:'Points'}]}],
+    relations:[['PLAYER','SESSION','plays','1:N'],['GAME','SESSION','in','1:N'],['PLAYER','ACHIEVEMENT','earns','M:N']]},
+  {icon:'🏘️',name:'Real Estate',desc:'Property, Owner, Agent, Listing',
+    entities:[{name:'PROPERTY',weak:false,attrs:[{n:'PropID',pk:true},{n:'Address'},{n:'Type'},{n:'Price'}]},{name:'OWNER',weak:false,attrs:[{n:'OwnerID',pk:true},{n:'Name'},{n:'Contact'}]},{name:'AGENT',weak:false,attrs:[{n:'AgentID',pk:true},{n:'Name'},{n:'Agency'}]},{name:'LISTING',weak:true,attrs:[{n:'ListID',pk:true},{n:'ListDate'},{n:'Status'}]}],
+    relations:[['OWNER','PROPERTY','owns','1:N'],['AGENT','LISTING','manages','1:N'],['PROPERTY','LISTING','listed as','1:1']]},
 ];
 
-// ─────────────────── THEMES ───────────────────
+// Themes
 const THEMES={
-  dark:{label:'Dark',bg:'#090c14',dot:'#1b2133',ef:'#141928',es:'#00e5a0',et:'#00e5a0',ea:'#6b7694',rel:'#4d7cfe',wk:'#ff8c42'},
-  light:{label:'Light',bg:'#f4f6fa',dot:'#dde3f0',ef:'#ffffff',es:'#0066cc',et:'#0066cc',ea:'#444a6a',rel:'#2255dd',wk:'#cc5500'},
-  purple:{label:'Purple',bg:'#100820',dot:'#1e1040',ef:'#1a103a',es:'#a259ff',et:'#a259ff',ea:'#8877aa',rel:'#cc88ff',wk:'#ff8c42'},
-  ocean:{label:'Ocean',bg:'#050f1a',dot:'#0d2035',ef:'#0a1f35',es:'#00cfcf',et:'#00cfcf',ea:'#5588aa',rel:'#4d7cfe',wk:'#ff8c42'},
-  fire:{label:'Fire',bg:'#140a04',dot:'#2a1208',ef:'#200e06',es:'#ff8c42',et:'#ff8c42',ea:'#886644',rel:'#ff4d6d',wk:'#ffd166'},
-  mono:{label:'Mono',bg:'#111',dot:'#222',ef:'#1a1a1a',es:'#888',et:'#ccc',ea:'#666',rel:'#999',wk:'#aaa'},
+  'Dark Night':{bg:'#07090f',dot:'#182030',ef:'#111625',es:'#0fffa0',et:'#0fffa0',mu:'#5d6d8a',rel:'#4f8eff'},
+  'Deep Ocean':{bg:'#040d18',dot:'#0d2035',ef:'#0a1928',es:'#00e0e0',et:'#00e0e0',mu:'#4a6d8a',rel:'#4f8eff'},
+  'Violet Dusk':{bg:'#0d0714',dot:'#1a0f28',ef:'#160f22',es:'#b06aff',et:'#c888ff',mu:'#6a4a8a',rel:'#4f8eff'},
+  'Amber Code':{bg:'#100c04',dot:'#201808',ef:'#1c1408',es:'#ff9040',et:'#ffb060',mu:'#7a5a30',rel:'#ffe060'},
+  'Light Lab':{bg:'#f0f4fa',dot:'#dce6f5',ef:'#ffffff',es:'#0055cc',et:'#0055cc',mu:'#445577',rel:'#2244cc'},
+  'Mono Ink':{bg:'#0a0a0a',dot:'#1a1a1a',ef:'#141414',es:'#cccccc',et:'#ffffff',mu:'#555',rel:'#888'},
 };
 
-// ─────────────────── STATE ───────────────────
+// ─── STATE ───
 let nodes=[],rels=[],notes=[],history=[];
 let nId=0,rId=0,noteId=0;
-let selectedNode=null,tool='select',snap=true,zoom=1;
-let dragState=null,selDS=null;
-let EW=192,FSZ=11,shadowMode='soft',lineStyle='solid',relStyle='straight',lineColor='#4d7cfe',strokeColor='#00e5a0';
-const EH=36,AH=22,EP=10;
-let editingNodeId=null,ctxNodeId=null;
+let selNode=null,tool='select',snap=true,zoom=1;
+let drag=null,drawFrom=null;
+let selDS=null,currentDS=null,editId=null,ctxId=null;
+let EW=200,FSZ=11,shadow='soft',lineStyle='solid',notation='crow',routing='straight';
+let entityColor='#0fffa0',lineColor='#4f8eff';
 
-// ─────────────────── INIT ───────────────────
+// ─── INIT ───
 window.onload=()=>{
-  buildDSGrid();buildThemeGrid();buildTemplateGrid();
-  showModal('dsModal');
-  setupDrop();setupDZ();
-  setGrid('dot',document.getElementById('gDot'));
+  buildDSGrid();buildThemes();buildTemplates();
+  show('dsModal');
+  setupDZ();setupCanvasEvents();
   document.addEventListener('keydown',onKey);
-  document.addEventListener('click',()=>hideCtx());
+  document.addEventListener('click',e=>{if(!e.target.closest('.ctx'))hide('ctx');});
 };
 
-// ─────────────────── DATASETS ───────────────────
+// ─── DATASETS ───
 function buildDSGrid(){
   const g=document.getElementById('dsGrid');g.innerHTML='';
   Object.entries(DS).forEach(([k,d])=>{
-    const c=el('div','dsc');c.dataset.k=k;
-    c.innerHTML=`<div class="di">${d.icon}</div><h3>${d.name}</h3><p>${d.desc.substring(0,55)}…</p>`;
+    const c=mk('div','dsc');c.dataset.k=k;
+    c.innerHTML=`<div class="di">${d.icon}</div><h3>${d.name}</h3><p>${d.desc.substring(0,40)}…</p>`;
     c.onclick=()=>{$$('.dsc').forEach(x=>x.classList.remove('on'));c.classList.add('on');selDS=k;};
     g.appendChild(c);
   });
 }
 function loadSelDS(){
-  if(!selDS)return;
-  hideModal('dsModal');
-  loadDataset(selDS);
-}
-function loadDataset(key){
-  const d=DS[key];
-  push();
+  if(!selDS)return;hide('dsModal');
+  currentDS=DS[selDS];
   document.getElementById('scSec').style.display='';
-  document.getElementById('scTxt').textContent=d.desc;
-  document.getElementById('empty').style.display='none';
-  renderSidebar(d.entities);
+  document.getElementById('scTxt').textContent=currentDS.desc;
+  document.getElementById('emptyS').style.display='none';
+  renderSidebar(currentDS.entities);
   clearCanvas(false);
-  const cols=Math.ceil(Math.sqrt(d.entities.length));
-  const nm={};
-  d.entities.forEach((e,i)=>{
-    const id=addNode(e,60+(i%cols)*(EW+90),60+Math.floor(i/cols)*190,false);
-    nm[e.name]=id;
-  });
-  (d.relations||[]).forEach(([a,b,lbl,card])=>{
-    const fi=nm[a],ti=nm[b];
-    if(fi&&ti)rels.push({id:'r'+(rId++),from:fi,to:ti,label:lbl,card});
-  });
-  renderCanvas();
-  toast('Loaded: '+d.name);
+  toast('Loaded: '+currentDS.name+' — Now draw the ER diagram yourself!');
+  // Reset test
+  document.getElementById('testResults').style.display='none';
 }
 
-// ─────────────────── SIDEBAR ───────────────────
-function renderSidebar(entities){
-  const list=document.getElementById('eList');
-  list.innerHTML='<div class="elbl">Entities — drag to canvas</div>';
-  entities.forEach(ent=>{
-    const card=el('div','ecard'+(ent.weak?' wk':''));
-    card.draggable=true;card.dataset.e=JSON.stringify(ent);
-    const chips=(ent.attrs||[]).map(a=>{
-      let c='ach';
-      if(a.pk)c+=' pk';if(a.fk)c+=' fk';if(a.mv)c+=' mv';
-      return`<span class="${c}">${a.n||a.name}</span>`;
-    }).join('');
-    card.innerHTML=`<div class="en">${ent.name}<span class="etag ${ent.weak?'wk':'st'}">${ent.weak?'WEAK':'ENTITY'}</span></div><div class="eas">${chips}</div><div class="dh">↖ drag to canvas</div>`;
-    card.addEventListener('dragstart',e=>e.dataTransfer.setData('ed',card.dataset.e));
-    list.appendChild(card);
+// ─── SIDEBAR ───
+function renderSidebar(ents){
+  const l=document.getElementById('eList');
+  l.innerHTML='<div class="elbl">Entities — drag to canvas</div>';
+  ents.forEach(e=>{
+    const c=mk('div','ecard'+(e.weak?' wk':''));
+    c.draggable=true;c.dataset.e=JSON.stringify(e);
+    const chips=(e.attrs||[]).map(a=>`<span class="ach ${a.pk?'pk':a.fk?'fk':a.mv?'mv':a.dk?'dk':''}">${a.pk?'🔑':a.mv?'⊕':''} ${a.n}</span>`).join('');
+    c.innerHTML=`<div class="en">${e.name} <span class="etag ${e.weak?'w':'s'}">${e.weak?'WEAK':'ENTITY'}</span></div><div class="eas">${chips}</div><div class="dh">↖ drag to canvas</div>`;
+    c.addEventListener('dragstart',ev=>ev.dataTransfer.setData('ed',c.dataset.e));
+    l.appendChild(c);
   });
 }
 
-// ─────────────────── CANVAS DROP ───────────────────
-function setupDrop(){
+// ─── CANVAS EVENTS ───
+function setupCanvasEvents(){
   const cw=document.getElementById('cw');
   cw.addEventListener('dragover',e=>e.preventDefault());
   cw.addEventListener('drop',e=>{
@@ -791,270 +900,585 @@ function setupDrop(){
     const raw=e.dataTransfer.getData('ed');if(!raw)return;
     const ent=JSON.parse(raw);
     const r=cw.getBoundingClientRect();
-    push();addNode(ent,snapV(e.clientX-r.left-EW/2),snapV(e.clientY-r.top-30));
-    document.getElementById('empty').style.display='none';
+    push();addNode(ent,sv(e.clientX-r.left-EW/2),sv(e.clientY-r.top-30));
+    document.getElementById('emptyS').style.display='none';
   });
 }
+function setupDZ(){
+  const dz=document.getElementById('dz');
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('ov');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('ov'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('ov');handleFile(e.dataTransfer.files);});
+}
 
-// ─────────────────── ADD NODE ───────────────────
+// ─── NODE MANAGEMENT ───
 function addNode(ent,x,y,render=true){
   const id='n'+(nId++);
-  nodes.push({id,name:ent.name,x:Math.max(0,x),y:Math.max(0,y),attrs:ent.attrs||[],weak:ent.weak||false,color:strokeColor});
+  nodes.push({id,name:ent.name,x:Math.max(4,x),y:Math.max(4,y),attrs:ent.attrs||[],weak:ent.weak||false,color:entityColor});
   if(render)renderCanvas();
   return id;
 }
 
-// ─────────────────── RENDER ───────────────────
-function eH(n){return EH+n.attrs.length*AH+EP;}
+// ─── RENDER ───
+const EH=34,AH=21;
+function eH(n){return EH+n.attrs.length*AH+8;}
 function eC(n){return{cx:n.x+EW/2,cy:n.y+eH(n)/2};}
 
 function renderCanvas(){
-  const rl=document.getElementById('rl'),eLayer=document.getElementById('el'),nl=document.getElementById('nl');
-  rl.innerHTML='';eLayer.innerHTML='';nl.innerHTML='';
-  const inf=nodes.length?`${nodes.length} entities · ${rels.length} relationships`:'';
-  document.getElementById('cinf').textContent=inf;
+  const rlayer=document.getElementById('rl'),elayer=document.getElementById('el'),nlayer=document.getElementById('nl');
+  rlayer.innerHTML='';elayer.innerHTML='';nlayer.innerHTML='';
 
-  // Relations
+  // Update line marker color dynamically
+  document.querySelectorAll('#mainSvg marker path,#mainSvg marker line,#mainSvg marker circle').forEach(el=>{
+    if(el.getAttribute('stroke'))el.setAttribute('stroke',lineColor);
+    if(el.getAttribute('fill')&&el.getAttribute('fill')!='none')el.setAttribute('fill',lineColor);
+  });
+
+  const count=nodes.length;
+  document.getElementById('cinf').textContent=count?`${count} entities · ${rels.length} relations`:'';
+
+  // ── Relations ──
   rels.forEach(rel=>{
     const fn=nodes.find(n=>n.id===rel.from),tn=nodes.find(n=>n.id===rel.to);
     if(!fn||!tn)return;
     const fc=eC(fn),tc=eC(tn);
-    const g=svgG();
+    const g=svgG('g');
 
-    let d;
-    if(relStyle==='curve'){
-      const mx=(fc.cx+tc.cx)/2,my=(fc.cy+tc.cy)/2-40;
-      d=`M${fc.cx},${fc.cy} Q${mx},${my} ${tc.cx},${tc.cy}`;
-      const path=svgE('path');
-      path.setAttribute('d',d);path.setAttribute('fill','none');
-      path.setAttribute('stroke',lineColor);path.setAttribute('stroke-width','1.5');
-      if(lineStyle==='dashed')path.setAttribute('stroke-dasharray','6,3');
-      if(lineStyle==='dotted')path.setAttribute('stroke-dasharray','2,3');
-      path.setAttribute('marker-end','url(#arG)');
-      g.appendChild(path);
-    } else if(relStyle==='elbow'){
+    // Path
+    let path='';
+    if(routing==='curve'){
+      const cx=(fc.cx+tc.cx)/2,cy=Math.min(fc.cy,tc.cy)-60;
+      path=`M${fc.cx},${fc.cy} Q${cx},${cy} ${tc.cx},${tc.cy}`;
+    } else if(routing==='elbow'){
       const mx=(fc.cx+tc.cx)/2;
-      const pts=`M${fc.cx},${fc.cy} L${mx},${fc.cy} L${mx},${tc.cy} L${tc.cx},${tc.cy}`;
-      const path=svgE('path');
-      path.setAttribute('d',pts);path.setAttribute('fill','none');
-      path.setAttribute('stroke',lineColor);path.setAttribute('stroke-width','1.5');
-      if(lineStyle==='dashed')path.setAttribute('stroke-dasharray','6,3');
-      if(lineStyle==='dotted')path.setAttribute('stroke-dasharray','2,3');
-      path.setAttribute('marker-end','url(#arG)');
-      g.appendChild(path);
+      path=`M${fc.cx},${fc.cy} L${mx},${fc.cy} L${mx},${tc.cy} L${tc.cx},${tc.cy}`;
     } else {
-      const line=svgE('line');
-      [['x1',fc.cx],['y1',fc.cy],['x2',tc.cx],['y2',tc.cy],['stroke',lineColor],['stroke-width','1.5'],['marker-end','url(#arG)']].forEach(([k,v])=>line.setAttribute(k,v));
-      if(lineStyle==='dashed')line.setAttribute('stroke-dasharray','6,3');
-      if(lineStyle==='dotted')line.setAttribute('stroke-dasharray','2,3');
-      g.appendChild(line);
+      path=`M${fc.cx},${fc.cy} L${tc.cx},${tc.cy}`;
     }
 
-    // label box
+    const p=svgEl('path');
+    p.setAttribute('d',path);p.setAttribute('fill','none');
+    p.setAttribute('stroke',lineColor);p.setAttribute('stroke-width','1.5');
+    if(lineStyle==='dashed')p.setAttribute('stroke-dasharray','7,4');
+    if(lineStyle==='dotted')p.setAttribute('stroke-dasharray','2,4');
+    // Crow's foot markers
+    const isMany=rel.card.includes('N')||rel.card.includes('M');
+    const isTotal=rel.participation==='total';
+    if(notation==='crow'){
+      p.setAttribute('marker-end',isMany?(isTotal?'url(#mManyMandatory)':'url(#mZeroMany)'):'url(#mOne)');
+      p.setAttribute('marker-start',rel.card.startsWith('M')?'url(#mZeroMany)':'url(#mOne)');
+    } else if(notation==='uml'){
+      p.setAttribute('marker-end','url(#mArrow)');
+    }
+    g.appendChild(p);
+
+    // Midpoint label
     const mx=(fc.cx+tc.cx)/2,my=(fc.cy+tc.cy)/2;
-    const bg=svgE('rect');
-    [['x',mx-26],['y',my-9],['width',52],['height',18],['rx',4],['fill','var(--s2)'],['stroke','var(--bd)']].forEach(([k,v])=>bg.setAttribute(k,v));
-    const lt=svgTxt(mx,my+1,rel.label||rel.card,'9','#8899bb','middle');
-    // cardinality
-    const p1=offPt(fc,tc,28),p2=offPt(tc,fc,28);
-    const c1=svgTxt(p1.x,p1.y+2,rel.card.split(':')[0],'9',lineColor,'middle');
-    const c2=svgTxt(p2.x,p2.y+2,rel.card.split(':')[1]||'N','9',lineColor,'middle');
-    c1.setAttribute('font-family','var(--mono)');c2.setAttribute('font-family','var(--mono)');
+    const bg=svgEl('rect');
+    [['x',mx-25],['y',my-9],['width',50],['height',17],['rx',4],['fill','var(--s2)'],['stroke','var(--bd)']].forEach(([k,v])=>bg.setAttribute(k,v));
+    const lt=svgT(mx,my+1,rel.label||rel.card,'9','#7799bb','middle');
+
+    // Cardinality labels at ends
+    const p1=offPt(fc,tc,30),p2=offPt(tc,fc,30);
+    const c1=svgT(p1.x,p1.y,rel.card.split(':')[0],'9',lineColor,'middle');
+    const c2=svgT(p2.x,p2.y,rel.card.split(':')[1]||'N','9',lineColor,'middle');
+    c1.setAttribute('font-family','var(--mono)');c1.setAttribute('font-weight','700');
+    c2.setAttribute('font-family','var(--mono)');c2.setAttribute('font-weight','700');
     [bg,lt,c1,c2].forEach(x=>g.appendChild(x));
+
+    // Relation diamond (if enabled)
+    if(notation==='crow'||notation==='minimal'){
+      const dm=svgEl('polygon');
+      const dw=14,dh=8;
+      dm.setAttribute('points',`${mx},${my-dh} ${mx+dw},${my} ${mx},${my+dh} ${mx-dw},${my}`);
+      dm.setAttribute('fill','var(--s3)');dm.setAttribute('stroke',lineColor);dm.setAttribute('stroke-width','1');
+      g.insertBefore(dm,bg);
+    }
+
     g.style.cursor='pointer';
-    g.addEventListener('dblclick',()=>{push();rels=rels.filter(r=>r.id!==rel.id);renderCanvas();});
-    rl.appendChild(g);
+    g.addEventListener('dblclick',()=>{push();rels=rels.filter(r=>r.id!==rel.id);renderCanvas();toast('Relation deleted');});
+    rlayer.appendChild(g);
   });
 
-  // Entities
+  // ── Entities ──
   nodes.forEach(node=>{
-    const h=eH(node),g=svgG();
+    const h=eH(node);
+    const g=svgG('g');
     g.setAttribute('transform',`translate(${node.x},${node.y})`);
     g.style.cursor='move';
-    const sc=node.color||strokeColor;
-    const shadow=shadowMode==='glow'?`drop-shadow(0 0 8px ${sc}66)`:shadowMode==='soft'?'drop-shadow(0 3px 10px rgba(0,0,0,.5))':'none';
-    g.setAttribute('filter',shadow);
+    const sc=node.color||entityColor;
 
-    // outer rect
-    const rect=svgE('rect');
-    const sel=selectedNode===node.id;
-    [['width',EW],['height',h],['rx',7],['fill','var(--th-entity-fill)'],['stroke',sel?'#a259ff':sc],['stroke-width',sel?'2.5':'1.5']].forEach(([k,v])=>rect.setAttribute(k,v));
-    g.appendChild(rect);
+    // Shadow filter
+    let filt='';
+    if(shadow==='glow')filt=`drop-shadow(0 0 8px ${sc}55)`;
+    else if(shadow==='soft')filt='drop-shadow(0 4px 12px rgba(0,0,0,.6))';
+    if(filt)g.setAttribute('filter',filt);
 
-    // weak double border
-    if(node.weak){
-      const ir=svgE('rect');
-      [['x',3],['y',3],['width',EW-6],['height',h-6],['rx',5],['fill','none'],['stroke',sc],['stroke-width','1'],['opacity','.6']].forEach(([k,v])=>ir.setAttribute(k,v));
-      g.appendChild(ir);
+    // ── STRONG ENTITY: single rect ──
+    // ── WEAK ENTITY: double rect (proper ER notation) ──
+    const isWeak=node.weak;
+    const borderCol=isWeak?'#ff9040':sc;
+
+    const outerRect=svgEl('rect');
+    [['width',EW],['height',h],['rx',6],['fill','var(--s2)'],['stroke',selNode===node.id?'#b06aff':borderCol],['stroke-width',selNode===node.id?'2.5':'1.5']].forEach(([k,v])=>outerRect.setAttribute(k,v));
+    g.appendChild(outerRect);
+
+    if(isWeak){
+      // Double rectangle — proper weak entity notation
+      const innerRect=svgEl('rect');
+      [['x','4'],['y','4'],['width',EW-8],['height',h-8],['rx',3],['fill','none'],['stroke',borderCol],['stroke-width','1']].forEach(([k,v])=>innerRect.setAttribute(k,v));
+      g.appendChild(innerRect);
     }
 
-    // header bg
-    const hb=svgE('rect');
-    [['width',EW],['height',EH],['rx',7],['fill',`${sc}18`]].forEach(([k,v])=>hb.setAttribute(k,v));
-    const hf=svgE('rect');
-    [['y',14],['width',EW],['height',EH-14],['fill',`${sc}18`]].forEach(([k,v])=>hf.setAttribute(k,v));
-    const hdiv=svgE('line');
-    [['x1',0],['y1',EH],['x2',EW],['y2',EH],['stroke',`${sc}33`]].forEach(([k,v])=>hdiv.setAttribute(k,v));
-    const title=svgTxt(EW/2,21,node.name,FSZ+'',sc,'middle');
-    title.setAttribute('font-family','var(--mono)');title.setAttribute('font-weight','700');
-    [hb,hf,hdiv,title].forEach(x=>g.appendChild(x));
+    // Header gradient fill
+    const hdr=svgEl('rect');
+    [['width',EW],['height',EH],['rx',6],['fill',`${borderCol}16`]].forEach(([k,v])=>hdr.setAttribute(k,v));
+    const hdrFix=svgEl('rect');
+    [['y',14],['width',EW],['height',EH-14],['fill',`${borderCol}16`]].forEach(([k,v])=>hdrFix.setAttribute(k,v));
+    const hdiv=svgEl('line');
+    [['x1',0],['y1',EH],['x2',EW],['y2',EH],['stroke',`${borderCol}40`],['stroke-width','1']].forEach(([k,v])=>hdiv.setAttribute(k,v));
+    [hdr,hdrFix,hdiv].forEach(x=>g.appendChild(x));
 
-    // attributes
+    // Entity name
+    const title=svgT(EW/2,21,node.name,FSZ+'',borderCol,'middle');
+    title.setAttribute('font-family','var(--mono)');title.setAttribute('font-weight','700');
+    g.appendChild(title);
+
+    // Weak label
+    if(isWeak){
+      const wlbl=svgT(EW/2,EH-6,'weak entity','7','#ff904088','middle');
+      wlbl.setAttribute('font-style','italic');
+      g.appendChild(wlbl);
+    }
+
+    // ── Attributes with proper ER symbols ──
     node.attrs.forEach((a,i)=>{
+      const ay=EH+9+i*AH+AH/2-3;
       const nm=a.n||a.name||'attr';
-      const ay=EH+8+i*AH+AH/2;
       let fill='var(--mu)';
-      if(a.pk)fill='var(--g)';if(a.fk)fill='var(--b)';
-      let lbl=nm;
-      if(a.pk)lbl='🔑 '+nm;else if(a.fk)lbl='→ '+nm;else if(a.mv)lbl='⊕ '+nm;
-      const at=svgTxt(10,ay,lbl,(FSZ-1)+'',fill,'start');
-      if(a.pk)at.setAttribute('text-decoration','underline');
-      g.appendChild(at);
-      if(i<node.attrs.length-1){
-        const sep=svgE('line');
-        [['x1',6],['y1',EH+(i+1)*AH+8],['x2',EW-6],['y2',EH+(i+1)*AH+8],['stroke','var(--mu3)'],['opacity','.5']].forEach(([k,v])=>sep.setAttribute(k,v));
-        g.appendChild(sep);
+      if(a.pk)fill=sc;
+      if(a.fk)fill='var(--b)';
+
+      // Attribute oval (proper ER notation)
+      const oval=svgEl('ellipse');
+      [['cx',EW/2],['cy',ay],['rx',EW/2-8],['ry',AH/2-2],
+       ['fill','var(--s3)'],['stroke',a.pk?sc:a.fk?lineColor:a.mv?'var(--mu)':'var(--mu3)'],
+       ['stroke-width',a.pk?'1.5':'1'],
+       ['stroke-dasharray',a.dk?'3,2':'none']].forEach(([k,v])=>oval.setAttribute(k,v));
+      g.appendChild(oval);
+
+      // Multi-valued: double oval
+      if(a.mv){
+        const oval2=svgEl('ellipse');
+        [['cx',EW/2],['cy',ay],['rx',EW/2-13],['ry',AH/2-5],
+         ['fill','none'],['stroke','var(--mu)'],['stroke-width','.8']].forEach(([k,v])=>oval2.setAttribute(k,v));
+        g.appendChild(oval2);
       }
+
+      // Attribute text
+      let lbl=nm;
+      if(a.pk)lbl='🔑 '+nm;
+      else if(a.fk)lbl='→ '+nm;
+      else if(a.mv)lbl='⊕ '+nm;
+      else if(a.dk)lbl='~ '+nm;
+      const at=svgT(EW/2,ay+1,lbl,(FSZ-2)+'',fill,'middle');
+      if(a.pk)at.setAttribute('text-decoration','underline');
+      if(a.dk)at.setAttribute('font-style','italic');
+      g.appendChild(at);
     });
 
-    // delete btn
-    const del=svgTxt(EW-10,13,'✕','11','var(--mu3)','middle');
+    // Delete btn
+    const del=svgT(EW-8,12,'✕','10','var(--mu3)','middle');
     del.style.cursor='pointer';
     del.addEventListener('mouseenter',()=>del.setAttribute('fill','var(--r)'));
     del.addEventListener('mouseleave',()=>del.setAttribute('fill','var(--mu3)'));
     del.addEventListener('click',ev=>{ev.stopPropagation();push();nodes=nodes.filter(n=>n.id!==node.id);rels=rels.filter(r=>r.from!==node.id&&r.to!==node.id);renderCanvas();});
     g.appendChild(del);
 
-    // interactions
+    // Interactions
     g.addEventListener('mousedown',ev=>{
       if(ev.target===del)return;
       ev.preventDefault();
-      push();selectedNode=node.id;
-      if(tool==='relate'){showRelModal(node.id);return;}
+
+      if(tool==='draw'){
+        // Start drawing a line from this node
+        drawFrom=node.id;
+        const fc=eC(node);
+        const dl=document.getElementById('drawLine');
+        dl.setAttribute('x1',fc.cx);dl.setAttribute('y1',fc.cy);
+        dl.setAttribute('x2',fc.cx);dl.setAttribute('y2',fc.cy);
+        dl.setAttribute('opacity','1');
+        return;
+      }
+      push();selNode=node.id;
       const R=document.getElementById('cw').getBoundingClientRect();
-      dragState={id:node.id,ox:ev.clientX-R.left-node.x,oy:ev.clientY-R.top-node.y};
+      drag={id:node.id,ox:ev.clientX-R.left-node.x,oy:ev.clientY-R.top-node.y};
       renderCanvas();
     });
-    g.addEventListener('dblclick',()=>openEntityEdit(node.id));
-    g.addEventListener('contextmenu',ev=>{ev.preventDefault();ctxNodeId=node.id;showCtx(ev.clientX,ev.clientY);});
-    eLayer.appendChild(g);
+    g.addEventListener('dblclick',()=>openEdit(node.id));
+    g.addEventListener('contextmenu',ev=>{ev.preventDefault();ctxId=node.id;showCtx(ev.clientX,ev.clientY);});
+    g.addEventListener('mouseup',ev=>{
+      // End draw line on this node
+      if(tool==='draw'&&drawFrom&&drawFrom!==node.id){
+        document.getElementById('drawLine').setAttribute('opacity','0');
+        showRelModal(drawFrom,node.id);
+        drawFrom=null;
+      }
+    });
+    elayer.appendChild(g);
   });
 
   // Notes
   notes.forEach(note=>{
-    const g=svgG();
-    g.setAttribute('transform',`translate(${note.x},${note.y})`);
-    const bg=svgE('rect');
-    [['width',140],['height',40],['rx',5],['fill','rgba(255,209,102,.1)'],['stroke','var(--y)'],['stroke-width','1']].forEach(([k,v])=>bg.setAttribute(k,v));
-    const txt=svgTxt(8,22,note.text,'10','var(--y)','start');
-    g.appendChild(bg);g.appendChild(txt);
-    g.style.cursor='move';
+    const g=svgG('g');g.setAttribute('transform',`translate(${note.x},${note.y})`);
+    const bg=svgEl('rect');
+    [['width',150],['height',38],['rx',5],['fill','rgba(255,224,96,.06)'],['stroke','rgba(255,224,96,.3)'],['stroke-width','1']].forEach(([k,v])=>bg.setAttribute(k,v));
+    const txt=svgT(8,22,note.text,'9','#ffe060','start');
+    g.appendChild(bg);g.appendChild(txt);g.style.cursor='move';
     g.addEventListener('mousedown',ev=>{
       ev.preventDefault();
       const R=document.getElementById('cw').getBoundingClientRect();
-      dragState={noteId:note.id,ox:ev.clientX-R.left-note.x,oy:ev.clientY-R.top-note.y};
+      drag={noteId:note.id,ox:ev.clientX-R.left-note.x,oy:ev.clientY-R.top-note.y};
     });
-    nl.appendChild(g);
+    nlayer.appendChild(g);
   });
-
-  // update arrow marker colour
-  const arPath=document.querySelector('#arG path');
-  if(arPath)arPath.setAttribute('fill',lineColor);
 }
 
-// ─────────────────── DRAG ───────────────────
-document.addEventListener('mousemove',e=>{
-  if(!dragState)return;
-  const R=document.getElementById('cw').getBoundingClientRect();
-  if(dragState.noteId){
-    const note=notes.find(n=>n.id===dragState.noteId);
-    if(note){note.x=snapV(e.clientX-R.left-dragState.ox);note.y=snapV(e.clientY-R.top-dragState.oy);renderCanvas();}
+// Mouse events on canvas for drag and draw
+const CW=document.getElementById('cw');
+CW.addEventListener('mousemove',e=>{
+  const R=CW.getBoundingClientRect();
+  // Draw line preview
+  if(tool==='draw'&&drawFrom){
+    const dl=document.getElementById('drawLine');
+    dl.setAttribute('x2',e.clientX-R.left);dl.setAttribute('y2',e.clientY-R.top);
+  }
+  if(!drag)return;
+  if(drag.noteId){
+    const note=notes.find(n=>n.id===drag.noteId);
+    if(note){note.x=sv(e.clientX-R.left-drag.ox);note.y=sv(e.clientY-R.top-drag.oy);renderCanvas();}
   } else {
-    const node=nodes.find(n=>n.id===dragState.id);
-    if(node){node.x=snapV(e.clientX-R.left-dragState.ox);node.y=snapV(e.clientY-R.top-dragState.oy);renderCanvas();}
+    const node=nodes.find(n=>n.id===drag.id);
+    if(node){node.x=sv(e.clientX-R.left-drag.ox);node.y=sv(e.clientY-R.top-drag.oy);renderCanvas();}
   }
 });
-document.addEventListener('mouseup',()=>dragState=null);
-
-// ─────────────────── SNAP ───────────────────
-function snapV(v){return snap?Math.round(v/24)*24:v;}
-function toggleSnap(){snap=!snap;document.getElementById('tSnap').classList.toggle('on',snap);toast(snap?'Snap on':'Snap off');}
-
-// ─────────────────── ZOOM ───────────────────
-function zoomIn(){zoom=Math.min(2,+(zoom+.1).toFixed(1));applyZoom();}
-function zoomOut(){zoom=Math.max(.3,+(zoom-.1).toFixed(1));applyZoom();}
-function applyZoom(){
-  document.getElementById('el').style.transform=`scale(${zoom})`;
-  document.getElementById('rl').style.transform=`scale(${zoom})`;
-  document.getElementById('nl').style.transform=`scale(${zoom})`;
-  document.getElementById('el').style.transformOrigin='0 0';
-  document.getElementById('rl').style.transformOrigin='0 0';
-  document.getElementById('nl').style.transformOrigin='0 0';
-  document.getElementById('zoomVal').textContent=Math.round(zoom*100)+'%';
-}
-function fitView(){zoom=1;applyZoom();}
-
-// ─────────────────── TOOLS ───────────────────
-function setTool(t){
-  tool=t;
-  ['select','relate','entity','text'].forEach(id=>{
-    const btn=document.getElementById('t'+id.charAt(0).toUpperCase()+id.slice(1));
-    if(btn)btn.classList.toggle('on',id===t);
-  });
-  const cw=document.getElementById('cw');
-  cw.style.cursor=t==='entity'||t==='text'?'crosshair':'default';
-  cw.onclick=(t==='entity'||t==='text')?ev=>{
-    if(['svg','DIV'].includes(ev.target.tagName)||ev.target===cw){
-      const R=cw.getBoundingClientRect();
-      const x=snapV(ev.clientX-R.left-EW/2),y=snapV(ev.clientY-R.top-30);
-      if(t==='entity'){
-        const nm=prompt('Entity name:');
-        if(nm&&nm.trim()){push();addNode({name:nm.trim().toUpperCase(),weak:false,attrs:[{n:'ID',pk:true},{n:'Name'}]},x,y);document.getElementById('empty').style.display='none';}
-      } else {
-        const txt=prompt('Note text:');
-        if(txt&&txt.trim()){notes.push({id:'nt'+(noteId++),text:txt.trim(),x,y});renderCanvas();}
-      }
-      setTool('select');
+CW.addEventListener('mouseup',e=>{
+  drag=null;
+  if(tool==='draw'&&drawFrom){
+    document.getElementById('drawLine').setAttribute('opacity','0');
+    drawFrom=null;
+  }
+});
+CW.addEventListener('click',e=>{
+  if(tool==='entity'&&(e.target===CW||e.target.tagName==='svg'||e.target.tagName==='g')){
+    const nm=prompt('Entity name:');
+    if(nm&&nm.trim()){
+      const R=CW.getBoundingClientRect();
+      push();addNode({name:nm.trim().toUpperCase(),weak:false,attrs:[{n:'ID',pk:true},{n:'Name'}]},sv(e.clientX-R.left-EW/2),sv(e.clientY-R.top-30));
+      document.getElementById('emptyS').style.display='none';
     }
-  }:null;
+    setTool('select');
+  }
+  if(tool==='note'&&(e.target===CW||e.target.tagName==='svg')){
+    const txt=prompt('Note text:');
+    if(txt&&txt.trim()){
+      const R=CW.getBoundingClientRect();
+      notes.push({id:'nt'+(noteId++),text:txt.trim(),x:sv(e.clientX-R.left-75),y:sv(e.clientY-R.top-19)});
+      renderCanvas();
+    }
+    setTool('select');
+  }
+});
+
+// ─── RELATION MODAL ───
+function showRelModal(fromId,toId=null){
+  const fs=document.getElementById('rFrom'),ts=document.getElementById('rTo');
+  fs.innerHTML='';ts.innerHTML='';
+  nodes.forEach(n=>{
+    const o1=document.createElement('option');o1.value=n.id;o1.textContent=n.name;if(n.id===fromId)o1.selected=true;fs.appendChild(o1);
+    const o2=document.createElement('option');o2.value=n.id;o2.textContent=n.name;if(toId?n.id===toId:n.id!==fromId)o2.selected=true;ts.appendChild(o2);
+  });
+  document.getElementById('rName').value='';
+  show('relModal');
+}
+function addRel(){
+  const f=document.getElementById('rFrom').value,t=document.getElementById('rTo').value;
+  const lbl=document.getElementById('rName').value.trim()||'relates';
+  const card=document.getElementById('rCard').value;
+  const part=document.getElementById('rPart').value;
+  if(f===t){toast('Select two different entities!');return;}
+  push();rels.push({id:'r'+(rId++),from:f,to:t,label:lbl,card,participation:part});
+  hide('relModal');selNode=null;renderCanvas();
 }
 
-// ─────────────────── GRID ───────────────────
-function setGrid(type,btn){
-  const cw=document.getElementById('cw');
-  cw.className='cw grid-'+type;
-  $$('#gDot,#gLine,#gNone').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
+// ─── ENTITY EDIT ───
+function openEdit(id){
+  editId=id;
+  const node=nodes.find(n=>n.id===id);if(!node)return;
+  document.getElementById('eeName').value=node.name;
+  document.getElementById('eeWeak').value=String(node.weak);
+  const rows=document.getElementById('attrRows');rows.innerHTML='';
+  node.attrs.forEach(a=>addAttrRow(a));
+  show('eeModal');
+}
+function addAttrRow(a={}){
+  const d=mk('div','attr-row');
+  d.innerHTML=`<input placeholder="Attribute name" value="${a.n||a.name||''}"/>
+    <label class="ck-wrap"><input type="checkbox" ${a.pk?'checked':''}/> PK</label>
+    <label class="ck-wrap"><input type="checkbox" ${a.fk?'checked':''}/> FK</label>
+    <label class="ck-wrap"><input type="checkbox" ${a.mv?'checked':''}/> Multi</label>
+    <label class="ck-wrap"><input type="checkbox" ${a.dk?'checked':''}/> Derived</label>
+    <button class="del-a" onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('attrRows').appendChild(d);
+}
+function saveEdit(){
+  const node=nodes.find(n=>n.id===editId);if(!node)return;
+  push();
+  node.name=document.getElementById('eeName').value.trim().toUpperCase()||node.name;
+  node.weak=document.getElementById('eeWeak').value==='true';
+  node.attrs=Array.from($$('#attrRows .attr-row')).map(row=>{
+    const inp=row.querySelector('input[type=text],input:not([type])');
+    const cks=row.querySelectorAll('input[type=checkbox]');
+    return{n:inp?.value.trim()||'Attr',pk:cks[0]?.checked,fk:cks[1]?.checked,mv:cks[2]?.checked,dk:cks[3]?.checked};
+  }).filter(a=>a.n);
+  hide('eeModal');renderCanvas();toast('Entity updated');
 }
 
-// ─────────────────── THEME ───────────────────
-function buildThemeGrid(){
-  const g=document.getElementById('themeGrid');
-  Object.entries(THEMES).forEach(([k,t])=>{
-    const c=el('div','thc'+(k==='dark'?' on':''));
-    c.innerHTML=`<div class="tc" style="background:${t.ef};border:2px solid ${t.es}"></div><p>${t.label}</p>`;
-    c.onclick=()=>{$$('.thc').forEach(x=>x.classList.remove('on'));c.classList.add('on');applyTheme(t);};
+// ─── CONTEXT MENU ───
+function showCtx(x,y){const c=document.getElementById('ctx');c.style.cssText=`display:block;left:${x}px;top:${y}px`;}
+function ctxEdit(){hide('ctx');if(ctxId)openEdit(ctxId);}
+function ctxDup(){hide('ctx');const node=nodes.find(n=>n.id===ctxId);if(!node)return;push();addNode({...node,name:node.name+'2',attrs:[...node.attrs.map(a=>({...a}))]},node.x+50,node.y+50);toast('Duplicated');}
+function ctxRel(){hide('ctx');if(ctxId)showRelModal(ctxId);}
+function ctxDel(){hide('ctx');push();nodes=nodes.filter(n=>n.id!==ctxId);rels=rels.filter(r=>r.from!==ctxId&&r.to!==ctxId);renderCanvas();}
+
+// ─── 🧪 AUTO TESTER ───
+async function runTest(){
+  if(!nodes.length){toast('Add entities to your diagram first!');return;}
+  const btn=document.getElementById('testBtn');
+  btn.disabled=true;btn.textContent='⏳ Analysing…';
+
+  // Build current diagram description
+  const diagramDesc={
+    entities:nodes.map(n=>({name:n.name,weak:n.weak,attrCount:n.attrs.length,hasPK:n.attrs.some(a=>a.pk),attrs:n.attrs.map(a=>a.n||a.name)})),
+    relations:rels.map(r=>({from:nodes.find(n=>n.id===r.from)?.name,to:nodes.find(n=>n.id===r.to)?.name,label:r.label,card:r.card})),
+    totalEntities:nodes.length,
+    totalRelations:rels.length,
+  };
+
+  const expected=currentDS?.expected;
+  const scenario=currentDS?.desc||'General ER diagram';
+
+  const prompt=`You are an expert database professor grading a student's ER diagram.
+
+SCENARIO: "${scenario}"
+
+EXPECTED (what the correct answer should have):
+${expected?`Entities: ${expected.entities.join(', ')}
+Relations: ${expected.relations.map(r=>r[0]+' →['+r[2]+': '+r[3]+']→ '+r[1]).join('; ')}`:'No specific expected schema (general practice).'}
+
+STUDENT'S DIAGRAM:
+Entities (${diagramDesc.totalEntities}): ${diagramDesc.entities.map(e=>`${e.name}${e.weak?' (weak)':''}${e.hasPK?'':' ⚠️ no PK'} [${e.attrs.join(',')}]`).join('; ')}
+Relations (${diagramDesc.totalRelations}): ${diagramDesc.relations.map(r=>`${r.from} →[${r.label}: ${r.card}]→ ${r.to}`).join('; ')||'NONE'}
+
+Grade the student's diagram and return ONLY valid JSON (no markdown):
+{
+  "score": <0-100>,
+  "label": "<Excellent|Good|Needs Work|Poor>",
+  "checks": [
+    {"pass": true/false, "text": "brief check description", "detail": "explanation"}
+  ],
+  "hints": ["specific improvement hint 1","hint 2","hint 3"],
+  "summary": "2-3 sentence overall summary of what the student did well and what needs improvement"
+}
+
+Checks to include (8-10 checks total):
+- Has at least one entity
+- All entities have a Primary Key
+- Weak entities are identified correctly
+- Entities have at least 2 attributes each
+- Relationships connect the right entities
+- Cardinality (1:N, M:N) is correctly assigned
+- Missing key entities from the scenario (name them)
+- Missing key relationships
+- No isolated entities (every entity has at least one relationship)
+- Relationship naming is meaningful`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const raw=data.content?.[0]?.text||'{}';
+    const result=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    showTestResults(result);
+  }catch(e){
+    toast('Test error: '+e.message);
+    // Fallback local test
+    showTestResults(localTest(diagramDesc,expected));
+  }
+  btn.disabled=false;btn.textContent='🧪 Run Test Again';
+}
+
+function localTest(diag,expected){
+  const checks=[];
+  let score=0;
+  // entity count
+  const hasEnough=diag.totalEntities>=3;
+  checks.push({pass:hasEnough,text:'Has at least 3 entities',detail:hasEnough?`Found ${diag.totalEntities} entities.`:`Only ${diag.totalEntities} entities. Need at least 3.`});
+  if(hasEnough)score+=15;
+  // all have PK
+  const allPK=diag.entities.every(e=>e.hasPK);
+  checks.push({pass:allPK,text:'All entities have a Primary Key',detail:allPK?'Good — all entities have PK defined.':'Some entities are missing a Primary Key attribute.'});
+  if(allPK)score+=20;
+  // has relations
+  const hasRels=diag.totalRelations>=2;
+  checks.push({pass:hasRels,text:'Has at least 2 relationships',detail:hasRels?`Found ${diag.totalRelations} relationships.`:'Add more relationships between entities.'});
+  if(hasRels)score+=20;
+  // enough attrs
+  const goodAttrs=diag.entities.every(e=>e.attrCount>=2);
+  checks.push({pass:goodAttrs,text:'Entities have 2+ attributes',detail:goodAttrs?'Attributes look complete.':'Some entities have too few attributes.'});
+  if(goodAttrs)score+=15;
+  // expected entities
+  if(expected){
+    const found=expected.entities.filter(e=>diag.entities.some(de=>de.name.includes(e)||e.includes(de.name)));
+    const missing=expected.entities.filter(e=>!diag.entities.some(de=>de.name.includes(e)||e.includes(de.name)));
+    const covPct=Math.round(found.length/expected.entities.length*100);
+    checks.push({pass:covPct>=60,text:`Entity coverage: ${covPct}%`,detail:missing.length?`Missing: ${missing.join(', ')}`:'Good entity coverage!'});
+    score+=Math.round(covPct*.3);
+  }
+  return{score:Math.min(100,score),label:score>=80?'Good':score>=50?'Needs Work':'Poor',checks,hints:['Ensure every entity has a clearly named Primary Key','Add meaningful relationship verbs (places, manages, contains)','Check cardinality — M:N usually needs a bridge/junction entity'],summary:`Your diagram has ${diag.totalEntities} entities and ${diag.totalRelations} relationships. ${allPK?'Primary keys look good.':'Some entities are missing PKs.'} Keep refining based on the scenario.`};
+}
+
+function showTestResults(result){
+  document.getElementById('testResults').style.display='';
+  // Score arc
+  const pct=result.score/100;
+  const circ=213;
+  const offset=circ-(pct*circ);
+  const arc=document.getElementById('scoreArc');
+  arc.setAttribute('stroke',result.score>=80?'var(--g)':result.score>=50?'var(--y)':'var(--r)');
+  setTimeout(()=>arc.setAttribute('stroke-dashoffset',offset),100);
+  document.getElementById('scoreNum').textContent=result.score;
+  document.getElementById('scoreNum').style.color=result.score>=80?'var(--g)':result.score>=50?'var(--y)':'var(--r)';
+  document.getElementById('scoreLabel').textContent=result.label||'';
+
+  // Checks
+  const cd=document.getElementById('checksDiv');
+  cd.innerHTML='<h4>Checklist</h4>';
+  (result.checks||[]).forEach(c=>{
+    const row=mk('div','check-row');
+    row.innerHTML=`<span class="chk-icon">${c.pass?'✅':'❌'}</span><div class="chk-text"><b>${c.text}</b>${c.detail?'<br><span style="color:var(--mu);font-size:8px">'+c.detail+'</span>':''}</div>`;
+    cd.appendChild(row);
+  });
+
+  // Hints
+  const hd=document.getElementById('hintsDiv');
+  if(result.hints&&result.hints.length){
+    hd.style.display='';hd.innerHTML='<h4>💡 Hints to Improve</h4>';
+    result.hints.forEach(h=>{
+      const hb=mk('div','hint-box');hb.innerHTML=`<p>${h}</p>`;hd.appendChild(hb);
+    });
+  }
+
+  // Summary
+  const sd=document.getElementById('summaryDiv');
+  if(result.summary){
+    sd.style.display='';sd.innerHTML='<h4>📋 Summary</h4>';
+    const sb=mk('div','summary-box');sb.innerHTML=`<p>${result.summary}</p>`;sd.appendChild(sb);
+  }
+  switchRTab('test');
+  // Scroll test panel to results
+  setTimeout(()=>document.getElementById('testResults').scrollIntoView({behavior:'smooth'}),200);
+}
+
+// ─── IMPORT ───
+function handleFile(files){
+  if(!files||!files.length)return;
+  const f=files[0];
+  const reader=new FileReader();
+  reader.onload=ev=>runAI(ev.target.result.toString().substring(0,2500),f.name.split('.').pop(),f.name);
+  reader.readAsText(f);
+}
+function handleURL(){
+  const u=document.getElementById('uI').value.trim();if(!u){toast('Enter URL');return;}
+  runAI('URL: '+u+'\nGenerate ER schema for domain at this URL.','url',u);
+}
+function handleKaggle(){
+  const q=document.getElementById('kI').value.trim().toLowerCase();if(!q){toast('Enter topic');return;}
+  const presets={titanic:'Titanic survivors dataset',iris:'Iris flower measurements',movies:'Movie database',netflix:'Netflix titles',sales:'Sales transactions'};
+  const kr=document.getElementById('kRes');kr.innerHTML='';
+  Object.entries(presets).filter(([k])=>k.includes(q)||q.includes(k)).forEach(([k,d])=>{
+    const b=mk('button');b.style.cssText='width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:4px;color:var(--tx);padding:5px 8px;font-size:9px;margin-top:4px;cursor:pointer;text-align:left;font-family:var(--fnt)';
+    b.textContent='🔷 '+k+' — '+d;b.onclick=()=>runAI('Kaggle '+k+': '+d+'. Generate 5-6 entities with realistic attributes.','kaggle',k);
+    kr.appendChild(b);
+  });
+  if(!kr.children.length){
+    const b=mk('button');b.style.cssText='width:100%;background:var(--s2);border:1px solid var(--b);border-radius:4px;color:var(--b);padding:5px 8px;font-size:9px;margin-top:4px;cursor:pointer;font-family:var(--fnt)';
+    b.textContent='🤖 Generate ER for "'+q+'" with AI';b.onclick=()=>runAI('Generate ER for dataset about: '+q,'kaggle',q);
+    kr.appendChild(b);
+  }
+}
+function handlePaste(){const t=document.getElementById('pI').value.trim();if(!t){toast('Paste data first');return;}runAI(t,'paste','pasted input');}
+
+async function runAI(content,type,src){
+  show('aiModal');
+  document.getElementById('alg').innerHTML='';
+  document.getElementById('prf').style.width='0%';
+  document.getElementById('aiMsg').textContent='Analysing "'+src+'"…';
+  const steps=[{m:'Parsing data…',p:15},{m:'Identifying entities…',p:35},{m:'Extracting attributes…',p:55},{m:'Detecting primary keys…',p:72},{m:'Inferring relationships…',p:88},{m:'Building ER schema…',p:96}];
+  for(const s of steps){await sleep(250+Math.random()*250);logAI(s.m);document.getElementById('prf').style.width=s.p+'%';}
+  const prompt=`Analyse this data and return ONLY valid JSON no markdown.
+Type:${type} Source:${src}
+Data:${content.substring(0,2000)}
+JSON:{"scenario":"one sentence","entities":[{"name":"ENTITY","weak":false,"attrs":[{"n":"Name","pk":true}]}],"relations":[{"from":"E1","to":"E2","label":"verb","card":"1:N"}]}
+Rules:4-7 entities,3-5 attrs each,one pk per entity,weak for dependent entities,card:1:1/1:N/M:N,UPPERCASE names.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const raw=data.content?.[0]?.text||'{}';
+    const schema=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    document.getElementById('prf').style.width='100%';
+    logAI('✓ Schema ready',true);
+    await sleep(400);hide('aiModal');
+    currentDS=null;
+    document.getElementById('scSec').style.display='';
+    document.getElementById('scTxt').textContent=schema.scenario||src;
+    document.getElementById('emptyS').style.display='none';
+    renderSidebar(schema.entities||[]);
+    push();clearCanvas(false);
+    const nm={};
+    const cols=Math.ceil(Math.sqrt((schema.entities||[]).length));
+    (schema.entities||[]).forEach((e,i)=>{const id=addNode(e,60+(i%cols)*(EW+90),60+Math.floor(i/cols)*200,false);nm[e.name]=id;});
+    (schema.relations||[]).forEach(r=>{const fi=nm[r.from],ti=nm[r.to];if(fi&&ti)rels.push({id:'r'+(rId++),from:fi,to:ti,label:r.label||'relates',card:r.card||'1:N'});});
+    renderCanvas();toast('AI generated '+(schema.entities?.length||0)+' entities!');
+  }catch(e){hide('aiModal');toast('AI error: '+e.message);}
+}
+function logAI(m,done=false){const l=document.getElementById('alg');const d=mk('div','ln');d.textContent='> '+m;l.appendChild(d);l.scrollTop=l.scrollHeight;}
+
+// ─── THEMES & TEMPLATES ───
+function buildThemes(){
+  const g=document.getElementById('themeG');
+  Object.entries(THEMES).forEach(([name,t])=>{
+    const c=mk('div','dpick');
+    c.style.background=t.ef;c.style.border=`2px solid ${t.es}`;
+    c.title=name;
+    c.onclick=()=>{applyTheme(t);$$('.dpick').forEach(x=>x.classList.remove('on'));c.classList.add('on');};
     g.appendChild(c);
   });
+  // First one active
+  if(g.firstChild)g.firstChild.classList.add('on');
 }
 function applyTheme(t){
-  const r=document.documentElement.style;
-  r.setProperty('--th-entity-fill',t.ef);r.setProperty('--th-entity-stroke',t.es);
-  r.setProperty('--th-title',t.et);r.setProperty('--th-attr',t.ea);
-  r.setProperty('--th-rel',t.rel);r.setProperty('--th-weak',t.wk);
-  r.setProperty('--th-canvas-bg',t.bg);r.setProperty('--th-dot',t.dot);
-  // update cw bg
-  document.getElementById('cw').style.background=t.bg;
-  lineColor=t.rel;strokeColor=t.es;
+  const cw=document.getElementById('cw');
+  cw.style.background=t.bg;
+  document.documentElement.style.setProperty('--bg',t.bg);
+  document.documentElement.style.setProperty('--s2',t.ef);
+  entityColor=t.es;lineColor=t.rel;
   renderCanvas();toast('Theme applied');
 }
-
-// ─────────────────── TEMPLATES ───────────────────
-function buildTemplateGrid(){
-  const g=document.getElementById('tmplGrid');
+function buildTemplates(){
+  const g=document.getElementById('tmplG');
   TEMPLATES.forEach(tmpl=>{
-    const c=el('div','tmc');
-    c.innerHTML=`<div class="ti">${tmpl.icon}</div><div class="td"><h4>${tmpl.name}</h4><p>${tmpl.desc}</p></div>`;
+    const c=mk('div','tmc');
+    c.innerHTML=`<div class="ti">${tmpl.icon}</div><div><h4>${tmpl.name}</h4><p>${tmpl.desc}</p></div>`;
     c.onclick=()=>loadTemplate(tmpl);
     g.appendChild(c);
   });
@@ -1062,319 +1486,102 @@ function buildTemplateGrid(){
 function loadTemplate(tmpl){
   push();clearCanvas(false);
   document.getElementById('scSec').style.display='none';
-  document.getElementById('empty').style.display='none';
-  const nm={};
-  const cols=Math.ceil(Math.sqrt(tmpl.entities.length));
-  tmpl.entities.forEach((e,i)=>{
-    const id=addNode(e,60+(i%cols)*(EW+90),60+Math.floor(i/cols)*190,false);
-    nm[e.name]=id;
-  });
-  (tmpl.relations||[]).forEach(([a,b,lbl,card])=>{
-    const fi=nm[a],ti=nm[b];
-    if(fi&&ti)rels.push({id:'r'+(rId++),from:fi,to:ti,label:lbl,card});
-  });
+  document.getElementById('emptyS').style.display='none';
+  currentDS=null;
+  const nm={},cols=Math.ceil(Math.sqrt(tmpl.entities.length));
+  tmpl.entities.forEach((e,i)=>{const id=addNode(e,60+(i%cols)*(EW+90),60+Math.floor(i/cols)*200,false);nm[e.name]=id;});
+  (tmpl.relations||[]).forEach(([a,b,lbl,card])=>{const fi=nm[a],ti=nm[b];if(fi&&ti)rels.push({id:'r'+(rId++),from:fi,to:ti,label:lbl,card});});
   renderCanvas();toast('Template: '+tmpl.name);
 }
 
-// ─────────────────── DESIGN CONTROLS ───────────────────
-function setEntityColor(stroke,glow,btn){
-  strokeColor=stroke;
-  $$('.swatch').forEach(s=>s.classList.remove('on'));
+// ─── TOOLS ───
+function setTool(t){
+  tool=t;
+  ['select','draw','entity','note'].forEach(id=>{
+    const btn=document.getElementById('t'+id.charAt(0).toUpperCase()+id.slice(1));
+    if(btn)btn.classList.toggle('on',id===t);
+  });
+  CW.style.cursor=t==='select'?'default':t==='draw'?'crosshair':t==='entity'||t==='note'?'crosshair':'default';
+}
+function setGrid(cls,btn){
+  CW.className='cw '+(cls||'');
+  $$('#gDot,#gLine,#gNone').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  if(selectedNode){const node=nodes.find(n=>n.id===selectedNode);if(node){node.color=stroke;renderCanvas();}}
-  toast('Color set');
 }
-function setLineStyle(s,btn){
-  lineStyle=s;
-  $$('#lSolid,#lDash,#lDot').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');renderCanvas();
-}
-function setRelStyle(s,btn){
-  relStyle=s;
-  $$('#relStyleBtns .tb').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');renderCanvas();
-}
-function setFontSize(v){FSZ=+v;document.getElementById('fontSzLbl').textContent=v+'px';renderCanvas();}
-function setEntWidth(v){EW=+v;document.getElementById('entWLbl').textContent=v+'px';renderCanvas();}
-function setShadow(m,btn){
-  shadowMode=m;
-  $$('.rc .tg .tb,.rc .tb').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');renderCanvas();
-}
+function setEC(c,btn){entityColor=c;$$('.sw').forEach(s=>s.classList.remove('on'));btn.classList.add('on');}
+function setLS(s,btn){lineStyle=s;$$('#lsSolid,#lsDash,#lsDot').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCanvas();}
+function setNT(n,btn){notation=n;$$('#ntCrow,#ntMin,#ntUML').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCanvas();}
+function setRR(r,btn){routing=r;btn.parentElement.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCanvas();}
+function setFSZ(v){FSZ=v;document.getElementById('fszV').textContent=v+'px';renderCanvas();}
+function setEW(v){EW=v;document.getElementById('ewV').textContent=v+'px';renderCanvas();}
+function setSH(m,btn){shadow=m;btn.parentElement.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCanvas();}
 
-// ─────────────────── RELATION MODAL ───────────────────
-function showRelModal(fromId){
-  const fs=document.getElementById('rFrom'),ts=document.getElementById('rTo');
-  fs.innerHTML='';ts.innerHTML='';
-  nodes.forEach(n=>{
-    const o1=document.createElement('option');o1.value=n.id;o1.textContent=n.name;if(n.id===fromId)o1.selected=true;fs.appendChild(o1);
-    const o2=document.createElement('option');o2.value=n.id;o2.textContent=n.name;if(n.id!==fromId)o2.selected=true;ts.appendChild(o2);
-  });
-  document.getElementById('rName').value='';
-  showModal('relModal');
+// ─── ZOOM ───
+function zoomIn(){zoom=Math.min(2,+(zoom+.1).toFixed(1));applyZoom();}
+function zoomOut(){zoom=Math.max(.3,+(zoom-.1).toFixed(1));applyZoom();}
+function applyZoom(){
+  ['rl','el','nl'].forEach(id=>{const g=document.getElementById(id);g.style.transform=`scale(${zoom})`;g.style.transformOrigin='0 0';});
+  document.getElementById('zv').textContent=Math.round(zoom*100)+'%';
 }
-function addRel(){
-  const f=document.getElementById('rFrom').value,t=document.getElementById('rTo').value;
-  const lbl=document.getElementById('rName').value.trim()||'relates';
-  const card=document.getElementById('rCard').value;
-  if(f===t){toast('Choose two different entities');return;}
-  push();rels.push({id:'r'+(rId++),from:f,to:t,label:lbl,card});
-  hideModal('relModal');selectedNode=null;renderCanvas();
-}
+function fitView(){zoom=1;applyZoom();}
 
-// ─────────────────── ENTITY EDIT ───────────────────
-function openEntityEdit(id){
-  editingNodeId=id;
-  const node=nodes.find(n=>n.id===id);if(!node)return;
-  document.getElementById('eeName').value=node.name;
-  document.getElementById('eeWeak').value=String(node.weak);
-  const rows=document.getElementById('attrRows');rows.innerHTML='';
-  node.attrs.forEach(a=>addAttrRow(a));
-  showModal('eeModal');
-}
-function addAttrRow(a={}){
-  const rows=document.getElementById('attrRows');
-  const div=document.createElement('div');div.className='attr-row';
-  div.innerHTML=`<input placeholder="Attribute name" value="${a.n||a.name||''}"/>
-    <label class="chk"><input type="checkbox" ${a.pk?'checked':''}/>PK</label>
-    <label class="chk"><input type="checkbox" ${a.fk?'checked':''}/>FK</label>
-    <label class="chk"><input type="checkbox" ${a.mv?'checked':''}/>Multi</label>
-    <button class="del-a" onclick="this.parentElement.remove()">✕</button>`;
-  rows.appendChild(div);
-}
-function saveEntityEdit(){
-  const node=nodes.find(n=>n.id===editingNodeId);if(!node)return;
-  push();
-  node.name=document.getElementById('eeName').value.trim().toUpperCase()||node.name;
-  node.weak=document.getElementById('eeWeak').value==='true';
-  const rows=$$('#attrRows .attr-row');
-  node.attrs=Array.from(rows).map(row=>{
-    const [inp,,ck1,ck2,ck3]=row.children;
-    const chks=row.querySelectorAll('input[type=checkbox]');
-    return{n:inp.value.trim()||'Attr',pk:chks[0].checked,fk:chks[1].checked,mv:chks[2].checked};
-  }).filter(a=>a.n);
-  hideModal('eeModal');renderCanvas();toast('Entity updated');
-}
-
-// ─────────────────── CONTEXT MENU ───────────────────
-function showCtx(x,y){const c=document.getElementById('ctx');c.classList.add('on');c.style.left=x+'px';c.style.top=y+'px';}
-function hideCtx(){document.getElementById('ctx').classList.remove('on');}
-function ctxEdit(){hideCtx();if(ctxNodeId)openEntityEdit(ctxNodeId);}
-function ctxDuplicate(){
-  hideCtx();
-  const node=nodes.find(n=>n.id===ctxNodeId);if(!node)return;
-  push();addNode({name:node.name+'_2',weak:node.weak,attrs:[...node.attrs.map(a=>({...a}))]},node.x+60,node.y+60);
-  toast('Duplicated');
-}
-function ctxAddRel(){hideCtx();setTool('relate');if(ctxNodeId)showRelModal(ctxNodeId);}
-function ctxDelete(){
-  hideCtx();push();
-  nodes=nodes.filter(n=>n.id!==ctxNodeId);
-  rels=rels.filter(r=>r.from!==ctxNodeId&&r.to!==ctxNodeId);
-  renderCanvas();
-}
-
-// ─────────────────── IMPORT ───────────────────
-function openImport(){switchITab('file',document.querySelector('.itab.on'));}
-
-function setupDZ(){
-  const dz=document.getElementById('dz');
-  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('ov');});
-  dz.addEventListener('dragleave',()=>dz.classList.remove('ov'));
-  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('ov');handleFile(e.dataTransfer.files);});
-}
-function handleFile(files){
-  if(!files||!files.length)return;
-  const f=files[0];
-  const reader=new FileReader();
-  reader.onload=ev=>analyseAI(ev.target.result.toString().substring(0,2500),f.name.split('.').pop(),f.name);
-  reader.readAsText(f);
-}
-function handleURL(){
-  const u=document.getElementById('urlI').value.trim();
-  if(!u){toast('Enter a URL');return;}
-  analyseAI('URL: '+u+'\nGenerate a realistic ER diagram for the domain implied by this URL.','url',u);
-}
-function handleKaggle(){
-  const q=document.getElementById('kI').value.trim().toLowerCase();if(!q){toast('Enter a topic');return;}
-  const samples={titanic:'Titanic passenger dataset',iris:'Iris flower measurements',movies:'Movie database with directors and cast',netflix:'Netflix shows and TV series',sales:'Sales transactions dataset'};
-  const kRes=document.getElementById('kRes');kRes.innerHTML='';
-  Object.entries(samples).filter(([k])=>k.includes(q)||q.includes(k)).forEach(([k,desc])=>{
-    const b=document.createElement('button');
-    b.style.cssText='width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:5px;color:var(--tx);padding:6px 9px;font-size:10px;margin-top:4px;cursor:pointer;text-align:left;font-family:var(--fnt)';
-    b.textContent='🔷 '+k+' — '+desc;
-    b.onclick=()=>analyseAI('Generate ER diagram for Kaggle '+k+' dataset: '+desc,'kaggle',k);
-    kRes.appendChild(b);
-  });
-  if(!kRes.children.length){
-    const b=document.createElement('button');
-    b.style.cssText='width:100%;background:var(--s2);border:1px solid var(--b);border-radius:5px;color:var(--b);padding:6px 9px;font-size:10px;margin-top:4px;cursor:pointer;font-family:var(--fnt)';
-    b.textContent='🤖 AI generate ER for "'+q+'"';
-    b.onclick=()=>analyseAI('Generate a realistic ER diagram for a dataset about: '+q+'. Create 5-6 entities with real attributes.','kaggle',q);
-    kRes.appendChild(b);
-  }
-}
-function handlePaste(){
-  const t=document.getElementById('pasteI').value.trim();
-  if(!t){toast('Paste some data first');return;}
-  analyseAI(t,'paste','pasted input');
-}
-
-// ─────────────────── AI CORE ───────────────────
-async function analyseAI(content,type,src){
-  showModal('aiModal');
-  document.getElementById('alg').innerHTML='';
-  document.getElementById('prf').style.width='0%';
-  document.getElementById('aiMsg').textContent='Analysing "'+src+'"…';
-  const steps=[{m:'Parsing data…',p:15},{m:'Identifying entities…',p:35},{m:'Extracting attributes…',p:55},{m:'Detecting primary keys…',p:70},{m:'Inferring relationships…',p:85},{m:'Building ER schema…',p:95}];
-  for(const s of steps){await sleep(280+Math.random()*250);logAI(s.m);document.getElementById('prf').style.width=s.p+'%';}
-  const prompt=`You are a database expert. Analyse this data and return ONLY valid JSON — no markdown, no explanation.
-Data type: ${type}
-Source: ${src}
-Content: ${content.substring(0,2000)}
-
-Return this JSON structure:
-{"scenario":"one sentence","entities":[{"name":"ENTITY","weak":false,"attrs":[{"n":"AttrName","pk":true},{"n":"OtherAttr"}]}],"relations":[{"from":"E1","to":"E2","label":"verb","card":"1:N"}]}
-
-Rules: 4-7 entities, 3-5 attrs each, one pk per entity, weak for dependent entities, card: 1:1 or 1:N or M:N, UPPERCASE entity names, PascalCase attr names.`;
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
-    const data=await res.json();
-    const raw=data.content?.[0]?.text||'';
-    const clean=raw.replace(/```json|```/g,'').trim();
-    const schema=JSON.parse(clean);
-    document.getElementById('prf').style.width='100%';
-    logAI('✓ Schema ready!',true);
-    await sleep(500);
-    hideModal('aiModal');
-    push();clearCanvas(false);
-    document.getElementById('scSec').style.display='';
-    document.getElementById('scTxt').textContent=schema.scenario||'Imported schema';
-    document.getElementById('empty').style.display='none';
-    renderSidebar(schema.entities||[]);
-    const nm={};
-    const cols=Math.ceil(Math.sqrt((schema.entities||[]).length));
-    (schema.entities||[]).forEach((e,i)=>{
-      const id=addNode(e,60+(i%cols)*(EW+90),60+Math.floor(i/cols)*190,false);nm[e.name]=id;
-    });
-    (schema.relations||[]).forEach(r=>{const fi=nm[r.from],ti=nm[r.to];if(fi&&ti)rels.push({id:'r'+(rId++),from:fi,to:ti,label:r.label||'relates',card:r.card||'1:N'});});
-    renderCanvas();
-    toast('AI generated '+(schema.entities?.length||0)+' entities!');
-  }catch(e){hideModal('aiModal');toast('AI error: '+e.message);console.error(e);}
-}
-function logAI(m,done=false){const l=document.getElementById('alg');const d=document.createElement('div');d.className='ln'+(done?' done':'');d.textContent='> '+m;l.appendChild(d);l.scrollTop=l.scrollHeight;}
-
-// ─────────────────── EXPORT ───────────────────
-function exportSVG(){
-  if(!nodes.length){toast('Nothing to export');return;}
-  const s=new XMLSerializer();
-  const src='<?xml version="1.0"?>\n'+s.serializeToString(document.getElementById('svg'));
-  dlLink('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(src),'er-diagram.svg');
-  toast('SVG exported');
-}
-function exportPNG(){
-  if(!nodes.length){toast('Nothing to export');return;}
-  const svg=document.getElementById('svg');
-  const s=new XMLSerializer();
-  const img=new Image();
-  const can=document.createElement('canvas');
-  can.width=svg.clientWidth;can.height=svg.clientHeight;
-  img.onload=()=>{const ctx=can.getContext('2d');ctx.fillStyle='#090c14';ctx.fillRect(0,0,can.width,can.height);ctx.drawImage(img,0,0);dlLink(can.toDataURL('image/png'),'er-diagram.png');toast('PNG exported');};
-  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s.serializeToString(svg));
-}
-function exportSQL(){
-  if(!nodes.length){toast('Add entities first');return;}
-  let sql='-- ERDraw v3 — SQL DDL\n\n';
-  nodes.forEach(n=>{
-    sql+=`CREATE TABLE ${n.name} (\n`;
-    const cols=n.attrs.map(a=>{
-      const nm=a.n||a.name;
-      let t='VARCHAR(255)';
-      if(a.pk||nm.toLowerCase().includes('id'))t='INT';
-      if(nm.toLowerCase().includes('date')||nm.toLowerCase().includes('at'))t='DATETIME';
-      if(nm.toLowerCase().includes('amount')||nm.toLowerCase().includes('price')||nm.toLowerCase().includes('cost'))t='DECIMAL(10,2)';
-      if(nm.toLowerCase().includes('age')||nm.toLowerCase().includes('year')||nm.toLowerCase().includes('qty')||nm.toLowerCase().includes('count'))t='INT';
-      if(nm.toLowerCase()==='status'||nm.toLowerCase()==='type')t="ENUM('active','inactive')";
-      return`  ${nm} ${t}${a.pk?' PRIMARY KEY NOT NULL':''}`;
-    });
-    sql+=cols.join(',\n')+'\n);\n\n';
-  });
-  rels.forEach(r=>{
-    const fn=nodes.find(n=>n.id===r.from),tn=nodes.find(n=>n.id===r.to);
-    const fpk=fn?.attrs.find(a=>a.pk);
-    if(fn&&tn&&fpk)sql+=`-- FK: ${tn.name}.${fn.name.toLowerCase()}_${(fpk.n||fpk.name).toLowerCase()} → ${fn.name}.${fpk.n||fpk.name}  [${r.card}]\n`;
-  });
-  showET('// SQL DDL',sql);
-}
-function exportJSON(){
-  if(!nodes.length){toast('Add entities first');return;}
-  const schema={tool:'ERDraw v3',exported:new Date().toISOString(),entities:nodes.map(n=>({name:n.name,weak:n.weak,attributes:n.attrs.map(a=>({name:a.n||a.name,primaryKey:!!a.pk,foreignKey:!!a.fk,multivalued:!!a.mv}))})),relationships:rels.map(r=>({from:nodes.find(n=>n.id===r.from)?.name,to:nodes.find(n=>n.id===r.to)?.name,label:r.label,cardinality:r.card}))};
-  showET('// JSON Schema',JSON.stringify(schema,null,2));
-}
-function exportMermaid(){
-  if(!nodes.length){toast('Add entities first');return;}
-  let mm='erDiagram\n';
-  nodes.forEach(n=>{mm+=`  ${n.name} {\n`;n.attrs.forEach(a=>{const nm=a.n||a.name;let t='string';if(a.pk||nm.toLowerCase().includes('id'))t='int';if(nm.toLowerCase().includes('date'))t='date';if(nm.toLowerCase().includes('amount')||nm.toLowerCase().includes('price'))t='decimal';mm+=`    ${t} ${nm}${a.pk?' PK':a.fk?' FK':''}\n`;});mm+='  }\n';});
-  rels.forEach(r=>{const fn=nodes.find(n=>n.id===r.from),tn=nodes.find(n=>n.id===r.to);if(!fn||!tn)return;const m={'1:1':'||--||','1:N':'||--o{','M:N':'}o--o{'};mm+=`  ${fn.name} ${m[r.card]||'||--o{'} ${tn.name} : "${r.label}"\n`;});
-  showET('// Mermaid Diagram',mm);
-}
-function exportMarkdown(){
-  if(!nodes.length){toast('Add entities first');return;}
-  let md='# ER Diagram\n*Generated by ERDraw v3*\n\n## Entities\n\n';
-  nodes.forEach(n=>{md+=`### ${n.name}${n.weak?' *(Weak)*':''}\n| Attribute | Key |\n|---|---|\n`;n.attrs.forEach(a=>md+=`| ${a.n||a.name} | ${a.pk?'**PK**':a.fk?'FK':a.mv?'Multi':''} |\n`);md+='\n';});
-  md+='## Relationships\n\n';
-  rels.forEach(r=>{const fn=nodes.find(n=>n.id===r.from),tn=nodes.find(n=>n.id===r.to);if(fn&&tn)md+=`- **${fn.name}** —[${r.label} : ${r.card}]→ **${tn.name}**\n`;});
-  showET('// Markdown',md);
-}
-function showET(title,text){document.getElementById('etTitle').textContent=title;document.getElementById('etArea').value=text;showModal('etModal');}
-function copyET(){navigator.clipboard.writeText(document.getElementById('etArea').value).then(()=>toast('Copied!'));}
-function dlLink(href,name){const a=document.createElement('a');a.href=href;a.download=name;a.click();}
-
-// ─────────────────── UNDO ───────────────────
-function push(){history.push({nodes:JSON.parse(JSON.stringify(nodes)),rels:JSON.parse(JSON.stringify(rels)),notes:JSON.parse(JSON.stringify(notes))});if(history.length>40)history.shift();}
+// ─── UNDO ───
+function push(){history.push(JSON.parse(JSON.stringify({nodes,rels,notes})));if(history.length>50)history.shift();}
 function undo(){if(!history.length){toast('Nothing to undo');return;}const s=history.pop();nodes=s.nodes;rels=s.rels;notes=s.notes;renderCanvas();toast('Undo');}
 
-// ─────────────────── UTILS ───────────────────
-function clearCanvas(render=true){nodes=[];rels=[];notes=[];selectedNode=null;if(render){document.getElementById('rl').innerHTML='';document.getElementById('el').innerHTML='';document.getElementById('nl').innerHTML='';document.getElementById('cinf').textContent='';}}
-function autoLayout(){if(!nodes.length)return;push();const cols=Math.ceil(Math.sqrt(nodes.length));nodes.forEach((n,i)=>{n.x=snapV(60+(i%cols)*(EW+90));n.y=snapV(60+Math.floor(i/cols)*190);});renderCanvas();toast('Layout applied');}
-
-function svgE(tag){return document.createElementNS('http://www.w3.org/2000/svg',tag);}
-function svgG(){return svgE('g');}
-function svgTxt(x,y,text,fs,fill,anchor){const t=svgE('text');t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('font-size',fs);t.setAttribute('fill',fill);t.setAttribute('text-anchor',anchor||'start');t.setAttribute('dominant-baseline','middle');t.setAttribute('font-family',"'Sora',sans-serif");t.textContent=text;return t;}
-function offPt(a,b,d){const dx=b.cx-a.cx,dy=b.cy-a.cy,l=Math.sqrt(dx*dx+dy*dy)||1;return{x:a.cx+(dx/l)*d,y:a.cy+(dy/l)*d};}
-
-function switchITab(t,el){
-  ['file','url','kaggle','paste'].forEach(x=>{const d=document.getElementById('ip-'+x);if(d)d.classList.toggle('on',x===t);});
-  $$('.itab').forEach(b=>b.classList.remove('on'));
-  if(el)el.classList.add('on');
+// ─── AUTO LAYOUT ───
+function autoLayout(){
+  if(!nodes.length)return;push();
+  const cols=Math.ceil(Math.sqrt(nodes.length));
+  nodes.forEach((n,i)=>{n.x=sv(60+(i%cols)*(EW+90));n.y=sv(60+Math.floor(i/cols)*200);});
+  renderCanvas();toast('Layout applied');
 }
+function clearCanvas(render=true){
+  nodes=[];rels=[];notes=[];selNode=null;
+  if(render){['rl','el','nl'].forEach(id=>document.getElementById(id).innerHTML='');document.getElementById('cinf').textContent='';}
+}
+
+// ─── EXPORT ───
+function expSVG(){if(!nodes.length){toast('Nothing to export');return;}const s=new XMLSerializer();const src='<?xml version="1.0"?>\n'+s.serializeToString(document.getElementById('mainSvg'));dlLink('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(src),'er-diagram.svg');toast('SVG exported');}
+function expPNG(){if(!nodes.length){toast('Nothing to export');return;}const svg=document.getElementById('mainSvg');const s=new XMLSerializer();const img=new Image();const can=document.createElement('canvas');can.width=CW.clientWidth;can.height=CW.clientHeight;img.onload=()=>{const ctx=can.getContext('2d');ctx.fillStyle=getComputedStyle(CW).background||'#07090f';ctx.fillRect(0,0,can.width,can.height);ctx.drawImage(img,0,0);dlLink(can.toDataURL('image/png'),'er-diagram.png');toast('PNG exported');};img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s.serializeToString(svg));}
+function expSQL(){if(!nodes.length){toast('Add entities first');return;}let sql='-- ERDraw v4 SQL DDL\n\n';nodes.forEach(n=>{sql+=`CREATE TABLE ${n.name} (\n`;sql+=n.attrs.map(a=>{const nm=a.n||a.name;let t='VARCHAR(255)';if(a.pk||nm.toLowerCase().includes('id'))t='INT';if(nm.toLowerCase().includes('date')||nm.toLowerCase().includes('at'))t='DATETIME';if(nm.toLowerCase().includes('amount')||nm.toLowerCase().includes('price'))t='DECIMAL(10,2)';return`  ${nm} ${t}${a.pk?' PRIMARY KEY NOT NULL':''}`;}).join(',\n');sql+='\n);\n\n';});showET('SQL DDL',sql);}
+function expJSON(){if(!nodes.length){toast('Add entities first');return;}const schema={tool:'ERDraw v4',exported:new Date().toISOString(),entities:nodes.map(n=>({name:n.name,weak:n.weak,attributes:n.attrs.map(a=>({name:a.n||a.name,pk:!!a.pk,fk:!!a.fk,multivalued:!!a.mv,derived:!!a.dk}))})),relationships:rels.map(r=>({from:nodes.find(n=>n.id===r.from)?.name,to:nodes.find(n=>n.id===r.to)?.name,label:r.label,cardinality:r.card,participation:r.participation}))};showET('JSON Schema',JSON.stringify(schema,null,2));}
+function expMermaid(){if(!nodes.length){toast('Add entities first');return;}let mm='erDiagram\n';nodes.forEach(n=>{mm+=`  ${n.name} {\n`;n.attrs.forEach(a=>{const nm=a.n||a.name;let t='string';if(a.pk||nm.toLowerCase().includes('id'))t='int';if(nm.toLowerCase().includes('date'))t='date';if(nm.toLowerCase().includes('amount')||nm.toLowerCase().includes('price'))t='decimal';mm+=`    ${t} ${nm}${a.pk?' PK':a.fk?' FK':''}\n`;});mm+='  }\n';});rels.forEach(r=>{const fn=nodes.find(n=>n.id===r.from),tn=nodes.find(n=>n.id===r.to);if(!fn||!tn)return;const m={'1:1':'||--||','1:N':'||--o{','M:N':'}o--o{'};mm+=`  ${fn.name} ${m[r.card]||'||--o{'} ${tn.name} : "${r.label}"\n`;});showET('Mermaid',mm);}
+function expMarkdown(){if(!nodes.length){toast('Add entities first');return;}let md='# ER Diagram\n*ERDraw v4*\n\n## Entities\n\n';nodes.forEach(n=>{md+=`### ${n.name}${n.weak?' *(Weak)*':''}\n|Attribute|Type|\n|---|---|\n`;n.attrs.forEach(a=>md+=`|${a.n||a.name}|${a.pk?'**PK**':a.fk?'FK':a.mv?'Multi-valued':a.dk?'Derived':''}|\n`);md+='\n';});md+='## Relationships\n\n';rels.forEach(r=>{const fn=nodes.find(n=>n.id===r.from),tn=nodes.find(n=>n.id===r.to);if(fn&&tn)md+=`- **${fn.name}** —[${r.label} : ${r.card}]→ **${tn.name}**\n`;});showET('Markdown',md);}
+function showET(title,text){document.getElementById('etTitle').textContent='// '+title;document.getElementById('etArea').value=text;show('etModal');}
+function dlLink(href,name){const a=document.createElement('a');a.href=href;a.download=name;a.click();}
+
+// ─── UTILS ───
 function switchRTab(t){
-  ['guide','design','tmpl','export'].forEach(id=>{document.getElementById('rp'+id.charAt(0).toUpperCase()+id.slice(1))?.classList.toggle('on',id===t);document.getElementById('rt'+id.charAt(0).toUpperCase()+id.slice(1))?.classList.toggle('on',id===t);});
+  const map={symbols:'S',design:'D',tmpl:'T',test:'Test',export:'E'};
+  Object.keys(map).forEach(k=>{document.getElementById('rp'+k.charAt(0).toUpperCase()+k.slice(1))?.classList.toggle('on',k===t);document.getElementById('rt'+(map[k]))?.classList.toggle('on',k===t);});
 }
-
-function showModal(id){document.getElementById(id).classList.remove('h');}
-function hideModal(id){document.getElementById(id).classList.add('h');}
-
-function el(tag,cls=''){const e=document.createElement(tag);e.className=cls;return e;}
+function switchITab(t){
+  ['file','url','kg','paste'].forEach(x=>{document.getElementById('ip-'+x)?.classList.toggle('on',x===t);document.getElementById('it-'+x)?.classList.toggle('on',x===t);});
+}
+function show(id){document.getElementById(id)?.classList.remove('h');}
+function hide(id){document.getElementById(id)?.classList.add('h');}
+function mk(tag,cls=''){const e=document.createElement(tag);if(cls)e.className=cls;return e;}
 function $$(sel){return document.querySelectorAll(sel);}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function sv(v){return snap?Math.round(v/24)*24:v;}
+function offPt(a,b,d){const dx=b.cx-a.cx,dy=b.cy-a.cy,l=Math.sqrt(dx*dx+dy*dy)||1;return{x:a.cx+(dx/l)*d,y:a.cy+(dy/l)*d};}
+function svgEl(tag){return document.createElementNS('http://www.w3.org/2000/svg',tag);}
+function svgG(){return svgEl('g');}
+function svgT(x,y,text,fs,fill,anchor){const t=svgEl('text');t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('font-size',fs);t.setAttribute('fill',fill);t.setAttribute('text-anchor',anchor||'start');t.setAttribute('dominant-baseline','middle');t.setAttribute('font-family',"'Plus Jakarta Sans',sans-serif");t.textContent=text;return t;}
 
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600);}
-
-// Keyboard shortcuts
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2700);}
 function onKey(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
   if(e.key==='v'||e.key==='V')setTool('select');
-  if(e.key==='r'||e.key==='R')setTool('relate');
+  if(e.key==='l'||e.key==='L')setTool('draw');
   if(e.key==='e'||e.key==='E')setTool('entity');
-  if(e.key==='t'||e.key==='T')setTool('text');
+  if(e.key==='n'||e.key==='N')setTool('note');
   if(e.key==='+'||e.key==='=')zoomIn();
   if(e.key==='-')zoomOut();
   if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();undo();}
-  if(e.key==='Delete'||e.key==='Backspace'){if(selectedNode){push();nodes=nodes.filter(n=>n.id!==selectedNode);rels=rels.filter(r=>r.from!==selectedNode&&r.to!==selectedNode);selectedNode=null;renderCanvas();}}
-  if((e.ctrlKey||e.metaKey)&&e.key==='a'){e.preventDefault();toast('Select All — '+nodes.length+' entities');}
+  if(e.key==='Delete'){if(selNode){push();nodes=nodes.filter(n=>n.id!==selNode);rels=rels.filter(r=>r.from!==selNode&&r.to!==selNode);selNode=null;renderCanvas();}}
 }
 </script>
-
 </body>
 </html>
