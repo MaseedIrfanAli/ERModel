@@ -3,1272 +3,1376 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ERDraw — ER Diagram Practice Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ERDraw v3 — ER Diagram Practice Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --bg: #0d0f14;
-    --surface: #151820;
-    --panel: #1c202d;
-    --border: #2a2f3e;
-    --accent: #4fffb0;
-    --accent2: #7c6bff;
-    --accent3: #ff6b6b;
-    --text: #e8eaf0;
-    --muted: #7a8099;
-    --entity-bg: #1e2535;
-    --entity-border: #4fffb0;
-    --rel-color: #7c6bff;
-    --weak-entity: #ff9f43;
-  }
+/* ─── TOKENS ─── */
+:root{
+  --bg:#090c14; --s1:#0e1220; --s2:#141928; --s3:#1b2133; --s4:#222840;
+  --bd:#252e45; --bd2:#2e3a56; --bd3:#3a4a6a;
+  --g:#00e5a0; --g2:#00c48a; --b:#4d7cfe; --p:#a259ff; --o:#ff8c42; --r:#ff4d6d; --y:#ffd166; --c:#00cfcf;
+  --tx:#dde3f0; --mu:#6b7694; --mu2:#4a5468; --mu3:#313d58;
+  --ew:192; --fnt:'Sora',sans-serif; --mono:'JetBrains Mono',monospace;
+  /* theme overrides via JS */
+  --th-entity-fill:#141928; --th-entity-stroke:#00e5a0; --th-title:#00e5a0;
+  --th-attr:#6b7694; --th-rel:#4d7cfe; --th-weak:#ff8c42;
+  --th-canvas-bg:#090c14; --th-dot:#1b2133;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--fnt);background:var(--bg);color:var(--tx);height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
 
-- { margin: 0; padding: 0; box-sizing: border-box; }
+/* ─── TOPBAR ─── */
+nav{height:46px;background:var(–s1);border-bottom:1px solid var(–bd);display:flex;align-items:center;padding:0 12px;gap:8px;flex-shrink:0;z-index:60}
+.logo{font-family:var(–mono);font-size:15px;font-weight:700;color:var(–g);letter-spacing:-.5px;white-space:nowrap;margin-right:4px}
+.logo em{color:var(–b);font-style:normal}
+.vtag{font-size:8px;background:var(–p);color:#fff;padding:2px 5px;border-radius:3px;font-weight:700;letter-spacing:.5px}
+.nd{width:1px;height:18px;background:var(–bd);flex-shrink:0;margin:0 3px}
+.sp{flex:1}
+.nb{background:transparent;border:1px solid var(–bd);color:var(–mu);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:11px;font-family:var(–fnt);transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px;line-height:1}
+.nb:hover{border-color:var(–g);color:var(–g)}
+.nb.active,.nb.on{border-color:var(–p);color:var(–p);background:rgba(162,89,255,.1)}
+.nb.prime{background:var(–g);color:#090c14;border-color:var(–g);font-weight:700}
+.nb.prime:hover{background:var(–g2)}
+.nb.bl{border-color:var(–b);color:var(–b)}
+.nb.bl:hover{background:rgba(77,124,254,.1)}
+.nb svg{width:11px;height:11px;flex-shrink:0}
 
-body {
-font-family: ‘DM Sans’, sans-serif;
-background: var(–bg);
-color: var(–text);
-height: 100vh;
-display: flex;
-flex-direction: column;
-overflow: hidden;
-}
+/* ─── LAYOUT ─── */
+.wrap{display:flex;flex:1;overflow:hidden}
 
-/* ── TOP BAR ── */
-header {
-height: 52px;
-background: var(–surface);
-border-bottom: 1px solid var(–border);
-display: flex;
-align-items: center;
-padding: 0 16px;
-gap: 16px;
-flex-shrink: 0;
-z-index: 100;
-}
-.logo {
-font-family: ‘Space Mono’, monospace;
-font-size: 18px;
-color: var(–accent);
-font-weight: 700;
-letter-spacing: -1px;
-}
-.logo span { color: var(–accent2); }
+/* ─── LEFT ─── */
+aside{width:246px;background:var(–s1);border-right:1px solid var(–bd);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.ps{padding:10px 13px;border-bottom:1px solid var(–bd);flex-shrink:0}
+.pt{font-size:9px;text-transform:uppercase;letter-spacing:1.8px;color:var(–mu2);font-weight:700;margin-bottom:7px}
 
-.badge {
-font-size: 10px;
-background: var(–accent2);
-color: white;
-padding: 2px 6px;
-border-radius: 4px;
-font-weight: 600;
-letter-spacing: 0.5px;
-}
-
-.spacer { flex: 1; }
-
-.header-btn {
-background: transparent;
-border: 1px solid var(–border);
-color: var(–muted);
-padding: 5px 12px;
-border-radius: 6px;
-cursor: pointer;
-font-size: 12px;
-font-family: ‘DM Sans’, sans-serif;
-transition: all 0.2s;
-}
-.header-btn:hover { border-color: var(–accent); color: var(–accent); }
-.header-btn.primary {
-background: var(–accent);
-color: #0d0f14;
-border-color: var(–accent);
-font-weight: 600;
-}
-.header-btn.primary:hover { background: #3ae8a0; }
-
-.dataset-select {
-background: var(–panel);
-border: 1px solid var(–border);
-color: var(–text);
-padding: 5px 10px;
-border-radius: 6px;
-font-size: 12px;
-font-family: ‘DM Sans’, sans-serif;
-cursor: pointer;
-outline: none;
-}
-.dataset-select:focus { border-color: var(–accent2); }
-
-/* ── LAYOUT ── */
-.app-body {
-display: flex;
-flex: 1;
-overflow: hidden;
-}
-
-/* ── LEFT PANEL ── */
-.left-panel {
-width: 260px;
-background: var(–surface);
-border-right: 1px solid var(–border);
-display: flex;
-flex-direction: column;
-flex-shrink: 0;
-overflow: hidden;
-}
-
-.panel-section {
-padding: 14px 16px;
-border-bottom: 1px solid var(–border);
-}
-.panel-title {
-font-size: 10px;
-text-transform: uppercase;
-letter-spacing: 1.5px;
-color: var(–muted);
-font-weight: 600;
-margin-bottom: 10px;
-}
-
-.scenario-box {
-background: var(–panel);
-border: 1px solid var(–border);
-border-radius: 8px;
-padding: 10px 12px;
-font-size: 12px;
-line-height: 1.6;
-color: var(–muted);
-max-height: 120px;
-overflow-y: auto;
-}
+/* Import tabs */
+.itabs{display:flex;gap:3px;margin-bottom:8px}
+.itab{flex:1;padding:5px 3px;background:var(–s2);border:1px solid var(–bd);border-radius:5px;font-size:9px;color:var(–mu2);cursor:pointer;text-align:center;transition:all .15s;font-family:var(–fnt);line-height:1.2}
+.itab:hover,.itab.on{border-color:var(–b);color:var(–b);background:rgba(77,124,254,.08)}
+.itab-pane{display:none}.itab-pane.on{display:block}
+.dz{border:1.5px dashed var(–bd2);border-radius:7px;padding:10px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.dz:hover,.dz.ov{border-color:var(–b);background:rgba(77,124,254,.05)}
+.dz input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
+.dz-ico{font-size:18px;line-height:1}
+.dz p{font-size:10px;color:var(–mu);margin-top:3px;line-height:1.5}
+.ui{width:100%;background:var(–s2);border:1px solid var(–bd);border-radius:5px;color:var(–tx);padding:6px 8px;font-size:11px;font-family:var(–fnt);outline:none}
+.ui:focus{border-color:var(–b)}
+.urow{display:flex;gap:4px;margin-bottom:5px}
+.urow .ui{flex:1}
+.ubtn{background:var(–b);border:none;color:#fff;padding:6px 10px;border-radius:5px;cursor:pointer;font-size:11px;white-space:nowrap;font-family:var(–fnt)}
+.ubtn:hover{background:#3a6ae8}
+.hint{font-size:9px;color:var(–mu2);line-height:1.5;margin-top:4px}
 
 /* Entities list */
-.entities-list {
-flex: 1;
-overflow-y: auto;
-padding: 14px 16px;
-}
+.elist{flex:1;overflow-y:auto;padding:8px 11px}
+.elbl{font-size:9px;text-transform:uppercase;letter-spacing:1.8px;color:var(–mu2);font-weight:700;margin-bottom:7px;padding:0 1px}
+.ecard{background:var(–s2);border:1px solid var(–bd);border-radius:7px;padding:8px 10px;margin-bottom:6px;cursor:grab;transition:border-color .15s,box-shadow .15s}
+.ecard:hover{border-color:var(–g);box-shadow:0 0 0 1px rgba(0,229,160,.1)}
+.ecard.wk{border-color:rgba(255,140,66,.3)}
+.ecard:active{cursor:grabbing}
+.en{font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;font-family:var(–mono);color:var(–tx)}
+.etag{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:700;letter-spacing:.3px}
+.etag.st{background:rgba(0,229,160,.12);color:var(–g);border:1px solid rgba(0,229,160,.25)}
+.etag.wk{background:rgba(255,140,66,.12);color:var(–o);border:1px solid rgba(255,140,66,.25)}
+.eas{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
+.ach{font-size:9px;padding:1px 5px;border-radius:3px;background:var(–bg);border:1px solid var(–bd);color:var(–mu2)}
+.ach.pk{border-color:rgba(0,229,160,.4);color:var(–g)}
+.ach.fk{border-color:rgba(77,124,254,.4);color:var(–b)}
+.ach.mv{border-style:dashed}
+.dh{font-size:9px;color:var(–mu3);margin-top:4px}
 
-.entity-item {
-background: var(–panel);
-border: 1px solid var(–border);
-border-radius: 8px;
-padding: 10px 12px;
-margin-bottom: 8px;
-cursor: grab;
-transition: all 0.2s;
-position: relative;
-}
-.entity-item:hover {
-border-color: var(–accent);
-background: #1e2535;
-}
-.entity-item:active { cursor: grabbing; }
-.entity-item.weak-entity { border-color: var(–weak-entity); }
+/* ─── TOOLBAR STRIP ─── */
+.toolbar{height:38px;background:var(–s1);border-bottom:1px solid var(–bd);display:flex;align-items:center;padding:0 10px;gap:5px;flex-shrink:0}
+.tg{display:flex;gap:3px;align-items:center}
+.ts{width:1px;height:20px;background:var(–bd);margin:0 4px}
+.tb{background:var(–s2);border:1px solid var(–bd);border-radius:5px;padding:4px 9px;color:var(–mu);cursor:pointer;font-size:10px;font-family:var(–fnt);transition:all .15s;display:flex;align-items:center;gap:4px;line-height:1;white-space:nowrap}
+.tb:hover{border-color:var(–bd3);color:var(–tx)}
+.tb.on{border-color:var(–p);color:var(–p);background:rgba(162,89,255,.1)}
+.tb svg{width:11px;height:11px}
+.tb-label{font-size:9px;color:var(–mu2);margin:0 2px;white-space:nowrap}
+/* color swatches */
+.swatch{width:16px;height:16px;border-radius:3px;border:1.5px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0}
+.swatch:hover,.swatch.on{border-color:#fff;transform:scale(1.15)}
+/* size slider */
+.sz-sl{width:60px;accent-color:var(–p);cursor:pointer}
+/* zoom */
+.zoom-val{font-family:var(–mono);font-size:10px;color:var(–mu);min-width:36px;text-align:center}
 
-.entity-name {
-font-size: 13px;
-font-weight: 600;
-color: var(–text);
-display: flex;
-align-items: center;
-gap: 6px;
-}
-.entity-tag {
-font-size: 9px;
-padding: 2px 5px;
-border-radius: 3px;
-background: var(–accent);
-color: #0d0f14;
-font-weight: 700;
-letter-spacing: 0.5px;
-}
-.entity-tag.weak { background: var(–weak-entity); }
+/* ─── CANVAS ─── */
+.cw{flex:1;position:relative;overflow:hidden;background:var(–th-canvas-bg);transition:background .3s}
+.cw.grid-dot{background-image:radial-gradient(circle,var(–th-dot) 1px,transparent 0);background-size:24px 24px}
+.cw.grid-line{background-image:linear-gradient(var(–th-dot) 1px,transparent 1px),linear-gradient(90deg,var(–th-dot) 1px,transparent 1px);background-size:24px 24px}
+.cw.grid-none{background-image:none}
+#svg{width:100%;height:100%;display:block}
+.cinf{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:10px;color:var(–mu2);pointer-events:none;white-space:nowrap;font-family:var(–mono)}
+.empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.empty h2{font-family:var(–mono);font-size:30px;color:var(–mu3);font-weight:700;letter-spacing:-1px}
+.empty p{font-size:11px;color:var(–mu3);margin-top:6px;line-height:1.7}
 
-.entity-attrs {
-margin-top: 6px;
-display: flex;
-flex-wrap: wrap;
-gap: 4px;
-}
-.attr-chip {
-font-size: 10px;
-background: var(–bg);
-border: 1px solid var(–border);
-border-radius: 3px;
-padding: 2px 6px;
-color: var(–muted);
-}
-.attr-chip.pk {
-border-color: var(–accent);
-color: var(–accent);
-text-decoration: underline;
-}
-.attr-chip.fk { border-color: var(–accent2); color: var(–accent2); }
-.attr-chip.multi { border-style: dashed; }
+/* ─── RIGHT ─── */
+.rp{width:212px;background:var(–s1);border-left:1px solid var(–bd);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.rtabs{display:flex;border-bottom:1px solid var(–bd)}
+.rtab{flex:1;padding:9px 4px;font-size:10px;color:var(–mu2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all .15s;font-weight:500}
+.rtab:hover{color:var(–tx)}
+.rtab.on{color:var(–g);border-color:var(–g)}
+.rpb{flex:1;overflow-y:auto;padding:10px 12px;display:none}
+.rpb.on{display:block}
+.rc{background:var(–s2);border:1px solid var(–bd);border-radius:7px;padding:9px 11px;margin-bottom:7px}
+.rc h4{font-size:9px;color:var(–g);font-family:var(–mono);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.rc p,.rc li{font-size:10px;color:var(–mu);line-height:1.7}
+.leg{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:10px;color:var(–mu)}
+.ld{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+/* export grid */
+.eg{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.eb{background:var(–s2);border:1px solid var(–bd);border-radius:7px;padding:9px 6px;cursor:pointer;text-align:center;transition:all .15s;font-family:var(–fnt)}
+.eb:hover{border-color:var(–g);background:rgba(0,229,160,.04)}
+.eb .ei{font-size:16px;margin-bottom:3px}
+.eb .el{font-size:9px;color:var(–mu);font-weight:600}
+/* theme swatches */
+.thg{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.thc{border:1.5px solid var(–bd);border-radius:6px;padding:7px 5px;text-align:center;cursor:pointer;transition:all .15s}
+.thc:hover,.thc.on{border-color:var(–g)}
+.thc .tc{width:20px;height:20px;border-radius:4px;margin:0 auto 4px}
+.thc p{font-size:9px;color:var(–mu2)}
+/* template grid */
+.tmg{display:grid;grid-template-columns:1fr;gap:5px}
+.tmc{background:var(–s2);border:1px solid var(–bd);border-radius:7px;padding:8px 10px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px}
+.tmc:hover{border-color:var(–b);background:rgba(77,124,254,.05)}
+.tmc .ti{font-size:16px;flex-shrink:0}
+.tmc .td h4{font-size:11px;font-weight:600;margin-bottom:2px}
+.tmc .td p{font-size:9px;color:var(–mu2)}
 
-.drag-hint {
-font-size: 10px;
-color: var(–muted);
-margin-top: 4px;
-opacity: 0.6;
-}
+/* ─── MODALS ─── */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.ov.h{display:none}
+.md{background:var(–s1);border:1px solid var(–bd2);border-radius:12px;padding:20px;max-height:88vh;overflow-y:auto}
+.md h2{font-family:var(–mono);font-size:15px;color:var(–g);margin-bottom:5px}
+.md .sub{font-size:10px;color:var(–mu);margin-bottom:15px;line-height:1.65}
+.mact{display:flex;gap:7px;justify-content:flex-end;margin-top:14px}
+.mb{padding:7px 15px;border-radius:6px;border:1px solid var(–bd);background:transparent;color:var(–mu);cursor:pointer;font-size:11px;font-family:var(–fnt);transition:all .15s}
+.mb:hover{border-color:var(–bd2)}
+.mb.go{background:var(–g);color:#090c14;border-color:var(–g);font-weight:700}
+.mb.go:hover{background:var(–g2)}
+.mb.bl{background:var(–b);color:#fff;border-color:var(–b);font-weight:600}
+/* dataset grid */
+.dsg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:15px}
+.dsc{background:var(–s2);border:1px solid var(–bd);border-radius:8px;padding:11px 9px;cursor:pointer;transition:all .18s}
+.dsc:hover,.dsc.on{border-color:var(–g);background:rgba(0,229,160,.04)}
+.dsc .di{font-size:20px;margin-bottom:4px}
+.dsc h3{font-size:11px;font-weight:600;margin-bottom:2px}
+.dsc p{font-size:9px;color:var(–mu)}
+/* relation modal */
+.rmd{width:350px}
+.rmd h2{color:var(–b)}
+.fr{margin-bottom:10px}
+.fr label{display:block;font-size:9px;color:var(–mu2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px}
+.fr select,.fr input{width:100%;background:var(–s2);border:1px solid var(–bd);border-radius:5px;color:var(–tx);padding:6px 9px;font-size:11px;font-family:var(–fnt);outline:none}
+.fr select:focus,.fr input:focus{border-color:var(–b)}
+/* AI modal */
+.amd{width:420px}
+.amd h2{color:var(–b)}
+.prb{height:3px;background:var(–s3);border-radius:2px;overflow:hidden;margin-bottom:12px}
+.prf{height:100%;background:linear-gradient(90deg,var(–b),var(–p));border-radius:2px;transition:width .4s ease;width:0%}
+.alg{background:var(–s2);border:1px solid var(–bd);border-radius:6px;padding:8px 10px;font-family:var(–mono);font-size:10px;color:var(–mu);max-height:130px;overflow-y:auto;line-height:1.9}
+.alg .ln{color:var(–g)}
+/* export text modal */
+.etmd{width:510px}
+.etmd h2{color:var(–g)}
+.etmd textarea{width:100%;height:260px;background:var(–s2);border:1px solid var(–bd);border-radius:7px;color:var(–tx);padding:10px;font-size:10px;font-family:var(–mono);resize:none;outline:none;line-height:1.75}
+.etmd textarea:focus{border-color:var(–g)}
+/* entity edit modal */
+.eemd{width:400px}
+.eemd h2{color:var(–o)}
+.attr-row{display:flex;gap:5px;align-items:center;margin-bottom:5px}
+.attr-row input{flex:1;background:var(–s2);border:1px solid var(–bd);border-radius:5px;color:var(–tx);padding:5px 8px;font-size:11px;font-family:var(–fnt);outline:none}
+.attr-row input:focus{border-color:var(–o)}
+.attr-row .chk{display:flex;align-items:center;gap:3px;font-size:9px;color:var(–mu2);white-space:nowrap;cursor:pointer}
+.attr-row .chk input{width:12px;height:12px;cursor:pointer;accent-color:var(–g)}
+.attr-row .del-a{background:none;border:none;color:var(–r);cursor:pointer;font-size:13px;padding:0 3px}
 
-/* Tool palette */
-.tools {
-display: flex;
-gap: 6px;
-flex-wrap: wrap;
-}
-.tool-btn {
-background: var(–panel);
-border: 1px solid var(–border);
-border-radius: 6px;
-padding: 6px 10px;
-color: var(–muted);
-cursor: pointer;
-font-size: 11px;
-font-family: ‘DM Sans’, sans-serif;
-transition: all 0.2s;
-display: flex;
-align-items: center;
-gap: 5px;
-}
-.tool-btn:hover { border-color: var(–accent2); color: var(–accent2); }
-.tool-btn.active { border-color: var(–accent2); color: var(–accent2); background: #1e2230; }
-.tool-btn svg { width: 13px; height: 13px; }
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:18px;right:18px;background:var(–s2);border:1px solid var(–g);border-radius:8px;padding:8px 14px;font-size:11px;color:var(–g);z-index:500;opacity:0;transform:translateY(8px);transition:all .28s;pointer-events:none}
+.toast.on{opacity:1;transform:translateY(0)}
 
-/* ── CANVAS ── */
-.canvas-area {
-flex: 1;
-position: relative;
-overflow: hidden;
-background: var(–bg);
-background-image:
-radial-gradient(circle at 1px 1px, #2a2f3e 1px, transparent 0);
-background-size: 28px 28px;
-}
+/* ─── MINI CONTEXT MENU ─── */
+.ctx{position:fixed;background:var(–s2);border:1px solid var(–bd2);border-radius:8px;padding:4px 0;z-index:400;min-width:140px;display:none}
+.ctx.on{display:block}
+.ctx-item{padding:6px 13px;font-size:11px;color:var(–tx);cursor:pointer;display:flex;align-items:center;gap:7px}
+.ctx-item:hover{background:var(–s3);color:var(–g)}
+.ctx-item.danger:hover{color:var(–r)}
+.ctx-sep{height:1px;background:var(–bd);margin:3px 0}
 
-#canvas-svg {
-width: 100%;
-height: 100%;
-cursor: default;
-}
-
-/* SVG entity nodes */
-.er-entity rect.entity-rect {
-fill: var(–entity-bg);
-stroke: var(–entity-border);
-stroke-width: 2;
-rx: 8;
-filter: drop-shadow(0 4px 12px rgba(79,255,176,0.15));
-}
-.er-entity rect.entity-rect.selected {
-stroke: var(–accent2);
-stroke-width: 2.5;
-filter: drop-shadow(0 4px 16px rgba(124,107,255,0.3));
-}
-.er-entity rect.entity-rect.weak-rect {
-stroke: var(–weak-entity);
-}
-.er-entity text.entity-title {
-font-family: ‘Space Mono’, monospace;
-font-size: 13px;
-font-weight: 700;
-fill: var(–accent);
-}
-.er-entity text.entity-title.weak-title {
-fill: var(–weak-entity);
-}
-.er-entity text.attr-text {
-font-family: ‘DM Sans’, sans-serif;
-font-size: 11px;
-fill: var(–muted);
-}
-.er-entity text.attr-text.pk-text {
-fill: var(–accent);
-text-decoration: underline;
-}
-.er-entity text.attr-text.fk-text {
-fill: var(–accent2);
-}
-
-.er-relation line {
-stroke: var(–rel-color);
-stroke-width: 1.5;
-stroke-dasharray: none;
-}
-.er-relation polygon {
-fill: var(–rel-color);
-stroke: none;
-}
-.er-relation text {
-font-family: ‘DM Sans’, sans-serif;
-font-size: 11px;
-fill: var(–muted);
-}
-
-/* ── RIGHT PANEL ── */
-.right-panel {
-width: 220px;
-background: var(–surface);
-border-left: 1px solid var(–border);
-display: flex;
-flex-direction: column;
-overflow: hidden;
-flex-shrink: 0;
-}
-
-.hint-area {
-padding: 14px 16px;
-flex: 1;
-overflow-y: auto;
-}
-.hint-card {
-background: var(–panel);
-border: 1px solid var(–border);
-border-radius: 8px;
-padding: 10px 12px;
-margin-bottom: 8px;
-}
-.hint-card h4 {
-font-size: 11px;
-color: var(–accent);
-font-family: ‘Space Mono’, monospace;
-margin-bottom: 6px;
-}
-.hint-card p {
-font-size: 11px;
-color: var(–muted);
-line-height: 1.6;
-}
-
-.legend-item {
-display: flex;
-align-items: center;
-gap: 8px;
-margin-bottom: 7px;
-font-size: 11px;
-color: var(–muted);
-}
-.legend-dot {
-width: 12px;
-height: 12px;
-border-radius: 2px;
-flex-shrink: 0;
-}
-
-/* ── MODAL ── */
-.modal-overlay {
-position: fixed;
-inset: 0;
-background: rgba(0,0,0,0.7);
-z-index: 1000;
-display: flex;
-align-items: center;
-justify-content: center;
-backdrop-filter: blur(4px);
-}
-.modal-overlay.hidden { display: none; }
-.modal {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 12px;
-padding: 24px;
-width: 480px;
-max-height: 80vh;
-overflow-y: auto;
-}
-.modal h2 {
-font-family: ‘Space Mono’, monospace;
-font-size: 18px;
-color: var(–accent);
-margin-bottom: 6px;
-}
-.modal p.sub {
-font-size: 12px;
-color: var(–muted);
-margin-bottom: 20px;
-line-height: 1.6;
-}
-.dataset-grid {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 10px;
-margin-bottom: 20px;
-}
-.dataset-card {
-background: var(–panel);
-border: 1px solid var(–border);
-border-radius: 8px;
-padding: 14px;
-cursor: pointer;
-transition: all 0.2s;
-}
-.dataset-card:hover, .dataset-card.active {
-border-color: var(–accent);
-}
-.dataset-card.active { background: #1e2535; }
-.dataset-card .icon { font-size: 24px; margin-bottom: 6px; }
-.dataset-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
-.dataset-card p { font-size: 11px; color: var(–muted); }
-
-.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-.modal-btn {
-padding: 8px 18px;
-border-radius: 7px;
-border: 1px solid var(–border);
-background: transparent;
-color: var(–muted);
-cursor: pointer;
-font-family: ‘DM Sans’, sans-serif;
-font-size: 13px;
-transition: all 0.2s;
-}
-.modal-btn.go {
-background: var(–accent);
-color: #0d0f14;
-border-color: var(–accent);
-font-weight: 600;
-}
-.modal-btn.go:hover { background: #3ae8a0; }
-
-/* ── RELATION MODAL ── */
-.rel-modal {
-width: 360px;
-}
-.rel-modal h2 { font-size: 15px; margin-bottom: 16px; }
-.form-row {
-margin-bottom: 12px;
-}
-.form-row label {
-display: block;
-font-size: 11px;
-color: var(–muted);
-margin-bottom: 5px;
-text-transform: uppercase;
-letter-spacing: 0.8px;
-}
-.form-row select, .form-row input {
-width: 100%;
-background: var(–panel);
-border: 1px solid var(–border);
-border-radius: 6px;
-color: var(–text);
-padding: 7px 10px;
-font-size: 13px;
-font-family: ‘DM Sans’, sans-serif;
-outline: none;
-}
-.form-row select:focus, .form-row input:focus { border-color: var(–accent2); }
-
-/* Scroll styles */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(–border); border-radius: 2px; }
+/* scrollbar */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(–bd2);border-radius:2px}
 </style>
 
 </head>
 <body>
 
-<!-- HEADER -->
+<!-- ════ TOPBAR ════ -->
 
-<header>
-  <div class="logo">ER<span>Draw</span></div>
-  <div class="badge">STUDENT</div>
-  <select class="dataset-select" id="datasetQuickSwitch">
-    <option value="">— Pick a Dataset —</option>
-    <option value="ecommerce">🛒 E-Commerce</option>
-    <option value="hospital">🏥 Hospital</option>
-    <option value="university">🎓 University</option>
-    <option value="library">📚 Library</option>
-    <option value="banking">🏦 Banking</option>
-  </select>
-  <div class="spacer"></div>
-  <button class="header-btn" onclick="clearCanvas()">🗑 Clear</button>
-  <button class="header-btn" onclick="autoLayout()">⚡ Auto Layout</button>
-  <button class="header-btn primary" onclick="exportSVG()">⬇ Export SVG</button>
-</header>
+<nav>
+  <div class="logo">ER<em>Draw</em></div>
+  <div class="vtag">v3</div>
+  <div class="nd"></div>
+  <button class="nb bl" onclick="openImport()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Import
+  </button>
+  <button class="nb" onclick="showModal('dsModal')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Datasets
+  </button>
+  <div class="nd"></div>
+  <div class="sp"></div>
+  <button class="nb" onclick="undo()">↩ Undo</button>
+  <button class="nb" onclick="autoLayout()">⚡ Layout</button>
+  <button class="nb" onclick="fitView()">⊞ Fit</button>
+  <button class="nb danger" onclick="clearCanvas()" style="border-color:var(--r);color:var(--r)" onmouseover="this.style.background='rgba(255,77,109,.08)'" onmouseout="this.style.background=''">🗑 Clear</button>
+  <div class="nd"></div>
+  <button class="nb prime" onclick="switchRTab('export')">⬇ Export</button>
+</nav>
 
-<!-- APP BODY -->
+<!-- ════ TOOLBAR STRIP ════ -->
 
-<div class="app-body">
+<div class="toolbar">
+  <!-- tools -->
+  <div class="tg">
+    <span class="tb-label">Tools</span>
+    <button class="tb on" id="tSel" onclick="setTool('select')" title="Select / Move (V)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-7 1-3 7z"/></svg>Select
+    </button>
+    <button class="tb" id="tRel" onclick="setTool('relate')" title="Add Relationship (R)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>Relate
+    </button>
+    <button class="tb" id="tEnt" onclick="setTool('entity')" title="Add Custom Entity (E)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>Entity
+    </button>
+    <button class="tb" id="tTxt" onclick="setTool('text')" title="Add Text Note (T)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Note
+    </button>
+  </div>
+  <div class="ts"></div>
+  <!-- grid -->
+  <div class="tg">
+    <span class="tb-label">Grid</span>
+    <button class="tb on" id="gDot" onclick="setGrid('dot',this)" title="Dot grid">⬛</button>
+    <button class="tb" id="gLine" onclick="setGrid('line',this)" title="Line grid">⊞</button>
+    <button class="tb" id="gNone" onclick="setGrid('none',this)" title="No grid">○</button>
+  </div>
+  <div class="ts"></div>
+  <!-- stroke color -->
+  <div class="tg">
+    <span class="tb-label">Entity Color</span>
+    <div class="swatch on" style="background:#00e5a0" data-c="green" onclick="setEntityColor('#00e5a0','#00e5a080',this)" title="Green"></div>
+    <div class="swatch" style="background:#4d7cfe" data-c="blue" onclick="setEntityColor('#4d7cfe','#4d7cfe80',this)" title="Blue"></div>
+    <div class="swatch" style="background:#a259ff" data-c="purple" onclick="setEntityColor('#a259ff','#a259ff80',this)" title="Purple"></div>
+    <div class="swatch" style="background:#ff8c42" data-c="orange" onclick="setEntityColor('#ff8c42','#ff8c4280',this)" title="Orange"></div>
+    <div class="swatch" style="background:#ff4d6d" data-c="red" onclick="setEntityColor('#ff4d6d','#ff4d6d80',this)" title="Red"></div>
+    <div class="swatch" style="background:#ffd166" data-c="yellow" onclick="setEntityColor('#ffd166','#ffd16680',this)" title="Yellow"></div>
+    <div class="swatch" style="background:#00cfcf" data-c="cyan" onclick="setEntityColor('#00cfcf','#00cfcf80',this)" title="Cyan"></div>
+  </div>
+  <div class="ts"></div>
+  <!-- line style -->
+  <div class="tg">
+    <span class="tb-label">Line</span>
+    <button class="tb on" id="lSolid" onclick="setLineStyle('solid',this)" title="Solid line">—</button>
+    <button class="tb" id="lDash" onclick="setLineStyle('dashed',this)" title="Dashed line">- -</button>
+    <button class="tb" id="lDot" onclick="setLineStyle('dotted',this)" title="Dotted line">···</button>
+  </div>
+  <div class="ts"></div>
+  <!-- snap -->
+  <div class="tg">
+    <button class="tb on" id="tSnap" onclick="toggleSnap()" title="Snap to grid">⊞ Snap</button>
+  </div>
+  <div class="ts"></div>
+  <!-- zoom -->
+  <div class="tg">
+    <button class="tb" onclick="zoomOut()" title="Zoom out">−</button>
+    <span class="zoom-val" id="zoomVal">100%</span>
+    <button class="tb" onclick="zoomIn()" title="Zoom in">+</button>
+  </div>
+</div>
 
-  <!-- LEFT PANEL -->
+<!-- ════ BODY ════ -->
 
-  <div class="left-panel">
-    <div class="panel-section">
-      <div class="panel-title">Scenario</div>
-      <div class="scenario-box" id="scenarioText">
-        Select a dataset above to begin practicing. Each scenario gives you a real-world context to design your ER diagram from.
+<div class="wrap">
+
+<!-- LEFT PANEL -->
+
+<aside>
+  <!-- Import -->
+  <div class="ps">
+    <div class="pt">Import</div>
+    <div class="itabs">
+      <div class="itab on" onclick="switchITab('file',this)">📁 File</div>
+      <div class="itab" onclick="switchITab('url',this)">🌐 URL</div>
+      <div class="itab" onclick="switchITab('kaggle',this)">🔷 Kaggle</div>
+      <div class="itab" onclick="switchITab('paste',this)">📋 Paste</div>
+    </div>
+    <!-- File -->
+    <div class="itab-pane on" id="ip-file">
+      <div class="dz" id="dz"><input type="file" id="fi" accept=".csv,.tsv,.json,.txt,.sql" onchange="handleFile(this.files)"/>
+        <div class="dz-ico">📂</div><p>CSV · JSON · SQL · TXT<br/>Drop or click to browse</p>
       </div>
     </div>
-
-```
-<div class="panel-section">
-  <div class="panel-title">Tools</div>
-  <div class="tools">
-    <button class="tool-btn active" id="toolSelect" onclick="setTool('select')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-7 1-3 7z"/></svg>
-      Select
-    </button>
-    <button class="tool-btn" id="toolRelate" onclick="setTool('relate')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      Relate
-    </button>
-    <button class="tool-btn" id="toolEntity" onclick="setTool('entity')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
-      Add Entity
-    </button>
+    <!-- URL -->
+    <div class="itab-pane" id="ip-url">
+      <div class="urow"><input class="ui" id="urlI" placeholder="Paste CSV URL or website…"/><button class="ubtn" onclick="handleURL()">→</button></div>
+      <div class="hint">Supports GitHub raw, data.gov, Wikipedia table URLs</div>
+    </div>
+    <!-- Kaggle -->
+    <div class="itab-pane" id="ip-kaggle">
+      <div class="urow"><input class="ui" id="kI" placeholder="titanic, ecommerce, movies…"/><button class="ubtn" onclick="handleKaggle()">→</button></div>
+      <div id="kRes"></div>
+    </div>
+    <!-- Paste -->
+    <div class="itab-pane" id="ip-paste">
+      <textarea class="ui" id="pasteI" style="height:72px;resize:none;font-family:var(--mono);font-size:10px" placeholder="Paste CSV, JSON, SQL schema, or describe in plain English…"></textarea>
+      <button class="ubtn" style="width:100%;margin-top:4px;border-radius:5px" onclick="handlePaste()">Analyse with AI →</button>
+    </div>
   </div>
+
+  <!-- Scenario -->
+
+  <div class="ps" id="scSec" style="display:none">
+    <div class="pt">Scenario</div>
+    <div id="scTxt" style="background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:8px 9px;font-size:10px;color:var(--mu);line-height:1.65;max-height:80px;overflow-y:auto"></div>
+  </div>
+
+  <!-- Entities list -->
+
+  <div class="elist" id="eList">
+    <div class="elbl">Entities</div>
+    <div style="font-size:10px;color:var(--mu2)">Load a dataset or import data to begin.</div>
+  </div>
+</aside>
+
+<!-- CANVAS -->
+
+<div class="cw grid-dot" id="cw">
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+    <defs>
+      <marker id="arG" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3z" fill="var(--th-rel)"/></marker>
+    </defs>
+    <g id="rl"></g>
+    <g id="el"></g>
+    <g id="nl"></g><!-- notes layer -->
+  </svg>
+  <div class="empty" id="empty">
+    <h2>ERDraw v3</h2>
+    <p>Import CSV · PDF · URL · Kaggle<br/>or pick a Dataset / Template →</p>
+  </div>
+  <div class="cinf" id="cinf"></div>
 </div>
 
-<div class="panel-title" style="padding:14px 16px 6px; font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); font-weight:600;">Entities — Drag to Canvas</div>
-<div class="entities-list" id="entitiesList">
-  <div style="font-size:12px; color:var(--muted); padding:8px;">Load a dataset to see entities here.</div>
-</div>
-```
+<!-- RIGHT PANEL -->
 
+<div class="rp">
+  <div class="rtabs">
+    <div class="rtab on" onclick="switchRTab('guide')" id="rtGuide">Guide</div>
+    <div class="rtab" onclick="switchRTab('design')" id="rtDesign">Design</div>
+    <div class="rtab" onclick="switchRTab('tmpl')" id="rtTmpl">Templates</div>
+    <div class="rtab" onclick="switchRTab('export')" id="rtExport">Export</div>
   </div>
 
-  <!-- CANVAS -->
+  <!-- GUIDE -->
 
-  <div class="canvas-area" id="canvasArea">
-    <svg id="canvas-svg" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L8,3 z" fill="#7c6bff"/>
-        </marker>
-        <marker id="arrow-many" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-          <path d="M0,0 L10,5 L0,10 z" fill="#7c6bff"/>
-        </marker>
-      </defs>
-      <g id="relations-layer"></g>
-      <g id="entities-layer"></g>
-    </svg>
-    <div id="canvasHint" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
-      <div style="font-family:'Space Mono',monospace;font-size:28px;color:#2a2f3e;font-weight:700;">ERDraw</div>
-      <div style="font-size:13px;color:#3a3f52;margin-top:8px;">Select a dataset → drag entities → connect with Relate tool</div>
+  <div class="rpb on" id="rpGuide">
+    <div class="rc"><h4>Entities</h4><p>Solid border = strong entity. Double orange = weak entity.</p></div>
+    <div class="rc"><h4>Attributes</h4>
+      <div class="leg"><div class="ld" style="background:var(--g)"></div><span><u>PK</u> — Primary Key</span></div>
+      <div class="leg"><div class="ld" style="background:var(--b)"></div><span>→ FK — Foreign Key</span></div>
+      <div class="leg"><div class="ld" style="border:1px dashed var(--mu2);background:transparent"></div><span>⊕ Multi-valued</span></div>
+    </div>
+    <div class="rc"><h4>Cardinality</h4><p>1:1 · 1:N · M:N<br/>shown on relation lines</p></div>
+    <div class="rc"><h4>Controls</h4>
+      <p><b style="color:var(--g)">Drag</b> entity → canvas<br/><b style="color:var(--p)">R key</b> = Relate tool<br/><b style="color:var(--b)">Dbl-click</b> entity = Edit<br/><b style="color:var(--y)">Right-click</b> = menu<br/><b style="color:var(--r)">✕</b> = delete node<br/><b style="color:var(--o)">Dbl-click</b> rel = delete</p>
+    </div>
+    <div class="rc"><h4>Keyboard</h4>
+      <p>V — Select &nbsp; R — Relate<br/>E — Entity &nbsp; T — Note<br/>Ctrl+Z — Undo<br/>Ctrl+A — Select all<br/>Del — Delete selected<br/>+/- — Zoom</p>
     </div>
   </div>
 
-  <!-- RIGHT PANEL -->
+  <!-- DESIGN -->
 
-  <div class="right-panel">
-    <div class="hint-area">
-      <div class="panel-title" style="padding:14px 0 10px; font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); font-weight:600;">ER Notation Guide</div>
-
-```
-  <div class="hint-card">
-    <h4>Entities</h4>
-    <p>Rectangle = strong entity. Double border = weak entity (depends on another).</p>
-  </div>
-  <div class="hint-card">
-    <h4>Attributes</h4>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--accent);"></div><span><u>Underline</u> = Primary Key</span></div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--accent2);"></div><span>Purple = Foreign Key</span></div>
-    <div class="legend-item"><div class="legend-dot" style="border:1px dashed var(--muted);background:transparent;"></div><span>Dashed = Multi-valued</span></div>
-    <div class="legend-item"><div class="legend-dot" style="border:1px solid var(--muted);background:transparent;"></div><span>Plain = Regular attr</span></div>
-  </div>
-  <div class="hint-card">
-    <h4>Cardinality</h4>
-    <p>1:1 — One to One<br/>1:N — One to Many<br/>M:N — Many to Many</p>
-  </div>
-  <div class="hint-card">
-    <h4>Steps</h4>
-    <p>1. Read scenario<br/>2. Identify entities<br/>3. Drag to canvas<br/>4. Use Relate tool to draw relationships<br/>5. Label cardinality</p>
-  </div>
-  <div class="hint-card">
-    <h4>Tips</h4>
-    <p>Use <strong style="color:var(--accent)">Auto Layout</strong> to organise entities. Export as SVG to save or share your diagram.</p>
-  </div>
-</div>
-```
-
-  </div>
-</div>
-
-<!-- DATASET MODAL -->
-
-<div class="modal-overlay" id="datasetModal">
-  <div class="modal">
-    <h2>// Choose a Dataset</h2>
-    <p class="sub">Each dataset is a real-world scenario. Practice identifying entities, attributes, and relationships from the description.</p>
-    <div class="dataset-grid" id="datasetGrid"></div>
-    <div class="modal-actions">
-      <button class="modal-btn" onclick="closeDatasetModal()">Cancel</button>
-      <button class="modal-btn go" onclick="loadSelectedDataset()">Load Dataset →</button>
+  <div class="rpb" id="rpDesign">
+    <div class="rc">
+      <h4>Canvas Theme</h4>
+      <div class="thg" id="themeGrid"></div>
+    </div>
+    <div class="rc">
+      <h4>Relation Style</h4>
+      <div style="display:flex;flex-direction:column;gap:5px" id="relStyleBtns">
+        <button class="tb on" style="width:100%;justify-content:center" onclick="setRelStyle('straight',this)">── Straight</button>
+        <button class="tb" style="width:100%;justify-content:center" onclick="setRelStyle('elbow',this)">⌐ Elbow</button>
+        <button class="tb" style="width:100%;justify-content:center" onclick="setRelStyle('curve',this)">∿ Curved</button>
+      </div>
+    </div>
+    <div class="rc">
+      <h4>Font Size</h4>
+      <input type="range" min="9" max="16" value="11" class="sz-sl" style="width:100%" id="fontSz" oninput="setFontSize(this.value)"/>
+      <div style="font-size:9px;color:var(--mu2);margin-top:3px" id="fontSzLbl">11px</div>
+    </div>
+    <div class="rc">
+      <h4>Entity Width</h4>
+      <input type="range" min="150" max="280" value="192" class="sz-sl" style="width:100%" id="entW" oninput="setEntWidth(this.value)"/>
+      <div style="font-size:9px;color:var(--mu2);margin-top:3px" id="entWLbl">192px</div>
+    </div>
+    <div class="rc">
+      <h4>Shadow</h4>
+      <div style="display:flex;gap:5px">
+        <button class="tb on" style="flex:1;justify-content:center" onclick="setShadow('soft',this)">Soft</button>
+        <button class="tb" style="flex:1;justify-content:center" onclick="setShadow('none',this)">None</button>
+        <button class="tb" style="flex:1;justify-content:center" onclick="setShadow('glow',this)">Glow</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- RELATION MODAL -->
+  <!-- TEMPLATES -->
 
-<div class="modal-overlay hidden" id="relationModal">
-  <div class="modal rel-modal">
-    <h2>// Add Relationship</h2>
-    <div class="form-row">
-      <label>From Entity</label>
-      <select id="relFrom"></select>
+  <div class="rpb" id="rpTmpl">
+    <div style="font-size:9px;color:var(--mu2);margin-bottom:8px">Click a template to auto-load entities + relationships onto the canvas.</div>
+    <div class="tmg" id="tmplGrid"></div>
+  </div>
+
+  <!-- EXPORT -->
+
+  <div class="rpb" id="rpExport">
+    <div style="font-size:9px;color:var(--mu2);margin-bottom:8px">Export your diagram in multiple formats.</div>
+    <div class="eg">
+      <button class="eb" onclick="exportSVG()"><div class="ei">🖼</div><div class="el">SVG</div></button>
+      <button class="eb" onclick="exportPNG()"><div class="ei">📸</div><div class="el">PNG</div></button>
+      <button class="eb" onclick="exportSQL()"><div class="ei">🗃</div><div class="el">SQL DDL</div></button>
+      <button class="eb" onclick="exportJSON()"><div class="ei">📦</div><div class="el">JSON</div></button>
+      <button class="eb" onclick="exportMermaid()"><div class="ei">🔗</div><div class="el">Mermaid</div></button>
+      <button class="eb" onclick="exportMarkdown()"><div class="ei">📝</div><div class="el">Markdown</div></button>
     </div>
-    <div class="form-row">
-      <label>To Entity</label>
-      <select id="relTo"></select>
-    </div>
-    <div class="form-row">
-      <label>Relationship Name</label>
-      <input type="text" id="relName" placeholder="e.g. places, has, belongs_to"/>
-    </div>
-    <div class="form-row">
-      <label>Cardinality</label>
-      <select id="relCard">
-        <option value="1:1">1 : 1 (One to One)</option>
-        <option value="1:N" selected>1 : N (One to Many)</option>
-        <option value="M:N">M : N (Many to Many)</option>
-      </select>
-    </div>
-    <div class="modal-actions">
-      <button class="modal-btn" onclick="closeRelModal()">Cancel</button>
-      <button class="modal-btn go" onclick="addRelation()">Add →</button>
+    <div class="rc" style="margin-top:8px"><h4>About Formats</h4>
+      <p><b style="color:var(--g)">SVG</b> — scalable vector, embed anywhere<br/><b style="color:var(--b)">PNG</b> — raster image<br/><b style="color:var(--o)">SQL</b> — CREATE TABLE DDL<br/><b style="color:var(--p)">Mermaid</b> — paste in GitHub README<br/><b style="color:var(--y)">JSON</b> — schema for devs</p>
     </div>
   </div>
 </div>
+</div>
+
+<!-- ════ MODALS ════ -->
+
+<!-- DATASET -->
+
+<div class="ov h" id="dsModal">
+<div class="md" style="width:520px">
+  <h2>// Practice Datasets</h2>
+  <div class="sub">Choose a real-world scenario to practice entity identification and relationship modelling.</div>
+  <div class="dsg" id="dsGrid"></div>
+  <div class="mact">
+    <button class="mb" onclick="hideModal('dsModal')">Cancel</button>
+    <button class="mb go" onclick="loadSelDS()">Load →</button>
+  </div>
+</div>
+</div>
+
+<!-- RELATION -->
+
+<div class="ov h" id="relModal">
+<div class="md rmd">
+  <h2>// Add Relationship</h2>
+  <div class="fr"><label>From</label><select id="rFrom"></select></div>
+  <div class="fr"><label>To</label><select id="rTo"></select></div>
+  <div class="fr"><label>Relationship Name</label><input id="rName" placeholder="e.g. places, manages, belongs_to"/></div>
+  <div class="fr"><label>Cardinality</label>
+    <select id="rCard">
+      <option value="1:1">1 : 1  — One to One</option>
+      <option value="1:N" selected>1 : N  — One to Many</option>
+      <option value="M:N">M : N  — Many to Many</option>
+    </select>
+  </div>
+  <div class="mact">
+    <button class="mb" onclick="hideModal('relModal')">Cancel</button>
+    <button class="mb go" onclick="addRel()">Add →</button>
+  </div>
+</div>
+</div>
+
+<!-- AI PROCESSING -->
+
+<div class="ov h" id="aiModal">
+<div class="md amd" style="width:420px">
+  <h2>// AI Analysing Data</h2>
+  <p class="sub" id="aiMsg">Parsing and extracting ER schema…</p>
+  <div class="prb"><div class="prf" id="prf"></div></div>
+  <div class="alg" id="alg"></div>
+</div>
+</div>
+
+<!-- EXPORT TEXT -->
+
+<div class="ov h" id="etModal">
+<div class="md etmd">
+  <h2 id="etTitle"></h2>
+  <textarea id="etArea" readonly></textarea>
+  <div class="mact">
+    <button class="mb" onclick="hideModal('etModal')">Close</button>
+    <button class="mb bl" onclick="copyET()">Copy</button>
+  </div>
+</div>
+</div>
+
+<!-- ENTITY EDIT -->
+
+<div class="ov h" id="eeModal">
+<div class="md eemd">
+  <h2>// Edit Entity</h2>
+  <div class="fr"><label>Entity Name</label><input id="eeName" class="ui" style="font-family:var(--mono);font-weight:700"/></div>
+  <div class="fr"><label>Type</label>
+    <select id="eeWeak" class="ui"><option value="false">Strong Entity</option><option value="true">Weak Entity</option></select>
+  </div>
+  <div class="fr">
+    <label>Attributes <button onclick="addAttrRow()" style="background:none;border:none;color:var(--g);cursor:pointer;font-size:13px;margin-left:5px">+</button></label>
+    <div id="attrRows"></div>
+  </div>
+  <div class="mact">
+    <button class="mb" onclick="hideModal('eeModal')">Cancel</button>
+    <button class="mb go" onclick="saveEntityEdit()">Save →</button>
+  </div>
+</div>
+</div>
+
+<!-- CONTEXT MENU -->
+
+<div class="ctx" id="ctx">
+  <div class="ctx-item" onclick="ctxEdit()">✏️ Edit Entity</div>
+  <div class="ctx-item" onclick="ctxDuplicate()">⧉ Duplicate</div>
+  <div class="ctx-item" onclick="ctxAddRel()">→ Add Relation</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item danger" onclick="ctxDelete()">🗑 Delete</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════ SCRIPT ════ -->
 
 <script>
-// ─────────────────────────────────────────────
-// DATASETS
-// ─────────────────────────────────────────────
-const DATASETS = {
-  ecommerce: {
-    icon: '🛒',
-    name: 'E-Commerce',
-    desc: 'Design the database for an online store. Customers place orders containing multiple products. Each product belongs to a category. Orders are shipped to delivery addresses. Payments are tracked per order.',
-    entities: [
-      { name: 'CUSTOMER', weak: false, attrs: [
-        { name: 'CustomerID', pk: true }, { name: 'Name' }, { name: 'Email' }, { name: 'Phone', multi: true }
-      ]},
-      { name: 'ORDER', weak: false, attrs: [
-        { name: 'OrderID', pk: true }, { name: 'OrderDate' }, { name: 'Status' }, { name: 'TotalAmount' }
-      ]},
-      { name: 'PRODUCT', weak: false, attrs: [
-        { name: 'ProductID', pk: true }, { name: 'Name' }, { name: 'Price' }, { name: 'Stock' }
-      ]},
-      { name: 'CATEGORY', weak: false, attrs: [
-        { name: 'CategoryID', pk: true }, { name: 'CategoryName' }, { name: 'Description' }
-      ]},
-      { name: 'PAYMENT', weak: true, attrs: [
-        { name: 'PaymentID', pk: true }, { name: 'Method' }, { name: 'Amount' }, { name: 'PaymentDate' }
-      ]},
-      { name: 'ADDRESS', weak: false, attrs: [
-        { name: 'AddressID', pk: true }, { name: 'Street' }, { name: 'City' }, { name: 'ZIP' }
-      ]},
-    ]
+// ─────────────────── DATASETS ───────────────────
+const DS={
+  ecommerce:{icon:'🛒',name:'E-Commerce',desc:'Customers place orders for products. Orders contain products. Products belong to categories. Payments per order. Delivery addresses tracked.',
+    entities:[
+      {name:'CUSTOMER',weak:false,attrs:[{n:'CustomerID',pk:true},{n:'Name'},{n:'Email'},{n:'Phone',mv:true}]},
+      {name:'ORDER',weak:false,attrs:[{n:'OrderID',pk:true},{n:'OrderDate'},{n:'Status'},{n:'TotalAmount'}]},
+      {name:'PRODUCT',weak:false,attrs:[{n:'ProductID',pk:true},{n:'Name'},{n:'Price'},{n:'Stock'}]},
+      {name:'CATEGORY',weak:false,attrs:[{n:'CategoryID',pk:true},{n:'CategoryName'},{n:'Description'}]},
+      {name:'PAYMENT',weak:true,attrs:[{n:'PaymentID',pk:true},{n:'Method'},{n:'Amount'},{n:'PaidAt'}]},
+      {name:'ADDRESS',weak:false,attrs:[{n:'AddressID',pk:true},{n:'Street'},{n:'City'},{n:'ZIP'}]},
+    ],
+    relations:[['CUSTOMER','ORDER','places','1:N'],['ORDER','PRODUCT','contains','M:N'],['PRODUCT','CATEGORY','belongs to','M:N'],['ORDER','PAYMENT','has','1:1'],['CUSTOMER','ADDRESS','ships to','1:N']]
   },
-  hospital: {
-    icon: '🏥',
-    name: 'Hospital Management',
-    desc: 'Model a hospital system. Patients are admitted and treated by doctors. Each doctor belongs to a department. Diagnoses, prescriptions, and test results are tracked per visit.',
-    entities: [
-      { name: 'PATIENT', weak: false, attrs: [
-        { name: 'PatientID', pk: true }, { name: 'Name' }, { name: 'DOB' }, { name: 'BloodGroup' }
-      ]},
-      { name: 'DOCTOR', weak: false, attrs: [
-        { name: 'DoctorID', pk: true }, { name: 'Name' }, { name: 'Specialisation' }, { name: 'Phone' }
-      ]},
-      { name: 'DEPARTMENT', weak: false, attrs: [
-        { name: 'DeptID', pk: true }, { name: 'DeptName' }, { name: 'Location' }
-      ]},
-      { name: 'APPOINTMENT', weak: true, attrs: [
-        { name: 'ApptID', pk: true }, { name: 'Date' }, { name: 'Reason' }, { name: 'Status' }
-      ]},
-      { name: 'PRESCRIPTION', weak: true, attrs: [
-        { name: 'PrescID', pk: true }, { name: 'Medicine' }, { name: 'Dosage' }, { name: 'Duration' }
-      ]},
-      { name: 'WARD', weak: false, attrs: [
-        { name: 'WardID', pk: true }, { name: 'WardName' }, { name: 'Capacity' }
-      ]},
-    ]
+  hospital:{icon:'🏥',name:'Hospital',desc:'Patients treated by doctors in departments. Appointments, prescriptions, test results tracked. Wards for inpatient stays.',
+    entities:[
+      {name:'PATIENT',weak:false,attrs:[{n:'PatientID',pk:true},{n:'Name'},{n:'DOB'},{n:'BloodGroup'}]},
+      {name:'DOCTOR',weak:false,attrs:[{n:'DoctorID',pk:true},{n:'Name'},{n:'Specialisation'},{n:'Phone'}]},
+      {name:'DEPARTMENT',weak:false,attrs:[{n:'DeptID',pk:true},{n:'DeptName'},{n:'Location'}]},
+      {name:'APPOINTMENT',weak:true,attrs:[{n:'ApptID',pk:true},{n:'Date'},{n:'Reason'},{n:'Status'}]},
+      {name:'PRESCRIPTION',weak:true,attrs:[{n:'PrescID',pk:true},{n:'Medicine'},{n:'Dosage'},{n:'Duration'}]},
+      {name:'WARD',weak:false,attrs:[{n:'WardID',pk:true},{n:'WardName'},{n:'Capacity'}]},
+    ],
+    relations:[['PATIENT','APPOINTMENT','books','1:N'],['DOCTOR','APPOINTMENT','manages','1:N'],['DOCTOR','DEPARTMENT','belongs to','M:N'],['PATIENT','PRESCRIPTION','receives','1:N'],['PATIENT','WARD','admitted to','M:N']]
   },
-  university: {
-    icon: '🎓',
-    name: 'University',
-    desc: 'A university database tracks students, courses, instructors, and departments. Students enrol in courses and receive grades. Each course is offered by a department and taught by an instructor.',
-    entities: [
-      { name: 'STUDENT', weak: false, attrs: [
-        { name: 'StudentID', pk: true }, { name: 'Name' }, { name: 'Email' }, { name: 'Programme' }
-      ]},
-      { name: 'COURSE', weak: false, attrs: [
-        { name: 'CourseID', pk: true }, { name: 'Title' }, { name: 'Credits' }, { name: 'Semester' }
-      ]},
-      { name: 'INSTRUCTOR', weak: false, attrs: [
-        { name: 'InstructorID', pk: true }, { name: 'Name' }, { name: 'Title' }, { name: 'Email' }
-      ]},
-      { name: 'DEPARTMENT', weak: false, attrs: [
-        { name: 'DeptID', pk: true }, { name: 'DeptName' }, { name: 'Building' }
-      ]},
-      { name: 'ENROLMENT', weak: true, attrs: [
-        { name: 'EnrolID', pk: true }, { name: 'Grade' }, { name: 'EnrolDate' }
-      ]},
-      { name: 'CLASSROOM', weak: false, attrs: [
-        { name: 'RoomID', pk: true }, { name: 'Building' }, { name: 'Capacity' }
-      ]},
-    ]
+  university:{icon:'🎓',name:'University',desc:'Students enrol in courses taught by instructors. Grades tracked per enrolment. Classrooms assigned to courses by departments.',
+    entities:[
+      {name:'STUDENT',weak:false,attrs:[{n:'StudentID',pk:true},{n:'Name'},{n:'Email'},{n:'Programme'}]},
+      {name:'COURSE',weak:false,attrs:[{n:'CourseID',pk:true},{n:'Title'},{n:'Credits'},{n:'Semester'}]},
+      {name:'INSTRUCTOR',weak:false,attrs:[{n:'InstructorID',pk:true},{n:'Name'},{n:'Title'},{n:'Email'}]},
+      {name:'DEPARTMENT',weak:false,attrs:[{n:'DeptID',pk:true},{n:'DeptName'},{n:'Building'}]},
+      {name:'ENROLMENT',weak:true,attrs:[{n:'EnrolID',pk:true},{n:'Grade'},{n:'EnrolDate'}]},
+      {name:'CLASSROOM',weak:false,attrs:[{n:'RoomID',pk:true},{n:'Building'},{n:'Capacity'}]},
+    ],
+    relations:[['STUDENT','ENROLMENT','has','1:N'],['COURSE','ENROLMENT','records','1:N'],['INSTRUCTOR','COURSE','teaches','1:N'],['DEPARTMENT','COURSE','offers','1:N'],['COURSE','CLASSROOM','held in','M:N']]
   },
-  library: {
-    icon: '📚',
-    name: 'Library System',
-    desc: 'Design a library database. Members borrow books written by authors. Books belong to genres. Loans are tracked with due dates. Fines are issued for late returns.',
-    entities: [
-      { name: 'MEMBER', weak: false, attrs: [
-        { name: 'MemberID', pk: true }, { name: 'Name' }, { name: 'Email' }, { name: 'MemberType' }
-      ]},
-      { name: 'BOOK', weak: false, attrs: [
-        { name: 'ISBN', pk: true }, { name: 'Title' }, { name: 'Publisher' }, { name: 'Year' }
-      ]},
-      { name: 'AUTHOR', weak: false, attrs: [
-        { name: 'AuthorID', pk: true }, { name: 'Name' }, { name: 'Nationality' }
-      ]},
-      { name: 'GENRE', weak: false, attrs: [
-        { name: 'GenreID', pk: true }, { name: 'GenreName' }
-      ]},
-      { name: 'LOAN', weak: true, attrs: [
-        { name: 'LoanID', pk: true }, { name: 'LoanDate' }, { name: 'DueDate' }, { name: 'ReturnDate' }
-      ]},
-      { name: 'FINE', weak: true, attrs: [
-        { name: 'FineID', pk: true }, { name: 'Amount' }, { name: 'Paid' }
-      ]},
-    ]
+  library:{icon:'📚',name:'Library',desc:'Members borrow books by authors. Loans tracked with due dates. Fines for late returns. Books categorised by genre.',
+    entities:[
+      {name:'MEMBER',weak:false,attrs:[{n:'MemberID',pk:true},{n:'Name'},{n:'Email'},{n:'MemberType'}]},
+      {name:'BOOK',weak:false,attrs:[{n:'ISBN',pk:true},{n:'Title'},{n:'Publisher'},{n:'Year'}]},
+      {name:'AUTHOR',weak:false,attrs:[{n:'AuthorID',pk:true},{n:'Name'},{n:'Nationality'}]},
+      {name:'GENRE',weak:false,attrs:[{n:'GenreID',pk:true},{n:'GenreName'}]},
+      {name:'LOAN',weak:true,attrs:[{n:'LoanID',pk:true},{n:'LoanDate'},{n:'DueDate'},{n:'ReturnDate'}]},
+      {name:'FINE',weak:true,attrs:[{n:'FineID',pk:true},{n:'Amount'},{n:'Paid'}]},
+    ],
+    relations:[['MEMBER','LOAN','makes','1:N'],['BOOK','LOAN','involved in','1:N'],['BOOK','AUTHOR','written by','M:N'],['BOOK','GENRE','categorised as','M:N'],['LOAN','FINE','incurs','1:1']]
   },
-  banking: {
-    icon: '🏦',
-    name: 'Banking',
-    desc: 'Model a banking system. Customers hold accounts (savings/current). Transactions are logged per account. Loans are issued and repaid. Each branch manages multiple accounts.',
-    entities: [
-      { name: 'CUSTOMER', weak: false, attrs: [
-        { name: 'CustID', pk: true }, { name: 'Name' }, { name: 'NationalID' }, { name: 'Phone', multi: true }
-      ]},
-      { name: 'ACCOUNT', weak: false, attrs: [
-        { name: 'AccountNo', pk: true }, { name: 'Type' }, { name: 'Balance' }, { name: 'OpenDate' }
-      ]},
-      { name: 'TRANSACTION', weak: true, attrs: [
-        { name: 'TxnID', pk: true }, { name: 'Amount' }, { name: 'TxnDate' }, { name: 'TxnType' }
-      ]},
-      { name: 'LOAN', weak: false, attrs: [
-        { name: 'LoanID', pk: true }, { name: 'LoanType' }, { name: 'Amount' }, { name: 'InterestRate' }
-      ]},
-      { name: 'BRANCH', weak: false, attrs: [
-        { name: 'BranchID', pk: true }, { name: 'BranchName' }, { name: 'City' }
-      ]},
-      { name: 'EMPLOYEE', weak: false, attrs: [
-        { name: 'EmpID', pk: true }, { name: 'Name' }, { name: 'Role' }
-      ]},
-    ]
-  }
+  banking:{icon:'🏦',name:'Banking',desc:'Customers hold accounts at branches. Transactions logged per account. Loans issued with repayment schedules. Employees manage accounts.',
+    entities:[
+      {name:'CUSTOMER',weak:false,attrs:[{n:'CustID',pk:true},{n:'Name'},{n:'NationalID'},{n:'Phone',mv:true}]},
+      {name:'ACCOUNT',weak:false,attrs:[{n:'AccountNo',pk:true},{n:'Type'},{n:'Balance'},{n:'OpenDate'}]},
+      {name:'TRANSACTION',weak:true,attrs:[{n:'TxnID',pk:true},{n:'Amount'},{n:'TxnDate'},{n:'TxnType'}]},
+      {name:'LOAN',weak:false,attrs:[{n:'LoanID',pk:true},{n:'LoanType'},{n:'Amount'},{n:'InterestRate'}]},
+      {name:'BRANCH',weak:false,attrs:[{n:'BranchID',pk:true},{n:'BranchName'},{n:'City'}]},
+      {name:'EMPLOYEE',weak:false,attrs:[{n:'EmpID',pk:true},{n:'Name'},{n:'Role'}]},
+    ],
+    relations:[['CUSTOMER','ACCOUNT','holds','1:N'],['ACCOUNT','TRANSACTION','logs','1:N'],['CUSTOMER','LOAN','takes','1:N'],['BRANCH','ACCOUNT','manages','1:N'],['EMPLOYEE','BRANCH','works at','M:N']]
+  },
+  airline:{icon:'✈️',name:'Airline',desc:'Passengers book flights operated by airlines. Flights depart from airports. Each flight has an aircraft. Crew assigned to flights.',
+    entities:[
+      {name:'PASSENGER',weak:false,attrs:[{n:'PassengerID',pk:true},{n:'Name'},{n:'Passport'},{n:'Email'}]},
+      {name:'FLIGHT',weak:false,attrs:[{n:'FlightNo',pk:true},{n:'Departure'},{n:'Arrival'},{n:'Status'}]},
+      {name:'AIRPORT',weak:false,attrs:[{n:'AirportCode',pk:true},{n:'Name'},{n:'City'},{n:'Country'}]},
+      {name:'AIRCRAFT',weak:false,attrs:[{n:'AircraftID',pk:true},{n:'Model'},{n:'Capacity'},{n:'Airline'}]},
+      {name:'BOOKING',weak:true,attrs:[{n:'BookingID',pk:true},{n:'SeatNo'},{n:'Class'},{n:'BookingDate'}]},
+      {name:'CREW',weak:false,attrs:[{n:'CrewID',pk:true},{n:'Name'},{n:'Role'},{n:'Licence'}]},
+    ],
+    relations:[['PASSENGER','BOOKING','makes','1:N'],['FLIGHT','BOOKING','has','1:N'],['FLIGHT','AIRPORT','departs from','M:N'],['FLIGHT','AIRCRAFT','uses','M:N'],['CREW','FLIGHT','assigned to','M:N']]
+  },
+  social:{icon:'📱',name:'Social Media',desc:'Users post content, follow each other, like and comment on posts. Posts tagged with hashtags. Notifications sent to users.',
+    entities:[
+      {name:'USER',weak:false,attrs:[{n:'UserID',pk:true},{n:'Username'},{n:'Email'},{n:'Bio'}]},
+      {name:'POST',weak:false,attrs:[{n:'PostID',pk:true},{n:'Content'},{n:'MediaURL'},{n:'CreatedAt'}]},
+      {name:'COMMENT',weak:true,attrs:[{n:'CommentID',pk:true},{n:'Text'},{n:'CommentedAt'}]},
+      {name:'HASHTAG',weak:false,attrs:[{n:'TagID',pk:true},{n:'TagName'},{n:'UseCount'}]},
+      {name:'NOTIFICATION',weak:true,attrs:[{n:'NotifID',pk:true},{n:'Type'},{n:'IsRead'},{n:'SentAt'}]},
+      {name:'FOLLOW',weak:true,attrs:[{n:'FollowID',pk:true},{n:'FollowedAt'}]},
+    ],
+    relations:[['USER','POST','creates','1:N'],['USER','COMMENT','writes','1:N'],['POST','COMMENT','has','1:N'],['POST','HASHTAG','tagged with','M:N'],['USER','FOLLOW','follows','M:N'],['USER','NOTIFICATION','receives','1:N']]
+  },
+  inventory:{icon:'📦',name:'Inventory',desc:'Warehouses store products from suppliers. Stock levels tracked per location. Purchase orders placed to suppliers. Products organised by categories.',
+    entities:[
+      {name:'PRODUCT',weak:false,attrs:[{n:'ProductID',pk:true},{n:'Name'},{n:'SKU'},{n:'UnitPrice'}]},
+      {name:'WAREHOUSE',weak:false,attrs:[{n:'WarehouseID',pk:true},{n:'Name'},{n:'City'},{n:'Capacity'}]},
+      {name:'SUPPLIER',weak:false,attrs:[{n:'SupplierID',pk:true},{n:'Name'},{n:'Country'},{n:'ContactEmail'}]},
+      {name:'PURCHASE_ORDER',weak:true,attrs:[{n:'POID',pk:true},{n:'OrderDate'},{n:'TotalCost'},{n:'Status'}]},
+      {name:'STOCK',weak:true,attrs:[{n:'StockID',pk:true},{n:'Quantity'},{n:'LastUpdated'}]},
+      {name:'CATEGORY',weak:false,attrs:[{n:'CatID',pk:true},{n:'CategoryName'},{n:'Description'}]},
+    ],
+    relations:[['WAREHOUSE','STOCK','holds','1:N'],['PRODUCT','STOCK','tracked by','1:N'],['SUPPLIER','PURCHASE_ORDER','fulfils','1:N'],['PRODUCT','PURCHASE_ORDER','included in','M:N'],['PRODUCT','CATEGORY','belongs to','M:N']]
+  },
 };
 
-// ─────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────
-let currentDataset = null;
-let nodes = []; // { id, entityName, x, y, attrs, weak }
-let relations = []; // { id, from, to, label, card }
-let selectedNode = null;
-let currentTool = 'select';
-let dragState = null;
-let selectedDatasetKey = null;
-let nodeIdCounter = 0;
-let relIdCounter = 0;
+// ─────────────────── TEMPLATES (pre-built layouts) ───────────────────
+const TEMPLATES=[
+  {icon:'🏪',name:'Simple Shop',desc:'Customer → Order → Product (3 entities)',
+    entities:[
+      {name:'CUSTOMER',weak:false,attrs:[{n:'CustomerID',pk:true},{n:'Name'},{n:'Email'}]},
+      {name:'ORDER',weak:false,attrs:[{n:'OrderID',pk:true},{n:'Date'},{n:'Total'}]},
+      {name:'PRODUCT',weak:false,attrs:[{n:'ProductID',pk:true},{n:'Name'},{n:'Price'}]},
+    ],relations:[['CUSTOMER','ORDER','places','1:N'],['ORDER','PRODUCT','contains','M:N']]
+  },
+  {icon:'👤',name:'User & Roles',desc:'User, Role, Permission — access control pattern',
+    entities:[
+      {name:'USER',weak:false,attrs:[{n:'UserID',pk:true},{n:'Username'},{n:'Email'},{n:'CreatedAt'}]},
+      {name:'ROLE',weak:false,attrs:[{n:'RoleID',pk:true},{n:'RoleName'},{n:'Description'}]},
+      {name:'PERMISSION',weak:false,attrs:[{n:'PermID',pk:true},{n:'Resource'},{n:'Action'}]},
+      {name:'USER_ROLE',weak:true,attrs:[{n:'AssignedAt',pk:false}]},
+    ],relations:[['USER','USER_ROLE','has','1:N'],['ROLE','USER_ROLE','assigned via','1:N'],['ROLE','PERMISSION','grants','M:N']]
+  },
+  {icon:'🧾',name:'Invoice System',desc:'Client, Invoice, Line Item, Product — billing pattern',
+    entities:[
+      {name:'CLIENT',weak:false,attrs:[{n:'ClientID',pk:true},{n:'Name'},{n:'TaxNo'},{n:'Address'}]},
+      {name:'INVOICE',weak:false,attrs:[{n:'InvoiceID',pk:true},{n:'Date'},{n:'DueDate'},{n:'Total'}]},
+      {name:'LINE_ITEM',weak:true,attrs:[{n:'LineNo',pk:true},{n:'Quantity'},{n:'UnitPrice'}]},
+      {name:'PRODUCT',weak:false,attrs:[{n:'ProductID',pk:true},{n:'Name'},{n:'Price'}]},
+    ],relations:[['CLIENT','INVOICE','receives','1:N'],['INVOICE','LINE_ITEM','contains','1:N'],['LINE_ITEM','PRODUCT','references','M:N']]
+  },
+  {icon:'📅',name:'Event Booking',desc:'Venue, Event, Ticket, Attendee — ticketing system',
+    entities:[
+      {name:'VENUE',weak:false,attrs:[{n:'VenueID',pk:true},{n:'Name'},{n:'City'},{n:'Capacity'}]},
+      {name:'EVENT',weak:false,attrs:[{n:'EventID',pk:true},{n:'Title'},{n:'StartDate'},{n:'Category'}]},
+      {name:'TICKET',weak:true,attrs:[{n:'TicketID',pk:true},{n:'Type'},{n:'Price'},{n:'SeatNo'}]},
+      {name:'ATTENDEE',weak:false,attrs:[{n:'AttendeeID',pk:true},{n:'Name'},{n:'Email'}]},
+    ],relations:[['VENUE','EVENT','hosts','1:N'],['EVENT','TICKET','issues','1:N'],['ATTENDEE','TICKET','purchases','1:N']]
+  },
+  {icon:'🏘️',name:'Real Estate',desc:'Property, Owner, Agent, Listing, Transaction',
+    entities:[
+      {name:'PROPERTY',weak:false,attrs:[{n:'PropID',pk:true},{n:'Address'},{n:'Type'},{n:'Price'}]},
+      {name:'OWNER',weak:false,attrs:[{n:'OwnerID',pk:true},{n:'Name'},{n:'Contact'}]},
+      {name:'AGENT',weak:false,attrs:[{n:'AgentID',pk:true},{n:'Name'},{n:'Agency'},{n:'Commission'}]},
+      {name:'LISTING',weak:true,attrs:[{n:'ListID',pk:true},{n:'ListDate'},{n:'Status'}]},
+      {name:'TRANSACTION',weak:true,attrs:[{n:'TxnID',pk:true},{n:'SalePrice'},{n:'SaleDate'}]},
+    ],relations:[['OWNER','PROPERTY','owns','1:N'],['AGENT','LISTING','manages','1:N'],['PROPERTY','LISTING','listed as','1:N'],['PROPERTY','TRANSACTION','sold in','1:1']]
+  },
+  {icon:'🎮',name:'Game Database',desc:'Player, Game, Achievement, Leaderboard, Session',
+    entities:[
+      {name:'PLAYER',weak:false,attrs:[{n:'PlayerID',pk:true},{n:'Username'},{n:'Level'},{n:'Country'}]},
+      {name:'GAME',weak:false,attrs:[{n:'GameID',pk:true},{n:'Title'},{n:'Genre'},{n:'Platform'}]},
+      {name:'SESSION',weak:true,attrs:[{n:'SessionID',pk:true},{n:'StartTime'},{n:'Duration'},{n:'Score'}]},
+      {name:'ACHIEVEMENT',weak:false,attrs:[{n:'AchID',pk:true},{n:'Name'},{n:'Points'},{n:'Rarity'}]},
+      {name:'LEADERBOARD',weak:true,attrs:[{n:'Rank',pk:false},{n:'TotalScore'},{n:'RecordedAt'}]},
+    ],relations:[['PLAYER','SESSION','plays','1:N'],['GAME','SESSION','belongs to','1:N'],['PLAYER','ACHIEVEMENT','earns','M:N'],['PLAYER','LEADERBOARD','appears in','1:N']]
+  },
+];
 
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
-window.onload = () => {
-  buildDatasetModal();
-  // show modal on load
-  document.getElementById('datasetModal').classList.remove('hidden');
-  document.getElementById('datasetQuickSwitch').addEventListener('change', e => {
-    if (e.target.value) loadDataset(e.target.value);
-  });
+// ─────────────────── THEMES ───────────────────
+const THEMES={
+  dark:{label:'Dark',bg:'#090c14',dot:'#1b2133',ef:'#141928',es:'#00e5a0',et:'#00e5a0',ea:'#6b7694',rel:'#4d7cfe',wk:'#ff8c42'},
+  light:{label:'Light',bg:'#f4f6fa',dot:'#dde3f0',ef:'#ffffff',es:'#0066cc',et:'#0066cc',ea:'#444a6a',rel:'#2255dd',wk:'#cc5500'},
+  purple:{label:'Purple',bg:'#100820',dot:'#1e1040',ef:'#1a103a',es:'#a259ff',et:'#a259ff',ea:'#8877aa',rel:'#cc88ff',wk:'#ff8c42'},
+  ocean:{label:'Ocean',bg:'#050f1a',dot:'#0d2035',ef:'#0a1f35',es:'#00cfcf',et:'#00cfcf',ea:'#5588aa',rel:'#4d7cfe',wk:'#ff8c42'},
+  fire:{label:'Fire',bg:'#140a04',dot:'#2a1208',ef:'#200e06',es:'#ff8c42',et:'#ff8c42',ea:'#886644',rel:'#ff4d6d',wk:'#ffd166'},
+  mono:{label:'Mono',bg:'#111',dot:'#222',ef:'#1a1a1a',es:'#888',et:'#ccc',ea:'#666',rel:'#999',wk:'#aaa'},
 };
 
-function buildDatasetModal() {
-  const grid = document.getElementById('datasetGrid');
-  grid.innerHTML = '';
-  Object.entries(DATASETS).forEach(([key, ds]) => {
-    const card = document.createElement('div');
-    card.className = 'dataset-card';
-    card.dataset.key = key;
-    card.innerHTML = `<div class="icon">${ds.icon}</div><h3>${ds.name}</h3><p>${ds.desc.substring(0,60)}...</p>`;
-    card.onclick = () => {
-      document.querySelectorAll('.dataset-card').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-      selectedDatasetKey = key;
-    };
-    grid.appendChild(card);
+// ─────────────────── STATE ───────────────────
+let nodes=[],rels=[],notes=[],history=[];
+let nId=0,rId=0,noteId=0;
+let selectedNode=null,tool='select',snap=true,zoom=1;
+let dragState=null,selDS=null;
+let EW=192,FSZ=11,shadowMode='soft',lineStyle='solid',relStyle='straight',lineColor='#4d7cfe',strokeColor='#00e5a0';
+const EH=36,AH=22,EP=10;
+let editingNodeId=null,ctxNodeId=null;
+
+// ─────────────────── INIT ───────────────────
+window.onload=()=>{
+  buildDSGrid();buildThemeGrid();buildTemplateGrid();
+  showModal('dsModal');
+  setupDrop();setupDZ();
+  setGrid('dot',document.getElementById('gDot'));
+  document.addEventListener('keydown',onKey);
+  document.addEventListener('click',()=>hideCtx());
+};
+
+// ─────────────────── DATASETS ───────────────────
+function buildDSGrid(){
+  const g=document.getElementById('dsGrid');g.innerHTML='';
+  Object.entries(DS).forEach(([k,d])=>{
+    const c=el('div','dsc');c.dataset.k=k;
+    c.innerHTML=`<div class="di">${d.icon}</div><h3>${d.name}</h3><p>${d.desc.substring(0,55)}…</p>`;
+    c.onclick=()=>{$$('.dsc').forEach(x=>x.classList.remove('on'));c.classList.add('on');selDS=k;};
+    g.appendChild(c);
   });
 }
-
-function closeDatasetModal() {
-  document.getElementById('datasetModal').classList.add('hidden');
+function loadSelDS(){
+  if(!selDS)return;
+  hideModal('dsModal');
+  loadDataset(selDS);
 }
-
-function loadSelectedDataset() {
-  if (!selectedDatasetKey) return;
-  loadDataset(selectedDatasetKey);
-  closeDatasetModal();
-}
-
-function loadDataset(key) {
-  currentDataset = DATASETS[key];
-  document.getElementById('scenarioText').textContent = currentDataset.desc;
-  document.getElementById('datasetQuickSwitch').value = key;
-  document.getElementById('canvasHint').style.display = 'none';
-
-  // Render sidebar entity list
-  const list = document.getElementById('entitiesList');
-  list.innerHTML = '';
-  currentDataset.entities.forEach(ent => {
-    const item = document.createElement('div');
-    item.className = 'entity-item' + (ent.weak ? ' weak-entity' : '');
-    item.draggable = true;
-    item.dataset.entity = ent.name;
-
-    const attrs = ent.attrs.map(a => {
-      let cls = 'attr-chip';
-      if (a.pk) cls += ' pk';
-      if (a.fk) cls += ' fk';
-      if (a.multi) cls += ' multi';
-      return `<span class="${cls}">${a.name}</span>`;
-    }).join('');
-
-    item.innerHTML = `
-      <div class="entity-name">
-        ${ent.name}
-        <span class="entity-tag ${ent.weak ? 'weak' : ''}">${ent.weak ? 'WEAK' : 'ENTITY'}</span>
-      </div>
-      <div class="entity-attrs">${attrs}</div>
-      <div class="drag-hint">↖ drag to canvas</div>
-    `;
-
-    item.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('entityName', ent.name);
-    });
-
-    list.appendChild(item);
+function loadDataset(key){
+  const d=DS[key];
+  push();
+  document.getElementById('scSec').style.display='';
+  document.getElementById('scTxt').textContent=d.desc;
+  document.getElementById('empty').style.display='none';
+  renderSidebar(d.entities);
+  clearCanvas(false);
+  const cols=Math.ceil(Math.sqrt(d.entities.length));
+  const nm={};
+  d.entities.forEach((e,i)=>{
+    const id=addNode(e,60+(i%cols)*(EW+90),60+Math.floor(i/cols)*190,false);
+    nm[e.name]=id;
   });
-
-  // Clear canvas
-  clearCanvas();
-}
-
-// ─────────────────────────────────────────────
-// CANVAS DRAG-DROP
-// ─────────────────────────────────────────────
-const canvasArea = document.getElementById('canvasArea');
-canvasArea.addEventListener('dragover', e => e.preventDefault());
-canvasArea.addEventListener('drop', e => {
-  e.preventDefault();
-  const name = e.dataTransfer.getData('entityName');
-  if (!name || !currentDataset) return;
-  const rect = canvasArea.getBoundingClientRect();
-  const x = e.clientX - rect.left - 90;
-  const y = e.clientY - rect.top - 40;
-  const ent = currentDataset.entities.find(en => en.name === name);
-  if (ent) addEntityNode(ent, x, y);
-});
-
-// ─────────────────────────────────────────────
-// ADD ENTITY NODE
-// ─────────────────────────────────────────────
-function addEntityNode(ent, x, y) {
-  const id = 'node_' + (nodeIdCounter++);
-  nodes.push({ id, entityName: ent.name, x, y, attrs: ent.attrs, weak: ent.weak });
+  (d.relations||[]).forEach(([a,b,lbl,card])=>{
+    const fi=nm[a],ti=nm[b];
+    if(fi&&ti)rels.push({id:'r'+(rId++),from:fi,to:ti,label:lbl,card});
+  });
   renderCanvas();
+  toast('Loaded: '+d.name);
+}
+
+// ─────────────────── SIDEBAR ───────────────────
+function renderSidebar(entities){
+  const list=document.getElementById('eList');
+  list.innerHTML='<div class="elbl">Entities — drag to canvas</div>';
+  entities.forEach(ent=>{
+    const card=el('div','ecard'+(ent.weak?' wk':''));
+    card.draggable=true;card.dataset.e=JSON.stringify(ent);
+    const chips=(ent.attrs||[]).map(a=>{
+      let c='ach';
+      if(a.pk)c+=' pk';if(a.fk)c+=' fk';if(a.mv)c+=' mv';
+      return`<span class="${c}">${a.n||a.name}</span>`;
+    }).join('');
+    card.innerHTML=`<div class="en">${ent.name}<span class="etag ${ent.weak?'wk':'st'}">${ent.weak?'WEAK':'ENTITY'}</span></div><div class="eas">${chips}</div><div class="dh">↖ drag to canvas</div>`;
+    card.addEventListener('dragstart',e=>e.dataTransfer.setData('ed',card.dataset.e));
+    list.appendChild(card);
+  });
+}
+
+// ─────────────────── CANVAS DROP ───────────────────
+function setupDrop(){
+  const cw=document.getElementById('cw');
+  cw.addEventListener('dragover',e=>e.preventDefault());
+  cw.addEventListener('drop',e=>{
+    e.preventDefault();
+    const raw=e.dataTransfer.getData('ed');if(!raw)return;
+    const ent=JSON.parse(raw);
+    const r=cw.getBoundingClientRect();
+    push();addNode(ent,snapV(e.clientX-r.left-EW/2),snapV(e.clientY-r.top-30));
+    document.getElementById('empty').style.display='none';
+  });
+}
+
+// ─────────────────── ADD NODE ───────────────────
+function addNode(ent,x,y,render=true){
+  const id='n'+(nId++);
+  nodes.push({id,name:ent.name,x:Math.max(0,x),y:Math.max(0,y),attrs:ent.attrs||[],weak:ent.weak||false,color:strokeColor});
+  if(render)renderCanvas();
   return id;
 }
 
-// ─────────────────────────────────────────────
-// RENDER CANVAS
-// ─────────────────────────────────────────────
-const ENTITY_W = 180;
-const ENTITY_HEADER = 36;
-const ATTR_H = 20;
-const ENTITY_PAD = 8;
+// ─────────────────── RENDER ───────────────────
+function eH(n){return EH+n.attrs.length*AH+EP;}
+function eC(n){return{cx:n.x+EW/2,cy:n.y+eH(n)/2};}
 
-function entityHeight(node) {
-  return ENTITY_HEADER + node.attrs.length * ATTR_H + ENTITY_PAD;
-}
+function renderCanvas(){
+  const rl=document.getElementById('rl'),eLayer=document.getElementById('el'),nl=document.getElementById('nl');
+  rl.innerHTML='';eLayer.innerHTML='';nl.innerHTML='';
+  const inf=nodes.length?`${nodes.length} entities · ${rels.length} relationships`:'';
+  document.getElementById('cinf').textContent=inf;
 
-function entityCenter(node) {
-  return {
-    cx: node.x + ENTITY_W / 2,
-    cy: node.y + entityHeight(node) / 2
-  };
-}
+  // Relations
+  rels.forEach(rel=>{
+    const fn=nodes.find(n=>n.id===rel.from),tn=nodes.find(n=>n.id===rel.to);
+    if(!fn||!tn)return;
+    const fc=eC(fn),tc=eC(tn);
+    const g=svgG();
 
-function renderCanvas() {
-  const relLayer = document.getElementById('relations-layer');
-  const entLayer = document.getElementById('entities-layer');
-  relLayer.innerHTML = '';
-  entLayer.innerHTML = '';
-
-  // Draw relations first
-  relations.forEach(rel => {
-    const fromNode = nodes.find(n => n.id === rel.from);
-    const toNode = nodes.find(n => n.id === rel.to);
-    if (!fromNode || !toNode) return;
-
-    const fc = entityCenter(fromNode);
-    const tc = entityCenter(toNode);
-
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.classList.add('er-relation');
-
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', fc.cx); line.setAttribute('y1', fc.cy);
-    line.setAttribute('x2', tc.cx); line.setAttribute('y2', tc.cy);
-    line.setAttribute('stroke', '#7c6bff');
-    line.setAttribute('stroke-width', '1.5');
-    line.setAttribute('marker-end', 'url(#arrow)');
-
-    // Midpoint label
-    const mx = (fc.cx + tc.cx) / 2;
-    const my = (fc.cy + tc.cy) / 2;
-
-    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    bg.setAttribute('x', mx - 30); bg.setAttribute('y', my - 10);
-    bg.setAttribute('width', 60); bg.setAttribute('height', 18);
-    bg.setAttribute('rx', 4);
-    bg.setAttribute('fill', '#1c202d');
-    bg.setAttribute('stroke', '#2a2f3e');
-
-    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    txt.setAttribute('x', mx); txt.setAttribute('y', my + 4);
-    txt.setAttribute('text-anchor', 'middle');
-    txt.setAttribute('font-family', 'DM Sans, sans-serif');
-    txt.setAttribute('font-size', '10');
-    txt.setAttribute('fill', '#a0a5bb');
-    txt.textContent = rel.label || rel.card;
-
-    // Cardinality labels at ends
-    const cardTxt1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    const offset1 = offsetPoint(fc, tc, 28);
-    cardTxt1.setAttribute('x', offset1.x); cardTxt1.setAttribute('y', offset1.y);
-    cardTxt1.setAttribute('text-anchor', 'middle');
-    cardTxt1.setAttribute('font-family', 'Space Mono, monospace');
-    cardTxt1.setAttribute('font-size', '10');
-    cardTxt1.setAttribute('fill', '#4fffb0');
-    cardTxt1.textContent = rel.card.split(':')[0];
-
-    const cardTxt2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    const offset2 = offsetPoint(tc, fc, 28);
-    cardTxt2.setAttribute('x', offset2.x); cardTxt2.setAttribute('y', offset2.y);
-    cardTxt2.setAttribute('text-anchor', 'middle');
-    cardTxt2.setAttribute('font-family', 'Space Mono, monospace');
-    cardTxt2.setAttribute('font-size', '10');
-    cardTxt2.setAttribute('fill', '#4fffb0');
-    cardTxt2.textContent = rel.card.split(':')[1] || 'N';
-
-    g.appendChild(line);
-    g.appendChild(bg);
-    g.appendChild(txt);
-    g.appendChild(cardTxt1);
-    g.appendChild(cardTxt2);
-
-    // Delete on dblclick
-    g.addEventListener('dblclick', () => {
-      relations = relations.filter(r => r.id !== rel.id);
-      renderCanvas();
-    });
-
-    relLayer.appendChild(g);
-  });
-
-  // Draw entities
-  nodes.forEach(node => {
-    const h = entityHeight(node);
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.classList.add('er-entity');
-    g.setAttribute('transform', `translate(${node.x},${node.y})`);
-    g.style.cursor = 'move';
-
-    // Outer rect
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('width', ENTITY_W);
-    rect.setAttribute('height', h);
-    rect.setAttribute('rx', 8);
-    rect.setAttribute('fill', '#1e2535');
-    rect.setAttribute('stroke', node.weak ? '#ff9f43' : '#4fffb0');
-    rect.setAttribute('stroke-width', selectedNode === node.id ? '2.5' : '2');
-    if (selectedNode === node.id) rect.setAttribute('stroke', '#7c6bff');
-
-    // Weak entity double border
-    if (node.weak) {
-      const innerRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      innerRect.setAttribute('x', 3); innerRect.setAttribute('y', 3);
-      innerRect.setAttribute('width', ENTITY_W - 6); innerRect.setAttribute('height', h - 6);
-      innerRect.setAttribute('rx', 5); innerRect.setAttribute('fill', 'none');
-      innerRect.setAttribute('stroke', '#ff9f43'); innerRect.setAttribute('stroke-width', '1');
-      g.appendChild(rect);
-      g.appendChild(innerRect);
+    let d;
+    if(relStyle==='curve'){
+      const mx=(fc.cx+tc.cx)/2,my=(fc.cy+tc.cy)/2-40;
+      d=`M${fc.cx},${fc.cy} Q${mx},${my} ${tc.cx},${tc.cy}`;
+      const path=svgE('path');
+      path.setAttribute('d',d);path.setAttribute('fill','none');
+      path.setAttribute('stroke',lineColor);path.setAttribute('stroke-width','1.5');
+      if(lineStyle==='dashed')path.setAttribute('stroke-dasharray','6,3');
+      if(lineStyle==='dotted')path.setAttribute('stroke-dasharray','2,3');
+      path.setAttribute('marker-end','url(#arG)');
+      g.appendChild(path);
+    } else if(relStyle==='elbow'){
+      const mx=(fc.cx+tc.cx)/2;
+      const pts=`M${fc.cx},${fc.cy} L${mx},${fc.cy} L${mx},${tc.cy} L${tc.cx},${tc.cy}`;
+      const path=svgE('path');
+      path.setAttribute('d',pts);path.setAttribute('fill','none');
+      path.setAttribute('stroke',lineColor);path.setAttribute('stroke-width','1.5');
+      if(lineStyle==='dashed')path.setAttribute('stroke-dasharray','6,3');
+      if(lineStyle==='dotted')path.setAttribute('stroke-dasharray','2,3');
+      path.setAttribute('marker-end','url(#arG)');
+      g.appendChild(path);
     } else {
-      g.appendChild(rect);
+      const line=svgE('line');
+      [['x1',fc.cx],['y1',fc.cy],['x2',tc.cx],['y2',tc.cy],['stroke',lineColor],['stroke-width','1.5'],['marker-end','url(#arG)']].forEach(([k,v])=>line.setAttribute(k,v));
+      if(lineStyle==='dashed')line.setAttribute('stroke-dasharray','6,3');
+      if(lineStyle==='dotted')line.setAttribute('stroke-dasharray','2,3');
+      g.appendChild(line);
     }
 
-    // Header background
-    const headerBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    headerBg.setAttribute('width', ENTITY_W);
-    headerBg.setAttribute('height', ENTITY_HEADER);
-    headerBg.setAttribute('rx', 8);
-    headerBg.setAttribute('fill', node.weak ? 'rgba(255,159,67,0.12)' : 'rgba(79,255,176,0.08)');
-    g.appendChild(headerBg);
+    // label box
+    const mx=(fc.cx+tc.cx)/2,my=(fc.cy+tc.cy)/2;
+    const bg=svgE('rect');
+    [['x',mx-26],['y',my-9],['width',52],['height',18],['rx',4],['fill','var(--s2)'],['stroke','var(--bd)']].forEach(([k,v])=>bg.setAttribute(k,v));
+    const lt=svgTxt(mx,my+1,rel.label||rel.card,'9','#8899bb','middle');
+    // cardinality
+    const p1=offPt(fc,tc,28),p2=offPt(tc,fc,28);
+    const c1=svgTxt(p1.x,p1.y+2,rel.card.split(':')[0],'9',lineColor,'middle');
+    const c2=svgTxt(p2.x,p2.y+2,rel.card.split(':')[1]||'N','9',lineColor,'middle');
+    c1.setAttribute('font-family','var(--mono)');c2.setAttribute('font-family','var(--mono)');
+    [bg,lt,c1,c2].forEach(x=>g.appendChild(x));
+    g.style.cursor='pointer';
+    g.addEventListener('dblclick',()=>{push();rels=rels.filter(r=>r.id!==rel.id);renderCanvas();});
+    rl.appendChild(g);
+  });
 
-    // Fix corners for header
-    const headerFix = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    headerFix.setAttribute('y', 16); headerFix.setAttribute('width', ENTITY_W);
-    headerFix.setAttribute('height', 20); headerFix.setAttribute('fill', 'rgba(79,255,176,0.08)');
-    g.appendChild(headerFix);
+  // Entities
+  nodes.forEach(node=>{
+    const h=eH(node),g=svgG();
+    g.setAttribute('transform',`translate(${node.x},${node.y})`);
+    g.style.cursor='move';
+    const sc=node.color||strokeColor;
+    const shadow=shadowMode==='glow'?`drop-shadow(0 0 8px ${sc}66)`:shadowMode==='soft'?'drop-shadow(0 3px 10px rgba(0,0,0,.5))':'none';
+    g.setAttribute('filter',shadow);
 
-    // Divider
-    const div = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    div.setAttribute('x1', 0); div.setAttribute('y1', ENTITY_HEADER);
-    div.setAttribute('x2', ENTITY_W); div.setAttribute('y2', ENTITY_HEADER);
-    div.setAttribute('stroke', node.weak ? '#ff9f43' : '#2a2f3e');
-    div.setAttribute('stroke-width', '1');
-    g.appendChild(div);
+    // outer rect
+    const rect=svgE('rect');
+    const sel=selectedNode===node.id;
+    [['width',EW],['height',h],['rx',7],['fill','var(--th-entity-fill)'],['stroke',sel?'#a259ff':sc],['stroke-width',sel?'2.5':'1.5']].forEach(([k,v])=>rect.setAttribute(k,v));
+    g.appendChild(rect);
 
-    // Entity name
-    const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    title.setAttribute('x', ENTITY_W / 2); title.setAttribute('y', 22);
-    title.setAttribute('text-anchor', 'middle');
-    title.setAttribute('dominant-baseline', 'middle');
-    title.setAttribute('font-family', 'Space Mono, monospace');
-    title.setAttribute('font-size', '12');
-    title.setAttribute('font-weight', '700');
-    title.setAttribute('fill', node.weak ? '#ff9f43' : '#4fffb0');
-    title.textContent = node.entityName;
-    g.appendChild(title);
+    // weak double border
+    if(node.weak){
+      const ir=svgE('rect');
+      [['x',3],['y',3],['width',EW-6],['height',h-6],['rx',5],['fill','none'],['stroke',sc],['stroke-width','1'],['opacity','.6']].forEach(([k,v])=>ir.setAttribute(k,v));
+      g.appendChild(ir);
+    }
 
-    // Attributes
-    node.attrs.forEach((attr, i) => {
-      const ay = ENTITY_HEADER + 6 + i * ATTR_H + ATTR_H / 2;
+    // header bg
+    const hb=svgE('rect');
+    [['width',EW],['height',EH],['rx',7],['fill',`${sc}18`]].forEach(([k,v])=>hb.setAttribute(k,v));
+    const hf=svgE('rect');
+    [['y',14],['width',EW],['height',EH-14],['fill',`${sc}18`]].forEach(([k,v])=>hf.setAttribute(k,v));
+    const hdiv=svgE('line');
+    [['x1',0],['y1',EH],['x2',EW],['y2',EH],['stroke',`${sc}33`]].forEach(([k,v])=>hdiv.setAttribute(k,v));
+    const title=svgTxt(EW/2,21,node.name,FSZ+'',sc,'middle');
+    title.setAttribute('font-family','var(--mono)');title.setAttribute('font-weight','700');
+    [hb,hf,hdiv,title].forEach(x=>g.appendChild(x));
 
-      const attrTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      attrTxt.setAttribute('x', 14); attrTxt.setAttribute('y', ay);
-      attrTxt.setAttribute('dominant-baseline', 'middle');
-      attrTxt.setAttribute('font-family', 'DM Sans, sans-serif');
-      attrTxt.setAttribute('font-size', '11');
-
-      let fill = '#7a8099';
-      if (attr.pk) fill = '#4fffb0';
-      if (attr.fk) fill = '#7c6bff';
-
-      attrTxt.setAttribute('fill', fill);
-
-      let label = attr.name;
-      if (attr.pk) label = '🔑 ' + attr.name;
-      if (attr.multi) label = '⊕ ' + attr.name;
-      if (attr.fk) label = '→ ' + attr.name;
-      attrTxt.textContent = label;
-
-      if (attr.pk) {
-        attrTxt.setAttribute('text-decoration', 'underline');
-      }
-
-      g.appendChild(attrTxt);
-
-      // Separator line
-      if (i < node.attrs.length - 1) {
-        const sep = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        sep.setAttribute('x1', 10); sep.setAttribute('y1', ENTITY_HEADER + (i + 1) * ATTR_H + 6);
-        sep.setAttribute('x2', ENTITY_W - 10); sep.setAttribute('y2', ENTITY_HEADER + (i + 1) * ATTR_H + 6);
-        sep.setAttribute('stroke', '#1e2535'); sep.setAttribute('stroke-width', '1');
+    // attributes
+    node.attrs.forEach((a,i)=>{
+      const nm=a.n||a.name||'attr';
+      const ay=EH+8+i*AH+AH/2;
+      let fill='var(--mu)';
+      if(a.pk)fill='var(--g)';if(a.fk)fill='var(--b)';
+      let lbl=nm;
+      if(a.pk)lbl='🔑 '+nm;else if(a.fk)lbl='→ '+nm;else if(a.mv)lbl='⊕ '+nm;
+      const at=svgTxt(10,ay,lbl,(FSZ-1)+'',fill,'start');
+      if(a.pk)at.setAttribute('text-decoration','underline');
+      g.appendChild(at);
+      if(i<node.attrs.length-1){
+        const sep=svgE('line');
+        [['x1',6],['y1',EH+(i+1)*AH+8],['x2',EW-6],['y2',EH+(i+1)*AH+8],['stroke','var(--mu3)'],['opacity','.5']].forEach(([k,v])=>sep.setAttribute(k,v));
         g.appendChild(sep);
       }
     });
 
-    // Delete button (show on hover via JS)
-    const delBtn = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    delBtn.setAttribute('x', ENTITY_W - 10); delBtn.setAttribute('y', 14);
-    delBtn.setAttribute('text-anchor', 'middle');
-    delBtn.setAttribute('font-size', '12');
-    delBtn.setAttribute('fill', '#3a3f52');
-    delBtn.setAttribute('cursor', 'pointer');
-    delBtn.textContent = '✕';
-    delBtn.addEventListener('mouseenter', () => { delBtn.setAttribute('fill', '#ff6b6b'); });
-    delBtn.addEventListener('mouseleave', () => { delBtn.setAttribute('fill', '#3a3f52'); });
-    delBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      nodes = nodes.filter(n => n.id !== node.id);
-      relations = relations.filter(r => r.from !== node.id && r.to !== node.id);
+    // delete btn
+    const del=svgTxt(EW-10,13,'✕','11','var(--mu3)','middle');
+    del.style.cursor='pointer';
+    del.addEventListener('mouseenter',()=>del.setAttribute('fill','var(--r)'));
+    del.addEventListener('mouseleave',()=>del.setAttribute('fill','var(--mu3)'));
+    del.addEventListener('click',ev=>{ev.stopPropagation();push();nodes=nodes.filter(n=>n.id!==node.id);rels=rels.filter(r=>r.from!==node.id&&r.to!==node.id);renderCanvas();});
+    g.appendChild(del);
+
+    // interactions
+    g.addEventListener('mousedown',ev=>{
+      if(ev.target===del)return;
+      ev.preventDefault();
+      push();selectedNode=node.id;
+      if(tool==='relate'){showRelModal(node.id);return;}
+      const R=document.getElementById('cw').getBoundingClientRect();
+      dragState={id:node.id,ox:ev.clientX-R.left-node.x,oy:ev.clientY-R.top-node.y};
       renderCanvas();
     });
-    g.appendChild(delBtn);
-
-    // Drag
-    g.addEventListener('mousedown', e => {
-      if (currentTool === 'select' || currentTool === 'relate') {
-        e.preventDefault();
-        if (currentTool === 'relate') {
-          selectedNode = node.id;
-          showRelModal(node.id);
-          return;
-        }
-        selectedNode = node.id;
-        dragState = {
-          nodeId: node.id,
-          startX: e.clientX - node.x,
-          startY: e.clientY - node.y
-        };
-        renderCanvas();
-      }
-    });
-
-    entLayer.appendChild(g);
+    g.addEventListener('dblclick',()=>openEntityEdit(node.id));
+    g.addEventListener('contextmenu',ev=>{ev.preventDefault();ctxNodeId=node.id;showCtx(ev.clientX,ev.clientY);});
+    eLayer.appendChild(g);
   });
+
+  // Notes
+  notes.forEach(note=>{
+    const g=svgG();
+    g.setAttribute('transform',`translate(${note.x},${note.y})`);
+    const bg=svgE('rect');
+    [['width',140],['height',40],['rx',5],['fill','rgba(255,209,102,.1)'],['stroke','var(--y)'],['stroke-width','1']].forEach(([k,v])=>bg.setAttribute(k,v));
+    const txt=svgTxt(8,22,note.text,'10','var(--y)','start');
+    g.appendChild(bg);g.appendChild(txt);
+    g.style.cursor='move';
+    g.addEventListener('mousedown',ev=>{
+      ev.preventDefault();
+      const R=document.getElementById('cw').getBoundingClientRect();
+      dragState={noteId:note.id,ox:ev.clientX-R.left-note.x,oy:ev.clientY-R.top-note.y};
+    });
+    nl.appendChild(g);
+  });
+
+  // update arrow marker colour
+  const arPath=document.querySelector('#arG path');
+  if(arPath)arPath.setAttribute('fill',lineColor);
 }
 
-// ─────────────────────────────────────────────
-// DRAG LOGIC
-// ─────────────────────────────────────────────
-document.addEventListener('mousemove', e => {
-  if (!dragState) return;
-  const node = nodes.find(n => n.id === dragState.nodeId);
-  if (node) {
-    const rect = canvasArea.getBoundingClientRect();
-    node.x = Math.max(0, e.clientX - rect.left - dragState.startX + node.x - node.x + (e.clientX - rect.left) - dragState.startX);
-    node.y = Math.max(0, e.clientY - rect.top - dragState.startY);
-    node.x = e.clientX - rect.left - dragState.startX;
-    renderCanvas();
+// ─────────────────── DRAG ───────────────────
+document.addEventListener('mousemove',e=>{
+  if(!dragState)return;
+  const R=document.getElementById('cw').getBoundingClientRect();
+  if(dragState.noteId){
+    const note=notes.find(n=>n.id===dragState.noteId);
+    if(note){note.x=snapV(e.clientX-R.left-dragState.ox);note.y=snapV(e.clientY-R.top-dragState.oy);renderCanvas();}
+  } else {
+    const node=nodes.find(n=>n.id===dragState.id);
+    if(node){node.x=snapV(e.clientX-R.left-dragState.ox);node.y=snapV(e.clientY-R.top-dragState.oy);renderCanvas();}
   }
 });
-document.addEventListener('mouseup', () => { dragState = null; });
+document.addEventListener('mouseup',()=>dragState=null);
 
-// ─────────────────────────────────────────────
-// RELATION MODAL
-// ─────────────────────────────────────────────
-let relatingFrom = null;
+// ─────────────────── SNAP ───────────────────
+function snapV(v){return snap?Math.round(v/24)*24:v;}
+function toggleSnap(){snap=!snap;document.getElementById('tSnap').classList.toggle('on',snap);toast(snap?'Snap on':'Snap off');}
 
-function showRelModal(fromId) {
-  relatingFrom = fromId;
-  const fromSel = document.getElementById('relFrom');
-  const toSel = document.getElementById('relTo');
-  fromSel.innerHTML = '';
-  toSel.innerHTML = '';
-  nodes.forEach(n => {
-    const opt1 = document.createElement('option');
-    opt1.value = n.id; opt1.textContent = n.entityName;
-    if (n.id === fromId) opt1.selected = true;
-    fromSel.appendChild(opt1);
+// ─────────────────── ZOOM ───────────────────
+function zoomIn(){zoom=Math.min(2,+(zoom+.1).toFixed(1));applyZoom();}
+function zoomOut(){zoom=Math.max(.3,+(zoom-.1).toFixed(1));applyZoom();}
+function applyZoom(){
+  document.getElementById('el').style.transform=`scale(${zoom})`;
+  document.getElementById('rl').style.transform=`scale(${zoom})`;
+  document.getElementById('nl').style.transform=`scale(${zoom})`;
+  document.getElementById('el').style.transformOrigin='0 0';
+  document.getElementById('rl').style.transformOrigin='0 0';
+  document.getElementById('nl').style.transformOrigin='0 0';
+  document.getElementById('zoomVal').textContent=Math.round(zoom*100)+'%';
+}
+function fitView(){zoom=1;applyZoom();}
 
-    const opt2 = document.createElement('option');
-    opt2.value = n.id; opt2.textContent = n.entityName;
-    if (n.id !== fromId) opt2.selected = true;
-    toSel.appendChild(opt2);
+// ─────────────────── TOOLS ───────────────────
+function setTool(t){
+  tool=t;
+  ['select','relate','entity','text'].forEach(id=>{
+    const btn=document.getElementById('t'+id.charAt(0).toUpperCase()+id.slice(1));
+    if(btn)btn.classList.toggle('on',id===t);
   });
-  document.getElementById('relName').value = '';
-  document.getElementById('relationModal').classList.remove('hidden');
-}
-
-function closeRelModal() {
-  document.getElementById('relationModal').classList.add('hidden');
-  selectedNode = null;
-  renderCanvas();
-}
-
-function addRelation() {
-  const from = document.getElementById('relFrom').value;
-  const to = document.getElementById('relTo').value;
-  const label = document.getElementById('relName').value.trim() || 'relates';
-  const card = document.getElementById('relCard').value;
-  if (from === to) { alert('Select two different entities!'); return; }
-  relations.push({ id: 'rel_' + (relIdCounter++), from, to, label, card });
-  closeRelModal();
-  renderCanvas();
-}
-
-// ─────────────────────────────────────────────
-// TOOLS
-// ─────────────────────────────────────────────
-function setTool(tool) {
-  currentTool = tool;
-  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tool' + tool.charAt(0).toUpperCase() + tool.slice(1)).classList.add('active');
-
-  if (tool === 'entity') {
-    // Click on canvas to add custom entity
-    canvasArea.style.cursor = 'crosshair';
-    canvasArea.onclick = e => {
-      if (e.target === canvasArea || e.target === document.getElementById('canvas-svg')) {
-        const name = prompt('Entity name:');
-        if (name && name.trim()) {
-          const rect = canvasArea.getBoundingClientRect();
-          addEntityNode({
-            name: name.trim().toUpperCase(),
-            weak: false,
-            attrs: [{ name: 'ID', pk: true }, { name: 'Name' }]
-          }, e.clientX - rect.left - 90, e.clientY - rect.top - 40);
-        }
-        setTool('select');
+  const cw=document.getElementById('cw');
+  cw.style.cursor=t==='entity'||t==='text'?'crosshair':'default';
+  cw.onclick=(t==='entity'||t==='text')?ev=>{
+    if(['svg','DIV'].includes(ev.target.tagName)||ev.target===cw){
+      const R=cw.getBoundingClientRect();
+      const x=snapV(ev.clientX-R.left-EW/2),y=snapV(ev.clientY-R.top-30);
+      if(t==='entity'){
+        const nm=prompt('Entity name:');
+        if(nm&&nm.trim()){push();addNode({name:nm.trim().toUpperCase(),weak:false,attrs:[{n:'ID',pk:true},{n:'Name'}]},x,y);document.getElementById('empty').style.display='none';}
+      } else {
+        const txt=prompt('Note text:');
+        if(txt&&txt.trim()){notes.push({id:'nt'+(noteId++),text:txt.trim(),x,y});renderCanvas();}
       }
-    };
-  } else {
-    canvasArea.style.cursor = 'default';
-    canvasArea.onclick = null;
-  }
+      setTool('select');
+    }
+  }:null;
 }
 
-// ─────────────────────────────────────────────
-// UTILITIES
-// ─────────────────────────────────────────────
-function offsetPoint(from, to, dist) {
-  const dx = to.cx - from.cx;
-  const dy = to.cy - from.cy;
-  const len = Math.sqrt(dx * dx + dy * dy) || 1;
-  return {
-    x: from.cx + (dx / len) * dist,
-    y: from.cy + (dy / len) * dist
-  };
+// ─────────────────── GRID ───────────────────
+function setGrid(type,btn){
+  const cw=document.getElementById('cw');
+  cw.className='cw grid-'+type;
+  $$('#gDot,#gLine,#gNone').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
 }
 
-function clearCanvas() {
-  nodes = [];
-  relations = [];
-  selectedNode = null;
-  document.getElementById('relations-layer').innerHTML = '';
-  document.getElementById('entities-layer').innerHTML = '';
-  if (!currentDataset) {
-    document.getElementById('canvasHint').style.display = '';
-  }
-}
-
-function autoLayout() {
-  if (!nodes.length) return;
-  const cols = Math.ceil(Math.sqrt(nodes.length));
-  const padX = 60, padY = 60;
-  const spacingX = ENTITY_W + 80;
-  const spacingY = 180;
-  nodes.forEach((node, i) => {
-    const col = i % cols;
-    const row = Math.floor(i / cols);
-    node.x = padX + col * spacingX;
-    node.y = padY + row * spacingY;
+// ─────────────────── THEME ───────────────────
+function buildThemeGrid(){
+  const g=document.getElementById('themeGrid');
+  Object.entries(THEMES).forEach(([k,t])=>{
+    const c=el('div','thc'+(k==='dark'?' on':''));
+    c.innerHTML=`<div class="tc" style="background:${t.ef};border:2px solid ${t.es}"></div><p>${t.label}</p>`;
+    c.onclick=()=>{$$('.thc').forEach(x=>x.classList.remove('on'));c.classList.add('on');applyTheme(t);};
+    g.appendChild(c);
   });
+}
+function applyTheme(t){
+  const r=document.documentElement.style;
+  r.setProperty('--th-entity-fill',t.ef);r.setProperty('--th-entity-stroke',t.es);
+  r.setProperty('--th-title',t.et);r.setProperty('--th-attr',t.ea);
+  r.setProperty('--th-rel',t.rel);r.setProperty('--th-weak',t.wk);
+  r.setProperty('--th-canvas-bg',t.bg);r.setProperty('--th-dot',t.dot);
+  // update cw bg
+  document.getElementById('cw').style.background=t.bg;
+  lineColor=t.rel;strokeColor=t.es;
+  renderCanvas();toast('Theme applied');
+}
+
+// ─────────────────── TEMPLATES ───────────────────
+function buildTemplateGrid(){
+  const g=document.getElementById('tmplGrid');
+  TEMPLATES.forEach(tmpl=>{
+    const c=el('div','tmc');
+    c.innerHTML=`<div class="ti">${tmpl.icon}</div><div class="td"><h4>${tmpl.name}</h4><p>${tmpl.desc}</p></div>`;
+    c.onclick=()=>loadTemplate(tmpl);
+    g.appendChild(c);
+  });
+}
+function loadTemplate(tmpl){
+  push();clearCanvas(false);
+  document.getElementById('scSec').style.display='none';
+  document.getElementById('empty').style.display='none';
+  const nm={};
+  const cols=Math.ceil(Math.sqrt(tmpl.entities.length));
+  tmpl.entities.forEach((e,i)=>{
+    const id=addNode(e,60+(i%cols)*(EW+90),60+Math.floor(i/cols)*190,false);
+    nm[e.name]=id;
+  });
+  (tmpl.relations||[]).forEach(([a,b,lbl,card])=>{
+    const fi=nm[a],ti=nm[b];
+    if(fi&&ti)rels.push({id:'r'+(rId++),from:fi,to:ti,label:lbl,card});
+  });
+  renderCanvas();toast('Template: '+tmpl.name);
+}
+
+// ─────────────────── DESIGN CONTROLS ───────────────────
+function setEntityColor(stroke,glow,btn){
+  strokeColor=stroke;
+  $$('.swatch').forEach(s=>s.classList.remove('on'));
+  btn.classList.add('on');
+  if(selectedNode){const node=nodes.find(n=>n.id===selectedNode);if(node){node.color=stroke;renderCanvas();}}
+  toast('Color set');
+}
+function setLineStyle(s,btn){
+  lineStyle=s;
+  $$('#lSolid,#lDash,#lDot').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderCanvas();
+}
+function setRelStyle(s,btn){
+  relStyle=s;
+  $$('#relStyleBtns .tb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderCanvas();
+}
+function setFontSize(v){FSZ=+v;document.getElementById('fontSzLbl').textContent=v+'px';renderCanvas();}
+function setEntWidth(v){EW=+v;document.getElementById('entWLbl').textContent=v+'px';renderCanvas();}
+function setShadow(m,btn){
+  shadowMode=m;
+  $$('.rc .tg .tb,.rc .tb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderCanvas();
+}
+
+// ─────────────────── RELATION MODAL ───────────────────
+function showRelModal(fromId){
+  const fs=document.getElementById('rFrom'),ts=document.getElementById('rTo');
+  fs.innerHTML='';ts.innerHTML='';
+  nodes.forEach(n=>{
+    const o1=document.createElement('option');o1.value=n.id;o1.textContent=n.name;if(n.id===fromId)o1.selected=true;fs.appendChild(o1);
+    const o2=document.createElement('option');o2.value=n.id;o2.textContent=n.name;if(n.id!==fromId)o2.selected=true;ts.appendChild(o2);
+  });
+  document.getElementById('rName').value='';
+  showModal('relModal');
+}
+function addRel(){
+  const f=document.getElementById('rFrom').value,t=document.getElementById('rTo').value;
+  const lbl=document.getElementById('rName').value.trim()||'relates';
+  const card=document.getElementById('rCard').value;
+  if(f===t){toast('Choose two different entities');return;}
+  push();rels.push({id:'r'+(rId++),from:f,to:t,label:lbl,card});
+  hideModal('relModal');selectedNode=null;renderCanvas();
+}
+
+// ─────────────────── ENTITY EDIT ───────────────────
+function openEntityEdit(id){
+  editingNodeId=id;
+  const node=nodes.find(n=>n.id===id);if(!node)return;
+  document.getElementById('eeName').value=node.name;
+  document.getElementById('eeWeak').value=String(node.weak);
+  const rows=document.getElementById('attrRows');rows.innerHTML='';
+  node.attrs.forEach(a=>addAttrRow(a));
+  showModal('eeModal');
+}
+function addAttrRow(a={}){
+  const rows=document.getElementById('attrRows');
+  const div=document.createElement('div');div.className='attr-row';
+  div.innerHTML=`<input placeholder="Attribute name" value="${a.n||a.name||''}"/>
+    <label class="chk"><input type="checkbox" ${a.pk?'checked':''}/>PK</label>
+    <label class="chk"><input type="checkbox" ${a.fk?'checked':''}/>FK</label>
+    <label class="chk"><input type="checkbox" ${a.mv?'checked':''}/>Multi</label>
+    <button class="del-a" onclick="this.parentElement.remove()">✕</button>`;
+  rows.appendChild(div);
+}
+function saveEntityEdit(){
+  const node=nodes.find(n=>n.id===editingNodeId);if(!node)return;
+  push();
+  node.name=document.getElementById('eeName').value.trim().toUpperCase()||node.name;
+  node.weak=document.getElementById('eeWeak').value==='true';
+  const rows=$$('#attrRows .attr-row');
+  node.attrs=Array.from(rows).map(row=>{
+    const [inp,,ck1,ck2,ck3]=row.children;
+    const chks=row.querySelectorAll('input[type=checkbox]');
+    return{n:inp.value.trim()||'Attr',pk:chks[0].checked,fk:chks[1].checked,mv:chks[2].checked};
+  }).filter(a=>a.n);
+  hideModal('eeModal');renderCanvas();toast('Entity updated');
+}
+
+// ─────────────────── CONTEXT MENU ───────────────────
+function showCtx(x,y){const c=document.getElementById('ctx');c.classList.add('on');c.style.left=x+'px';c.style.top=y+'px';}
+function hideCtx(){document.getElementById('ctx').classList.remove('on');}
+function ctxEdit(){hideCtx();if(ctxNodeId)openEntityEdit(ctxNodeId);}
+function ctxDuplicate(){
+  hideCtx();
+  const node=nodes.find(n=>n.id===ctxNodeId);if(!node)return;
+  push();addNode({name:node.name+'_2',weak:node.weak,attrs:[...node.attrs.map(a=>({...a}))]},node.x+60,node.y+60);
+  toast('Duplicated');
+}
+function ctxAddRel(){hideCtx();setTool('relate');if(ctxNodeId)showRelModal(ctxNodeId);}
+function ctxDelete(){
+  hideCtx();push();
+  nodes=nodes.filter(n=>n.id!==ctxNodeId);
+  rels=rels.filter(r=>r.from!==ctxNodeId&&r.to!==ctxNodeId);
   renderCanvas();
 }
 
-function exportSVG() {
-  const svg = document.getElementById('canvas-svg');
-  const serializer = new XMLSerializer();
-  const source = '<?xml version="1.0" standalone="no"?>\r\n' +
-    serializer.serializeToString(svg).replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
-  const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'er-diagram.svg';
-  link.click();
+// ─────────────────── IMPORT ───────────────────
+function openImport(){switchITab('file',document.querySelector('.itab.on'));}
+
+function setupDZ(){
+  const dz=document.getElementById('dz');
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('ov');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('ov'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('ov');handleFile(e.dataTransfer.files);});
+}
+function handleFile(files){
+  if(!files||!files.length)return;
+  const f=files[0];
+  const reader=new FileReader();
+  reader.onload=ev=>analyseAI(ev.target.result.toString().substring(0,2500),f.name.split('.').pop(),f.name);
+  reader.readAsText(f);
+}
+function handleURL(){
+  const u=document.getElementById('urlI').value.trim();
+  if(!u){toast('Enter a URL');return;}
+  analyseAI('URL: '+u+'\nGenerate a realistic ER diagram for the domain implied by this URL.','url',u);
+}
+function handleKaggle(){
+  const q=document.getElementById('kI').value.trim().toLowerCase();if(!q){toast('Enter a topic');return;}
+  const samples={titanic:'Titanic passenger dataset',iris:'Iris flower measurements',movies:'Movie database with directors and cast',netflix:'Netflix shows and TV series',sales:'Sales transactions dataset'};
+  const kRes=document.getElementById('kRes');kRes.innerHTML='';
+  Object.entries(samples).filter(([k])=>k.includes(q)||q.includes(k)).forEach(([k,desc])=>{
+    const b=document.createElement('button');
+    b.style.cssText='width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:5px;color:var(--tx);padding:6px 9px;font-size:10px;margin-top:4px;cursor:pointer;text-align:left;font-family:var(--fnt)';
+    b.textContent='🔷 '+k+' — '+desc;
+    b.onclick=()=>analyseAI('Generate ER diagram for Kaggle '+k+' dataset: '+desc,'kaggle',k);
+    kRes.appendChild(b);
+  });
+  if(!kRes.children.length){
+    const b=document.createElement('button');
+    b.style.cssText='width:100%;background:var(--s2);border:1px solid var(--b);border-radius:5px;color:var(--b);padding:6px 9px;font-size:10px;margin-top:4px;cursor:pointer;font-family:var(--fnt)';
+    b.textContent='🤖 AI generate ER for "'+q+'"';
+    b.onclick=()=>analyseAI('Generate a realistic ER diagram for a dataset about: '+q+'. Create 5-6 entities with real attributes.','kaggle',q);
+    kRes.appendChild(b);
+  }
+}
+function handlePaste(){
+  const t=document.getElementById('pasteI').value.trim();
+  if(!t){toast('Paste some data first');return;}
+  analyseAI(t,'paste','pasted input');
+}
+
+// ─────────────────── AI CORE ───────────────────
+async function analyseAI(content,type,src){
+  showModal('aiModal');
+  document.getElementById('alg').innerHTML='';
+  document.getElementById('prf').style.width='0%';
+  document.getElementById('aiMsg').textContent='Analysing "'+src+'"…';
+  const steps=[{m:'Parsing data…',p:15},{m:'Identifying entities…',p:35},{m:'Extracting attributes…',p:55},{m:'Detecting primary keys…',p:70},{m:'Inferring relationships…',p:85},{m:'Building ER schema…',p:95}];
+  for(const s of steps){await sleep(280+Math.random()*250);logAI(s.m);document.getElementById('prf').style.width=s.p+'%';}
+  const prompt=`You are a database expert. Analyse this data and return ONLY valid JSON — no markdown, no explanation.
+Data type: ${type}
+Source: ${src}
+Content: ${content.substring(0,2000)}
+
+Return this JSON structure:
+{"scenario":"one sentence","entities":[{"name":"ENTITY","weak":false,"attrs":[{"n":"AttrName","pk":true},{"n":"OtherAttr"}]}],"relations":[{"from":"E1","to":"E2","label":"verb","card":"1:N"}]}
+
+Rules: 4-7 entities, 3-5 attrs each, one pk per entity, weak for dependent entities, card: 1:1 or 1:N or M:N, UPPERCASE entity names, PascalCase attr names.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const raw=data.content?.[0]?.text||'';
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const schema=JSON.parse(clean);
+    document.getElementById('prf').style.width='100%';
+    logAI('✓ Schema ready!',true);
+    await sleep(500);
+    hideModal('aiModal');
+    push();clearCanvas(false);
+    document.getElementById('scSec').style.display='';
+    document.getElementById('scTxt').textContent=schema.scenario||'Imported schema';
+    document.getElementById('empty').style.display='none';
+    renderSidebar(schema.entities||[]);
+    const nm={};
+    const cols=Math.ceil(Math.sqrt((schema.entities||[]).length));
+    (schema.entities||[]).forEach((e,i)=>{
+      const id=addNode(e,60+(i%cols)*(EW+90),60+Math.floor(i/cols)*190,false);nm[e.name]=id;
+    });
+    (schema.relations||[]).forEach(r=>{const fi=nm[r.from],ti=nm[r.to];if(fi&&ti)rels.push({id:'r'+(rId++),from:fi,to:ti,label:r.label||'relates',card:r.card||'1:N'});});
+    renderCanvas();
+    toast('AI generated '+(schema.entities?.length||0)+' entities!');
+  }catch(e){hideModal('aiModal');toast('AI error: '+e.message);console.error(e);}
+}
+function logAI(m,done=false){const l=document.getElementById('alg');const d=document.createElement('div');d.className='ln'+(done?' done':'');d.textContent='> '+m;l.appendChild(d);l.scrollTop=l.scrollHeight;}
+
+// ─────────────────── EXPORT ───────────────────
+function exportSVG(){
+  if(!nodes.length){toast('Nothing to export');return;}
+  const s=new XMLSerializer();
+  const src='<?xml version="1.0"?>\n'+s.serializeToString(document.getElementById('svg'));
+  dlLink('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(src),'er-diagram.svg');
+  toast('SVG exported');
+}
+function exportPNG(){
+  if(!nodes.length){toast('Nothing to export');return;}
+  const svg=document.getElementById('svg');
+  const s=new XMLSerializer();
+  const img=new Image();
+  const can=document.createElement('canvas');
+  can.width=svg.clientWidth;can.height=svg.clientHeight;
+  img.onload=()=>{const ctx=can.getContext('2d');ctx.fillStyle='#090c14';ctx.fillRect(0,0,can.width,can.height);ctx.drawImage(img,0,0);dlLink(can.toDataURL('image/png'),'er-diagram.png');toast('PNG exported');};
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s.serializeToString(svg));
+}
+function exportSQL(){
+  if(!nodes.length){toast('Add entities first');return;}
+  let sql='-- ERDraw v3 — SQL DDL\n\n';
+  nodes.forEach(n=>{
+    sql+=`CREATE TABLE ${n.name} (\n`;
+    const cols=n.attrs.map(a=>{
+      const nm=a.n||a.name;
+      let t='VARCHAR(255)';
+      if(a.pk||nm.toLowerCase().includes('id'))t='INT';
+      if(nm.toLowerCase().includes('date')||nm.toLowerCase().includes('at'))t='DATETIME';
+      if(nm.toLowerCase().includes('amount')||nm.toLowerCase().includes('price')||nm.toLowerCase().includes('cost'))t='DECIMAL(10,2)';
+      if(nm.toLowerCase().includes('age')||nm.toLowerCase().includes('year')||nm.toLowerCase().includes('qty')||nm.toLowerCase().includes('count'))t='INT';
+      if(nm.toLowerCase()==='status'||nm.toLowerCase()==='type')t="ENUM('active','inactive')";
+      return`  ${nm} ${t}${a.pk?' PRIMARY KEY NOT NULL':''}`;
+    });
+    sql+=cols.join(',\n')+'\n);\n\n';
+  });
+  rels.forEach(r=>{
+    const fn=nodes.find(n=>n.id===r.from),tn=nodes.find(n=>n.id===r.to);
+    const fpk=fn?.attrs.find(a=>a.pk);
+    if(fn&&tn&&fpk)sql+=`-- FK: ${tn.name}.${fn.name.toLowerCase()}_${(fpk.n||fpk.name).toLowerCase()} → ${fn.name}.${fpk.n||fpk.name}  [${r.card}]\n`;
+  });
+  showET('// SQL DDL',sql);
+}
+function exportJSON(){
+  if(!nodes.length){toast('Add entities first');return;}
+  const schema={tool:'ERDraw v3',exported:new Date().toISOString(),entities:nodes.map(n=>({name:n.name,weak:n.weak,attributes:n.attrs.map(a=>({name:a.n||a.name,primaryKey:!!a.pk,foreignKey:!!a.fk,multivalued:!!a.mv}))})),relationships:rels.map(r=>({from:nodes.find(n=>n.id===r.from)?.name,to:nodes.find(n=>n.id===r.to)?.name,label:r.label,cardinality:r.card}))};
+  showET('// JSON Schema',JSON.stringify(schema,null,2));
+}
+function exportMermaid(){
+  if(!nodes.length){toast('Add entities first');return;}
+  let mm='erDiagram\n';
+  nodes.forEach(n=>{mm+=`  ${n.name} {\n`;n.attrs.forEach(a=>{const nm=a.n||a.name;let t='string';if(a.pk||nm.toLowerCase().includes('id'))t='int';if(nm.toLowerCase().includes('date'))t='date';if(nm.toLowerCase().includes('amount')||nm.toLowerCase().includes('price'))t='decimal';mm+=`    ${t} ${nm}${a.pk?' PK':a.fk?' FK':''}\n`;});mm+='  }\n';});
+  rels.forEach(r=>{const fn=nodes.find(n=>n.id===r.from),tn=nodes.find(n=>n.id===r.to);if(!fn||!tn)return;const m={'1:1':'||--||','1:N':'||--o{','M:N':'}o--o{'};mm+=`  ${fn.name} ${m[r.card]||'||--o{'} ${tn.name} : "${r.label}"\n`;});
+  showET('// Mermaid Diagram',mm);
+}
+function exportMarkdown(){
+  if(!nodes.length){toast('Add entities first');return;}
+  let md='# ER Diagram\n*Generated by ERDraw v3*\n\n## Entities\n\n';
+  nodes.forEach(n=>{md+=`### ${n.name}${n.weak?' *(Weak)*':''}\n| Attribute | Key |\n|---|---|\n`;n.attrs.forEach(a=>md+=`| ${a.n||a.name} | ${a.pk?'**PK**':a.fk?'FK':a.mv?'Multi':''} |\n`);md+='\n';});
+  md+='## Relationships\n\n';
+  rels.forEach(r=>{const fn=nodes.find(n=>n.id===r.from),tn=nodes.find(n=>n.id===r.to);if(fn&&tn)md+=`- **${fn.name}** —[${r.label} : ${r.card}]→ **${tn.name}**\n`;});
+  showET('// Markdown',md);
+}
+function showET(title,text){document.getElementById('etTitle').textContent=title;document.getElementById('etArea').value=text;showModal('etModal');}
+function copyET(){navigator.clipboard.writeText(document.getElementById('etArea').value).then(()=>toast('Copied!'));}
+function dlLink(href,name){const a=document.createElement('a');a.href=href;a.download=name;a.click();}
+
+// ─────────────────── UNDO ───────────────────
+function push(){history.push({nodes:JSON.parse(JSON.stringify(nodes)),rels:JSON.parse(JSON.stringify(rels)),notes:JSON.parse(JSON.stringify(notes))});if(history.length>40)history.shift();}
+function undo(){if(!history.length){toast('Nothing to undo');return;}const s=history.pop();nodes=s.nodes;rels=s.rels;notes=s.notes;renderCanvas();toast('Undo');}
+
+// ─────────────────── UTILS ───────────────────
+function clearCanvas(render=true){nodes=[];rels=[];notes=[];selectedNode=null;if(render){document.getElementById('rl').innerHTML='';document.getElementById('el').innerHTML='';document.getElementById('nl').innerHTML='';document.getElementById('cinf').textContent='';}}
+function autoLayout(){if(!nodes.length)return;push();const cols=Math.ceil(Math.sqrt(nodes.length));nodes.forEach((n,i)=>{n.x=snapV(60+(i%cols)*(EW+90));n.y=snapV(60+Math.floor(i/cols)*190);});renderCanvas();toast('Layout applied');}
+
+function svgE(tag){return document.createElementNS('http://www.w3.org/2000/svg',tag);}
+function svgG(){return svgE('g');}
+function svgTxt(x,y,text,fs,fill,anchor){const t=svgE('text');t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('font-size',fs);t.setAttribute('fill',fill);t.setAttribute('text-anchor',anchor||'start');t.setAttribute('dominant-baseline','middle');t.setAttribute('font-family',"'Sora',sans-serif");t.textContent=text;return t;}
+function offPt(a,b,d){const dx=b.cx-a.cx,dy=b.cy-a.cy,l=Math.sqrt(dx*dx+dy*dy)||1;return{x:a.cx+(dx/l)*d,y:a.cy+(dy/l)*d};}
+
+function switchITab(t,el){
+  ['file','url','kaggle','paste'].forEach(x=>{const d=document.getElementById('ip-'+x);if(d)d.classList.toggle('on',x===t);});
+  $$('.itab').forEach(b=>b.classList.remove('on'));
+  if(el)el.classList.add('on');
+}
+function switchRTab(t){
+  ['guide','design','tmpl','export'].forEach(id=>{document.getElementById('rp'+id.charAt(0).toUpperCase()+id.slice(1))?.classList.toggle('on',id===t);document.getElementById('rt'+id.charAt(0).toUpperCase()+id.slice(1))?.classList.toggle('on',id===t);});
+}
+
+function showModal(id){document.getElementById(id).classList.remove('h');}
+function hideModal(id){document.getElementById(id).classList.add('h');}
+
+function el(tag,cls=''){const e=document.createElement(tag);e.className=cls;return e;}
+function $$(sel){return document.querySelectorAll(sel);}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600);}
+
+// Keyboard shortcuts
+function onKey(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
+  if(e.key==='v'||e.key==='V')setTool('select');
+  if(e.key==='r'||e.key==='R')setTool('relate');
+  if(e.key==='e'||e.key==='E')setTool('entity');
+  if(e.key==='t'||e.key==='T')setTool('text');
+  if(e.key==='+'||e.key==='=')zoomIn();
+  if(e.key==='-')zoomOut();
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();undo();}
+  if(e.key==='Delete'||e.key==='Backspace'){if(selectedNode){push();nodes=nodes.filter(n=>n.id!==selectedNode);rels=rels.filter(r=>r.from!==selectedNode&&r.to!==selectedNode);selectedNode=null;renderCanvas();}}
+  if((e.ctrlKey||e.metaKey)&&e.key==='a'){e.preventDefault();toast('Select All — '+nodes.length+' entities');}
 }
 </script>
 
